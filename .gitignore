@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Capacitor native projects — generated locally, not needed on Vercel
+ios/
+android/
+
 # Next.js
 .next/
 out/
