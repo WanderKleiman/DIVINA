@@ -23,11 +23,12 @@ import { calcTransits, findTransitAspects, getActivatedCategories } from "./tran
 import {
   CATEGORY_INFO,
   CATEGORY_TO_TAGS,
-  TAROT_CARDS,
-  RUNES,
   MOON_IN_SIGN,
+  MOON_IN_SIGN_EN,
   WEEKDAY_NAMES_RU,
+  WEEKDAY_NAMES_EN,
   MONTH_NAMES_RU_GEN,
+  MONTH_NAMES_EN,
   HOUSE_CATEGORY,
 } from "./interpretations";
 import type { LifeCategory } from "./types";
@@ -54,7 +55,8 @@ function buildCategories(
   transits: Transit[],
   natalPositions: PlanetPosition[],
   natalCusps: number[],
-  transitPositions: PlanetPosition[]
+  transitPositions: PlanetPosition[],
+  lang: string = "ru"
 ): CategoryForecast[] {
   const rawAspects = findTransitAspects(transitPositions, natalPositions);
   const activated = getActivatedCategories(rawAspects, natalCusps);
@@ -79,33 +81,43 @@ function buildCategories(
 
     const brief = relatedTransits.length > 0
       ? relatedTransits[0].brief.slice(0, 80) + (relatedTransits[0].brief.length > 80 ? "..." : "")
-      : getMoodText(cat, rating);
+      : getMoodText(cat, rating, lang);
 
     return {
       category: cat,
       icon: info.icon,
-      title: info.title,
+      title: info.title[lang as "ru" | "en"] ?? info.title.ru,
       rating,
       brief,
-      detailed: generateCategoryDetailed(cat, rating, transits),
+      detailed: generateCategoryDetailed(cat, rating, transits, lang),
     };
   });
 }
 
-function getMoodText(cat: LifeCategory, rating: number): string {
+function getMoodText(cat: LifeCategory, rating: number, lang: string = "ru"): string {
+  if (lang === "en") {
+    if (rating >= 4) return "A favorable period. Use the energy of the day.";
+    if (rating >= 3) return "A calm period. Act thoughtfully.";
+    return "A challenging period. Show patience and caution.";
+  }
   if (rating >= 4) return "Благоприятный период. Используйте энергию дня.";
   if (rating >= 3) return "Спокойный период. Действуйте обдуманно.";
   return "Непростой период. Проявите терпение и осторожность.";
 }
 
-function generateCategoryDetailed(cat: LifeCategory, rating: number, transits: Transit[]): string {
-  const mood = rating >= 4 ? "позитивная" : rating >= 3 ? "нейтральная" : "напряжённая";
+function generateCategoryDetailed(cat: LifeCategory, rating: number, transits: Transit[], lang: string = "ru"): string {
+  const catTitle = CATEGORY_INFO[cat].title[lang as "ru" | "en"] ?? CATEGORY_INFO[cat].title.ru;
   const transitInfo = transits.slice(0, 2).map((t) => `${t.transitPlanet} ${t.aspectSymbol} ${t.natalPlanet}`).join(", ");
-  return `Общая энергия в сфере "${CATEGORY_INFO[cat].title}" сегодня ${mood}. ${transitInfo ? `Активные транзиты: ${transitInfo}.` : ""} ${rating >= 4 ? "Хорошее время для активных действий." : rating <= 2 ? "Рекомендуется проявить осторожность." : "Следуйте привычному ритму."}`;
+  if (lang === "en") {
+    const mood = rating >= 4 ? "positive" : rating >= 3 ? "neutral" : "tense";
+    return `The overall energy in the "${catTitle}" area is ${mood} today. ${transitInfo ? `Active transits: ${transitInfo}.` : ""} ${rating >= 4 ? "Good time for active steps." : rating <= 2 ? "It is advisable to exercise caution." : "Follow your usual rhythm."}`;
+  }
+  const mood = rating >= 4 ? "позитивная" : rating >= 3 ? "нейтральная" : "напряжённая";
+  return `Общая энергия в сфере "${catTitle}" сегодня ${mood}. ${transitInfo ? `Активные транзиты: ${transitInfo}.` : ""} ${rating >= 4 ? "Хорошее время для активных действий." : rating <= 2 ? "Рекомендуется проявить осторожность." : "Следуйте привычному ритму."}`;
 }
 
 // ===== Build do/don't lists from transits =====
-function buildDoLists(transits: Transit[]): { doList: string[]; dontList: string[] } {
+function buildDoLists(transits: Transit[], lang: string = "ru"): { doList: string[]; dontList: string[] } {
   const doList: string[] = [];
   const dontList: string[] = [];
 
@@ -117,8 +129,13 @@ function buildDoLists(transits: Transit[]): { doList: string[]; dontList: string
     }
   }
 
-  if (doList.length === 0) doList.push("Следуйте привычному ритму и доверяйте интуиции");
-  if (dontList.length === 0) dontList.push("Не перенапрягайтесь и берегите энергию");
+  if (lang === "en") {
+    if (doList.length === 0) doList.push("Follow your usual rhythm and trust your intuition");
+    if (dontList.length === 0) dontList.push("Don't overexert yourself and conserve energy");
+  } else {
+    if (doList.length === 0) doList.push("Следуйте привычному ритму и доверяйте интуиции");
+    if (dontList.length === 0) dontList.push("Не перенапрягайтесь и берегите энергию");
+  }
 
   return { doList: doList.slice(0, 3), dontList: dontList.slice(0, 3) };
 }
@@ -148,21 +165,21 @@ function getTagsFromTransits(
   natalCusps: number[]
 ): DayTag[] {
   const tags = new Set<DayTag>();
-  const rawAspects = findTransitAspects(
-    // We only need transit info from transit objects
-    [], // simplified - we use the activated categories approach
-    natalPositions
-  );
 
-  // Determine tags from dominant category
+  // Determine tags from dominant category — support both RU and EN planet names
   const catCounts = new Map<LifeCategory, number>();
   for (const t of transits) {
-    // Map planets to likely categories
     const planetCats: Record<string, LifeCategory> = {
+      // Russian
       "Венера": "love", "Юпитер": "finance", "Марс": "career",
       "Сатурн": "career", "Луна": "spiritual", "Нептун": "spiritual",
       "Плутон": "spiritual", "Уран": "career", "Солнце": "career",
       "Меркурий": "career",
+      // English
+      "Venus": "love", "Jupiter": "finance", "Mars": "career",
+      "Saturn": "career", "Moon": "spiritual", "Neptune": "spiritual",
+      "Pluto": "spiritual", "Uranus": "career", "Sun": "career",
+      "Mercury": "career",
     };
     const cat = planetCats[t.natalPlanet] ?? "spiritual";
     catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1);
@@ -212,32 +229,33 @@ export function generateDailyForecast(
   const transitPositions = calcAllPlanets(sw, targetJd);
 
   // Transit aspects
-  const { transits } = calcTransits(sw, targetJd, natalPositions, houses.cusps);
+  const { transits } = calcTransits(sw, targetJd, natalPositions, houses.cusps, lang);
 
   // Moon data
   const moon = getMoonData(sw, targetJd, lang);
 
   // Categories
-  const categories = buildCategories(transits, natalPositions, houses.cusps, transitPositions);
+  const categories = buildCategories(transits, natalPositions, houses.cusps, transitPositions, lang);
 
   // Do/Don't lists
-  const { doList, dontList } = buildDoLists(transits);
+  const { doList, dontList } = buildDoLists(transits, lang);
 
-  // Tarot & Rune (deterministic by date)
   const hash = dateHash(targetDate);
-  const tarotCard = TAROT_CARDS[hash % TAROT_CARDS.length];
-  const rune = RUNES[(hash >> 4) % RUNES.length];
 
   // Energy text
-  const energy = assessEnergy(transits);
-  const moonDesc = MOON_IN_SIGN[moon.sign] ?? "";
+  const moonSignMap = lang === "en" ? MOON_IN_SIGN_EN : MOON_IN_SIGN;
+  const moonDesc = moonSignMap[moon.sign] ?? "";
   const topTransit = transits[0];
   const energyText = `${moonDesc} ${topTransit ? `${topTransit.transitPlanet} ${topTransit.aspectSymbol} ${topTransit.natalPlanet}: ${topTransit.brief.slice(0, 100)}` : ""}`.trim();
 
   // Summary
   const dayObj = new Date(targetDate);
-  const weekday = WEEKDAY_NAMES_RU[dayObj.getUTCDay()];
-  const dateFormatted = `${td} ${MONTH_NAMES_RU_GEN[tm]} ${ty}`;
+  const weekdayNames = lang === "en" ? WEEKDAY_NAMES_EN : WEEKDAY_NAMES_RU;
+  const weekday = weekdayNames[dayObj.getUTCDay()];
+  const monthNames = lang === "en" ? MONTH_NAMES_EN : MONTH_NAMES_RU_GEN;
+  const dateFormatted = lang === "en"
+    ? `${monthNames[tm]} ${td}, ${ty}`
+    : `${td} ${monthNames[tm]} ${ty}`;
 
   // Personal day
   const pDay = personalDay(birthDate, targetDate);
@@ -245,22 +263,38 @@ export function generateDailyForecast(
   // Advice
   const posTransits = transits.filter((t) => t.impact === "positive");
   const negTransits = transits.filter((t) => t.impact === "challenging");
-  const advice = posTransits.length > negTransits.length
-    ? "Используйте позитивную энергию дня для важных дел и новых начинаний."
-    : negTransits.length > posTransits.length
-      ? "Проявите терпение и осторожность. Не форсируйте события."
-      : "Сбалансированный день. Действуйте обдуманно, доверяя интуиции.";
+  const advice = lang === "en"
+    ? (posTransits.length > negTransits.length
+      ? "Use the positive energy of the day for important matters and new beginnings."
+      : negTransits.length > posTransits.length
+        ? "Show patience and caution. Don't force events."
+        : "A balanced day. Act thoughtfully, trusting your intuition.")
+    : (posTransits.length > negTransits.length
+      ? "Используйте позитивную энергию дня для важных дел и новых начинаний."
+      : negTransits.length > posTransits.length
+        ? "Проявите терпение и осторожность. Не форсируйте события."
+        : "Сбалансированный день. Действуйте обдуманно, доверяя интуиции.");
 
   // Affirmation (deterministic)
-  const affirmations = [
-    "Я строю свою жизнь осознанно — шаг за шагом, с верой в свой путь",
-    "Я принимаю перемены с благодарностью и открытым сердцем",
-    "Моя сила — в спокойствии и ясности намерений",
-    "Я доверяю процессу и знаю, что всё происходит вовремя",
-    "Каждый день я становлюсь ближе к лучшей версии себя",
-    "Я открыт(а) новым возможностям и готов(а) действовать",
-    "Вселенная поддерживает мои намерения и усилия",
-  ];
+  const affirmations = lang === "en"
+    ? [
+        "I build my life consciously — step by step, with faith in my path",
+        "I accept change with gratitude and an open heart",
+        "My strength lies in calm and clarity of intention",
+        "I trust the process and know that everything happens at the right time",
+        "Each day I move closer to the best version of myself",
+        "I am open to new opportunities and ready to act",
+        "The universe supports my intentions and efforts",
+      ]
+    : [
+        "Я строю свою жизнь осознанно — шаг за шагом, с верой в свой путь",
+        "Я принимаю перемены с благодарностью и открытым сердцем",
+        "Моя сила — в спокойствии и ясности намерений",
+        "Я доверяю процессу и знаю, что всё происходит вовремя",
+        "Каждый день я становлюсь ближе к лучшей версии себя",
+        "Я открыт(а) новым возможностям и готов(а) действовать",
+        "Вселенная поддерживает мои намерения и усилия",
+      ];
 
   return {
     date: dateFormatted,
@@ -271,13 +305,11 @@ export function generateDailyForecast(
     moonPercent: moon.percent,
     personalDay: pDay,
     energy: energyText,
-    summary: transits[0]?.brief.slice(0, 60) ?? "Спокойный день",
+    summary: transits[0]?.brief.slice(0, 60) ?? (lang === "en" ? "A calm day" : "Спокойный день"),
     doList,
     dontList,
     transits: transits.slice(0, 6),
     categories,
-    tarotCard: { name: tarotCard.name, numeral: tarotCard.numeral, meaning: tarotCard.meaning },
-    rune: { name: rune.name, symbol: rune.symbol, meaning: rune.meaning },
     advice,
     affirmation: affirmations[hash % affirmations.length],
   };
@@ -319,10 +351,10 @@ export function generateWeeklyForecast(
     const dayJd = julianDay(sw, dy, dm, dd, 12, 0);
 
     const transitPositions = calcAllPlanets(sw, dayJd);
-    const { transits } = calcTransits(sw, dayJd, natalPositions, houses.cusps);
+    const { transits } = calcTransits(sw, dayJd, natalPositions, houses.cusps, lang);
     const moon = getMoonData(sw, dayJd, lang);
     const energy = assessEnergy(transits);
-    const { doList, dontList } = buildDoLists(transits);
+    const { doList, dontList } = buildDoLists(transits, lang);
     const tags = getTagsFromTransits(transits, natalPositions, houses.cusps);
 
     // Score for best/worst day
@@ -340,7 +372,8 @@ export function generateWeeklyForecast(
       return data ? data.positive - data.negative : 0;
     };
 
-    const weekdayName = WEEKDAY_NAMES_RU[d.getUTCDay()];
+    const weekdayNames = lang === "en" ? WEEKDAY_NAMES_EN : WEEKDAY_NAMES_RU;
+    const weekdayName = weekdayNames[d.getUTCDay()];
     dayCatScores.push({
       weekday: weekdayName,
       love: catScore("love"),
@@ -357,20 +390,27 @@ export function generateWeeklyForecast(
 
     // Check for key events
     const isKeyDay = moon.phase === "full" || moon.phase === "new";
+    const moonInPrep = lang === "en" ? "in" : "в";
     const keyEvent = isKeyDay
-      ? `${moon.phaseRu} в ${moon.sign}`
+      ? `${moon.phaseRu} ${moonInPrep} ${moon.sign}`
       : undefined;
 
     // Headline
     const headline = isKeyDay
-      ? `${keyEvent} — ${energy === "high" ? "мощная энергия" : "будьте внимательны"}`
+      ? (lang === "en"
+        ? `${keyEvent} — ${energy === "high" ? "powerful energy" : "stay attentive"}`
+        : `${keyEvent} — ${energy === "high" ? "мощная энергия" : "будьте внимательны"}`)
       : transits[0]
-        ? `${transits[0].transitPlanet} ${transits[0].aspectSymbol} ${transits[0].natalPlanet} — ${energy === "high" ? "действуйте смело" : energy === "low" ? "берегите силы" : "действуйте обдуманно"}`
-        : `Луна в ${moon.sign} — ${energy === "high" ? "активный день" : "спокойный день"}`;
+        ? (lang === "en"
+          ? `${transits[0].transitPlanet} ${transits[0].aspectSymbol} ${transits[0].natalPlanet} — ${energy === "high" ? "act boldly" : energy === "low" ? "conserve energy" : "act thoughtfully"}`
+          : `${transits[0].transitPlanet} ${transits[0].aspectSymbol} ${transits[0].natalPlanet} — ${energy === "high" ? "действуйте смело" : energy === "low" ? "берегите силы" : "действуйте обдуманно"}`)
+        : (lang === "en"
+          ? `Moon in ${moon.sign} — ${energy === "high" ? "active day" : "calm day"}`
+          : `Луна в ${moon.sign} — ${energy === "high" ? "активный день" : "спокойный день"}`);
 
     days.push({
       date: dateStr,
-      weekday: WEEKDAY_NAMES_RU[d.getUTCDay()],
+      weekday: weekdayName,
       dayNumber,
       energy,
       headline,
@@ -387,24 +427,41 @@ export function generateWeeklyForecast(
   const lastDay = days[6];
   const [, sm] = firstDay.date.split("-").map(Number);
   const [, em] = lastDay.date.split("-").map(Number);
-  const weekLabel = sm === em
-    ? `${firstDay.dayNumber}–${lastDay.dayNumber} ${MONTH_NAMES_RU_GEN[sm]} ${startDate.getUTCFullYear()}`
-    : `${firstDay.dayNumber} ${MONTH_NAMES_RU_GEN[sm]} – ${lastDay.dayNumber} ${MONTH_NAMES_RU_GEN[em]} ${startDate.getUTCFullYear()}`;
+  const wkMonths = lang === "en" ? MONTH_NAMES_EN : MONTH_NAMES_RU_GEN;
+  const weekLabel = lang === "en"
+    ? (sm === em
+      ? `${wkMonths[sm]} ${firstDay.dayNumber}–${lastDay.dayNumber}, ${startDate.getUTCFullYear()}`
+      : `${wkMonths[sm]} ${firstDay.dayNumber} – ${wkMonths[em]} ${lastDay.dayNumber}, ${startDate.getUTCFullYear()}`)
+    : (sm === em
+      ? `${firstDay.dayNumber}–${lastDay.dayNumber} ${wkMonths[sm]} ${startDate.getUTCFullYear()}`
+      : `${firstDay.dayNumber} ${wkMonths[sm]} – ${lastDay.dayNumber} ${wkMonths[em]} ${startDate.getUTCFullYear()}`);
 
   // Overview
   const posCount = days.filter((d) => d.energy === "high").length;
   const negCount = days.filter((d) => d.energy === "low").length;
-  const overview = posCount > negCount
-    ? "Неделя в целом благоприятна. Используйте энергичные дни для важных дел, а спокойные — для восстановления."
-    : negCount > posCount
-      ? "Непростая неделя, требующая терпения и дисциплины. Не форсируйте события — лучшие решения придут через паузу."
-      : "Неделя контрастов: есть как активные, так и спокойные дни. Следуйте ритму и не сопротивляйтесь потоку.";
+  const overview = lang === "en"
+    ? (posCount > negCount
+      ? "The week is generally favorable. Use high-energy days for important matters, and calm days for recovery."
+      : negCount > posCount
+        ? "A challenging week requiring patience and discipline. Don't force events — the best decisions will come with pause."
+        : "A week of contrasts: there are both active and calm days. Follow the rhythm and don't resist the flow.")
+    : (posCount > negCount
+      ? "Неделя в целом благоприятна. Используйте энергичные дни для важных дел, а спокойные — для восстановления."
+      : negCount > posCount
+        ? "Непростая неделя, требующая терпения и дисциплины. Не форсируйте события — лучшие решения придут через паузу."
+        : "Неделя контрастов: есть как активные, так и спокойные дни. Следуйте ритму и не сопротивляйтесь потоку.");
 
-  const weeklyAdvice = posCount >= 4
-    ? "Воспользуйтесь благоприятным периодом — запускайте проекты и налаживайте контакты."
-    : negCount >= 4
-      ? "Главная стратегия — терпение и забота о себе. Не перенапрягайтесь."
-      : "Главная стратегия этой недели — гибкость. Чередуйте активность и отдых.";
+  const weeklyAdvice = lang === "en"
+    ? (posCount >= 4
+      ? "Take advantage of this favorable period — launch projects and build connections."
+      : negCount >= 4
+        ? "The main strategy is patience and self-care. Don't overexert yourself."
+        : "The main strategy this week is flexibility. Alternate activity and rest.")
+    : (posCount >= 4
+      ? "Воспользуйтесь благоприятным периодом — запускайте проекты и налаживайте контакты."
+      : negCount >= 4
+        ? "Главная стратегия — терпение и забота о себе. Не перенапрягайтесь."
+        : "Главная стратегия этой недели — гибкость. Чередуйте активность и отдых.");
 
   // Generate bestDayFor from category scores
   const pickBest = (key: keyof typeof dayCatScores[0]) => {
@@ -418,14 +475,23 @@ export function generateWeeklyForecast(
   // Pick best day for rest = day with lowest overall energy (most calm)
   const restDay = dayCatScores.reduce((a, b) => a.overall < b.overall ? a : b).weekday;
 
-  const bestDayFor = {
-    decisions: { day: pickBest("overall"), why: "Наиболее благоприятная общая энергия для принятия решений" },
-    love: { day: pickBest("love"), why: "Лучшая энергия для отношений и романтики" },
-    newProjects: { day: pickBest("career"), why: "Максимальная поддержка для карьерных инициатив" },
-    rest: { day: restDay, why: "Спокойная энергия — идеальное время для восстановления" },
-    finances: { day: pickBest("finance"), why: "Благоприятный день для финансовых вопросов" },
-    health: { day: pickBest("health"), why: "Хорошая энергия для заботы о здоровье" },
-  };
+  const bestDayFor = lang === "en"
+    ? {
+        decisions: { day: pickBest("overall"), why: "Most favorable overall energy for making decisions" },
+        love: { day: pickBest("love"), why: "Best energy for relationships and romance" },
+        newProjects: { day: pickBest("career"), why: "Maximum support for career initiatives" },
+        rest: { day: restDay, why: "Calm energy — perfect time for recovery" },
+        finances: { day: pickBest("finance"), why: "A favorable day for financial matters" },
+        health: { day: pickBest("health"), why: "Good energy for taking care of health" },
+      }
+    : {
+        decisions: { day: pickBest("overall"), why: "Наиболее благоприятная общая энергия для принятия решений" },
+        love: { day: pickBest("love"), why: "Лучшая энергия для отношений и романтики" },
+        newProjects: { day: pickBest("career"), why: "Максимальная поддержка для карьерных инициатив" },
+        rest: { day: restDay, why: "Спокойная энергия — идеальное время для восстановления" },
+        finances: { day: pickBest("finance"), why: "Благоприятный день для финансовых вопросов" },
+        health: { day: pickBest("health"), why: "Хорошая энергия для заботы о здоровье" },
+      };
 
   return {
     weekLabel,

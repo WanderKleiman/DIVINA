@@ -237,8 +237,12 @@ export default function PersonalityPage() {
 
   useEffect(() => {
     try {
-      const lang = getUserData().lang ?? "ru";
-      const raw = sessionStorage.getItem(`divina-personality-cache-v4_${lang}`);
+      const userData = getUserData();
+      const lang = userData.lang ?? "ru";
+      const tone = userData.tone ?? "deep";
+      // Try with tone suffix first (matches profile page cache key), then without (legacy)
+      const raw = sessionStorage.getItem(`divina-personality-cache-v4_${lang}_${tone}`)
+        ?? sessionStorage.getItem(`divina-personality-cache-v4_${lang}`);
       if (raw) {
         const parsed = JSON.parse(raw);
         const d = parsed.data ?? parsed;

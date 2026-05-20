@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 // Production URL — change to your deployed Vercel/custom domain
-const PRODUCTION_URL = process.env.CAPACITOR_SERVER_URL || "";
+const PRODUCTION_URL = process.env.CAPACITOR_SERVER_URL || "https://divina-git-main-alex-divina-s-projects.vercel.app";
 
 const config: CapacitorConfig = {
   appId: "app.divina",

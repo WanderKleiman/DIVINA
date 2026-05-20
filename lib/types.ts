@@ -97,8 +97,8 @@ export interface DailyForecast {
   dontList: string[];
   transits: Transit[];
   categories: CategoryForecast[];
-  tarotCard: TarotCard;
-  rune: Rune;
+  tarotCard?: TarotCard;
+  rune?: Rune;
   advice: string;
   affirmation: string;
 }

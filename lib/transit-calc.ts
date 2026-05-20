@@ -4,6 +4,7 @@ import {
   calcAllPlanets,
   PlanetPosition,
   PLANET_NAMES_RU,
+  PLANET_NAMES_EN,
   PLANET_SYMBOLS,
   SIGN_NAMES_RU,
   getSignIndex,
@@ -69,10 +70,12 @@ export function findTransitAspects(
  */
 export function buildTransits(
   transitAspects: TransitAspect[],
-  natalCusps?: number[]
+  natalCusps?: number[],
+  lang: string = "ru"
 ): Transit[] {
   const transits: Transit[] = [];
   const seen = new Set<string>();
+  const planetNames = lang === "en" ? PLANET_NAMES_EN : PLANET_NAMES_RU;
 
   for (const ta of transitAspects) {
     const key = `${ta.transitPlanetId}_${ta.aspectName}_${ta.natalPlanetId}`;
@@ -86,15 +89,15 @@ export function buildTransits(
     const interp = TRANSIT_ASPECTS[key];
 
     // Generate a generic interpretation if not in lookup table
-    const brief = interp?.brief ?? generateGenericBrief(ta);
+    const brief = interp?.brief ?? generateGenericBrief(ta, lang);
     const impact = interp?.impact ?? guessImpact(ta.aspectName);
 
     transits.push({
-      transitPlanet: PLANET_NAMES_RU[ta.transitPlanetId],
+      transitPlanet: planetNames[ta.transitPlanetId],
       transitSymbol: PLANET_SYMBOLS[ta.transitPlanetId],
-      aspect: aspectInfo.ru,
+      aspect: lang === "en" ? aspectInfo.en : aspectInfo.ru,
       aspectSymbol: aspectInfo.symbol,
-      natalPlanet: PLANET_NAMES_RU[ta.natalPlanetId],
+      natalPlanet: planetNames[ta.natalPlanetId],
       natalSymbol: PLANET_SYMBOLS[ta.natalPlanetId],
       brief,
       impact,
@@ -117,12 +120,35 @@ function guessImpact(aspectName: string): "positive" | "neutral" | "challenging"
   }
 }
 
-function generateGenericBrief(ta: TransitAspect): string {
-  const tp = PLANET_NAMES_RU[ta.transitPlanetId];
-  const np = PLANET_NAMES_RU[ta.natalPlanetId];
+function generateGenericBrief(ta: TransitAspect, lang: string = "ru"): string {
+  const planetNames = lang === "en" ? PLANET_NAMES_EN : PLANET_NAMES_RU;
+  const tp = planetNames[ta.transitPlanetId];
+  const np = planetNames[ta.natalPlanetId];
   const impact = guessImpact(ta.aspectName);
 
-  // Generic briefs based on impact type
+  const hash = Math.abs(ta.transitPlanetId * 13 + ta.natalPlanetId * 7) % 3;
+
+  if (lang === "en") {
+    const positiveTemplates = [
+      `The energy of ${tp} supports your natal position of ${np}. A good time for active steps.`,
+      `${tp} harmonizes with ${np} — make the most of this day.`,
+      `A favorable connection between ${tp} and ${np}. Trust your decisions.`,
+    ];
+    const challengingTemplates = [
+      `${tp} creates tension with ${np}. Show patience and caution.`,
+      `The influence of ${tp} on ${np} requires attentiveness. Don't rush events.`,
+      `The energy of ${tp} tests your natal position of ${np}. A time for discipline.`,
+    ];
+    const neutralTemplates = [
+      `${tp} activates the energy of ${np}. Pay attention to your reactions.`,
+      `The influence of ${tp} amplifies the theme of ${np}. Observe and adapt.`,
+    ];
+    if (impact === "positive") return positiveTemplates[hash % positiveTemplates.length];
+    if (impact === "challenging") return challengingTemplates[hash % challengingTemplates.length];
+    return neutralTemplates[hash % neutralTemplates.length];
+  }
+
+  // Russian (default)
   const positiveTemplates = [
     `Энергия ${tp} поддерживает вашу натальную позицию ${np}. Хорошее время для активных действий.`,
     `${tp} гармонирует с ${np} — используйте этот день с пользой.`,
@@ -138,7 +164,6 @@ function generateGenericBrief(ta: TransitAspect): string {
     `Влияние ${tp} усиливает тему ${np}. Наблюдайте и адаптируйтесь.`,
   ];
 
-  const hash = Math.abs(ta.transitPlanetId * 13 + ta.natalPlanetId * 7) % 3;
   if (impact === "positive") return positiveTemplates[hash % positiveTemplates.length];
   if (impact === "challenging") return challengingTemplates[hash % challengingTemplates.length];
   return neutralTemplates[hash % neutralTemplates.length];
@@ -179,10 +204,11 @@ export function calcTransits(
   sw: InstanceType<typeof SwissEph>,
   transitJd: number,
   natalPositions: PlanetPosition[],
-  natalCusps?: number[]
+  natalCusps?: number[],
+  lang: string = "ru"
 ): { transits: Transit[]; rawAspects: TransitAspect[] } {
   const transitPositions = calcAllPlanets(sw, transitJd);
   const rawAspects = findTransitAspects(transitPositions, natalPositions);
-  const transits = buildTransits(rawAspects, natalCusps);
+  const transits = buildTransits(rawAspects, natalCusps, lang);
   return { transits, rawAspects };
 }

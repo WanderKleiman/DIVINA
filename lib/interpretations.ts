@@ -113,12 +113,12 @@ export const HOUSE_CATEGORY: Record<number, LifeCategory> = {
 };
 
 // ===== Category display info =====
-export const CATEGORY_INFO: Record<LifeCategory, { icon: string; title: string }> = {
-  love: { icon: "", title: "Любовь" },
-  finance: { icon: "", title: "Финансы" },
-  health: { icon: "", title: "Здоровье" },
-  career: { icon: "", title: "Карьера" },
-  spiritual: { icon: "", title: "Духовность" },
+export const CATEGORY_INFO: Record<LifeCategory, { icon: string; title: { ru: string; en: string } }> = {
+  love: { icon: "", title: { ru: "Любовь", en: "Love" } },
+  finance: { icon: "", title: { ru: "Финансы", en: "Finances" } },
+  health: { icon: "", title: { ru: "Здоровье", en: "Health" } },
+  career: { icon: "", title: { ru: "Карьера", en: "Career" } },
+  spiritual: { icon: "", title: { ru: "Духовность", en: "Spirituality" } },
 };
 
 // ===== Moon in Sign descriptions =====
@@ -137,6 +137,21 @@ export const MOON_IN_SIGN: Record<string, string> = {
   "Рыбы": "Интуитивный и мечтательный день. Медитация, творчество, духовные практики.",
 };
 
+export const MOON_IN_SIGN_EN: Record<string, string> = {
+  "Aries": "An energetic and impulsive day. Great for new beginnings and decisive action.",
+  "Taurus": "A day of stability and pleasure. Good for finances, food, and nature.",
+  "Gemini": "A day of communication and information. Lots of contacts and conversations.",
+  "Cancer": "An emotional day. Focus on home, family, and self-care.",
+  "Leo": "A creative and vibrant day. Self-expression and entertainment.",
+  "Virgo": "A day of order and detail. Good for planning and health.",
+  "Libra": "A day of harmony and partnership. Good for relationships and negotiations.",
+  "Scorpio": "An intense day. Deep emotions and transformation.",
+  "Sagittarius": "An optimistic day. Travel, learning, expanding horizons.",
+  "Capricorn": "A serious and business-like day. Good for career and long-term plans.",
+  "Aquarius": "A day of innovation and freedom. Unconventional solutions and friendship.",
+  "Pisces": "An intuitive and dreamy day. Meditation, creativity, spiritual practices.",
+};
+
 // ===== Aspect names =====
 export const ASPECT_NAMES: Record<string, { ru: string; en: string; symbol: string }> = {
   conjunction: { ru: "Соединение", en: "Conjunction", symbol: "☌" },
@@ -145,60 +160,6 @@ export const ASPECT_NAMES: Record<string, { ru: string; en: string; symbol: stri
   trine: { ru: "Тригон", en: "Trine", symbol: "△" },
   opposition: { ru: "Оппозиция", en: "Opposition", symbol: "☍" },
 };
-
-// ===== Tarot cards (22 Major Arcana) =====
-export const TAROT_CARDS = [
-  { name: "Шут", numeral: "0", meaning: "Начало нового пути, спонтанность, доверие жизни." },
-  { name: "Маг", numeral: "I", meaning: "Воля, мастерство, все ресурсы под рукой. Действуйте." },
-  { name: "Жрица", numeral: "II", meaning: "Интуиция, тайное знание, терпение. Ответы придут изнутри." },
-  { name: "Императрица", numeral: "III", meaning: "Изобилие, творчество, плодородие. Позаботьтесь о теле и душе." },
-  { name: "Император", numeral: "IV", meaning: "Структура, порядок, авторитет. Время для дисциплины." },
-  { name: "Иерофант", numeral: "V", meaning: "Традиции, наставничество, обучение. Обратитесь к мудрости." },
-  { name: "Влюблённые", numeral: "VI", meaning: "Выбор сердца, союз, ценности. Следуйте за любовью." },
-  { name: "Колесница", numeral: "VII", meaning: "Победа через волю, движение вперёд, контроль." },
-  { name: "Сила", numeral: "VIII", meaning: "Мягкая сила, терпение, укрощение внутренних демонов." },
-  { name: "Отшельник", numeral: "IX", meaning: "Уединение, самопознание, внутренний свет." },
-  { name: "Колесо Фортуны", numeral: "X", meaning: "Перемены, цикличность, удача. Примите поворот судьбы." },
-  { name: "Справедливость", numeral: "XI", meaning: "Баланс, честность, последствия. Взвесьте все стороны." },
-  { name: "Повешенный", numeral: "XII", meaning: "Пауза, новый угол зрения, жертва ради роста." },
-  { name: "Смерть", numeral: "XIII", meaning: "Трансформация, конец и начало. Отпустите старое." },
-  { name: "Умеренность", numeral: "XIV", meaning: "Баланс, терпение, синтез. Золотая середина." },
-  { name: "Дьявол", numeral: "XV", meaning: "Привязанности, теневая сторона. Осознайте, что вас держит." },
-  { name: "Башня", numeral: "XVI", meaning: "Внезапные перемены, разрушение иллюзий. Освобождение." },
-  { name: "Звезда", numeral: "XVII", meaning: "Надежда, вдохновение, исцеление. Верьте в лучшее." },
-  { name: "Луна", numeral: "XVIII", meaning: "Интуиция, подсознание, иллюзии. Доверяйте внутреннему голосу." },
-  { name: "Солнце", numeral: "XIX", meaning: "Радость, успех, ясность. Лучшее время для действий." },
-  { name: "Суд", numeral: "XX", meaning: "Пробуждение, призвание, переоценка. Время отвечать за выбор." },
-  { name: "Мир", numeral: "XXI", meaning: "Завершение цикла, гармония, достижение. Вы на месте." },
-];
-
-// ===== Runes (24 Elder Futhark) =====
-export const RUNES = [
-  { name: "Феху", symbol: "ᚠ", meaning: "Богатство, ресурсы, начальный импульс. Цените то, что имеете." },
-  { name: "Уруз", symbol: "ᚢ", meaning: "Сила, здоровье, жизненная энергия. Действуйте мощно." },
-  { name: "Турисаз", symbol: "ᚦ", meaning: "Защита, порог, испытание. Подождите перед рывком." },
-  { name: "Ансуз", symbol: "ᚨ", meaning: "Мудрость, общение, знаки. Слушайте внимательно." },
-  { name: "Райдо", symbol: "ᚱ", meaning: "Путешествие, движение, правильный путь. Двигайтесь вперёд." },
-  { name: "Кеназ", symbol: "ᚲ", meaning: "Творчество, озарение, огонь знания. Создавайте." },
-  { name: "Гебо", symbol: "ᚷ", meaning: "Дар, партнёрство, взаимность. Обменивайтесь." },
-  { name: "Вуньо", symbol: "ᚹ", meaning: "Радость, гармония, исполнение желаний. Наслаждайтесь." },
-  { name: "Хагалаз", symbol: "ᚺ", meaning: "Разрушение, очищение, неизбежные перемены. Примите." },
-  { name: "Наутиз", symbol: "ᚾ", meaning: "Нужда, терпение, ограничение. Через стеснение к силе." },
-  { name: "Иса", symbol: "ᛁ", meaning: "Лёд, пауза, ожидание. Не торопите события." },
-  { name: "Йера", symbol: "ᛃ", meaning: "Урожай, цикл, справедливый результат. Вы пожнёте посеянное." },
-  { name: "Эйваз", symbol: "ᛇ", meaning: "Защита, стойкость, связь миров. Держитесь." },
-  { name: "Перт", symbol: "ᛈ", meaning: "Тайна, судьба, инициация. Доверьтесь неизвестному." },
-  { name: "Альгиз", symbol: "ᛉ", meaning: "Защита, связь с высшим, безопасность. Вы под защитой." },
-  { name: "Совело", symbol: "ᛊ", meaning: "Солнце, победа, жизненная сила. Свет побеждает." },
-  { name: "Тейваз", symbol: "ᛏ", meaning: "Воин, справедливость, жертва. Боритесь за правое дело." },
-  { name: "Беркана", symbol: "ᛒ", meaning: "Рост, рождение, забота. Новое зреет." },
-  { name: "Эваз", symbol: "ᛖ", meaning: "Партнёрство, движение, прогресс. Вместе легче." },
-  { name: "Манназ", symbol: "ᛗ", meaning: "Человек, самопознание, сообщество. Познайте себя." },
-  { name: "Лагуз", symbol: "ᛚ", meaning: "Вода, интуиция, поток. Следуйте за течением." },
-  { name: "Ингуз", symbol: "ᛝ", meaning: "Плодородие, завершение, новый этап. Семя проросло." },
-  { name: "Дагаз", symbol: "ᛞ", meaning: "Рассвет, прорыв, трансформация. Новый день." },
-  { name: "Отала", symbol: "ᛟ", meaning: "Наследие, дом, корни. Опирайтесь на основу." },
-];
 
 // ===== Day tags based on dominant categories =====
 export const CATEGORY_TO_TAGS: Record<LifeCategory, DayTag[]> = {
@@ -215,8 +176,17 @@ export const WEEKDAY_NAMES_RU = [
   "Четверг", "Пятница", "Суббота",
 ];
 
+export const WEEKDAY_NAMES_EN = [
+  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+];
+
 // ===== Month names (genitive) =====
 export const MONTH_NAMES_RU_GEN = [
   "", "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
+];
+
+export const MONTH_NAMES_EN = [
+  "", "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];

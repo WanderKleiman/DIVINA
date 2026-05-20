@@ -6,7 +6,6 @@ import HeroSection from "@/components/HeroSection";
 import EnergyCard from "@/components/EnergyCard";
 import TransitCard from "@/components/today/TransitCard";
 import CategoryList from "@/components/today/CategoryList";
-import DailyCard from "@/components/today/DailyCard";
 import NotableDates from "@/components/today/NotableDates";
 import { getUserData, getToday } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
@@ -265,10 +264,6 @@ export default function TodayPage() {
           <NotableDates dates={notableDates} />
         </div>
       )}
-
-      <div className="animate-fade-in-up">
-        <DailyCard tarotCard={f.tarotCard} rune={f.rune} />
-      </div>
     </div>
   );
 }
