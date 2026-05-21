@@ -8,7 +8,7 @@ interface WeekCalendarProps {
   hardestDay: number;
 }
 
-const TAG_TEXT: Record<DayTag, string> = {
+const TAG_TEXT_RU: Record<DayTag, string> = {
   "деньги":     "финансовых решений",
   "решения":    "важных решений",
   "любовь":     "романтики",
@@ -20,6 +20,18 @@ const TAG_TEXT: Record<DayTag, string> = {
   "здоровье":   "заботы о здоровье",
   "осторожно":  "осторожности",
 };
+const TAG_TEXT_EN: Record<DayTag, string> = {
+  "деньги":     "financial decisions",
+  "решения":    "important decisions",
+  "любовь":     "romance",
+  "действия":   "active steps",
+  "карьера":    "career moves",
+  "отдых":      "rest",
+  "интуиция":   "focus",
+  "творчество": "creativity",
+  "здоровье":   "health care",
+  "осторожно":  "caution",
+};
 
 const SHORT_WEEKDAYS: Record<string, string> = {
   "Понедельник": "ПН",
@@ -29,25 +41,45 @@ const SHORT_WEEKDAYS: Record<string, string> = {
   "Пятница": "ПТ",
   "Суббота": "СБ",
   "Воскресенье": "ВС",
+  // English
+  "Monday": "Mo",
+  "Tuesday": "Tu",
+  "Wednesday": "We",
+  "Thursday": "Th",
+  "Friday": "Fr",
+  "Saturday": "Sa",
+  "Sunday": "Su",
 };
 
-const SHORT_MONTHS = [
-  "", "января", "февраля", "марта", "апреля", "мая", "июня",
-  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+const SHORT_MONTHS_RU = [
+  "", "янв", "фев", "мар", "апр", "май", "июн",
+  "июл", "авг", "сен", "окт", "ноя", "дек",
+];
+const SHORT_MONTHS_EN = [
+  "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, lang?: string): string {
   const parts = iso.split("-");
-  return `${parseInt(parts[2], 10)} ${SHORT_MONTHS[parseInt(parts[1], 10)]}`;
+  const day = parseInt(parts[2], 10);
+  const month = parseInt(parts[1], 10);
+  if (lang === "en") return `${SHORT_MONTHS_EN[month]} ${day}`;
+  return `${day} ${SHORT_MONTHS_RU[month]}`;
 }
 
-function buildDescription(tags: DayTag[]): string {
+function buildDescription(tags: DayTag[], lang: string): string {
+  const TAG_TEXT = lang === "en" ? TAG_TEXT_EN : TAG_TEXT_RU;
   const texts = tags.slice(0, 2).map((t) => TAG_TEXT[t]).filter(Boolean);
   if (texts.length === 0) return "";
+  if (lang === "en") return `Day for ${texts.join(" and ")}`;
   return `День для ${texts.join(" и ")}`;
 }
 
 export default function WeekCalendar({ days, bestDay, hardestDay }: WeekCalendarProps) {
+  let lang = "ru";
+  try { lang = typeof localStorage !== "undefined" ? (localStorage.getItem("divina_lang") ?? "ru") : "ru"; } catch {}
+
   // Pairs: [0,1], [2,3], [4,5], [6]
   const pairs: WeeklyDayHighlight[][] = [];
   for (let i = 0; i < days.length; i += 2) {
@@ -62,7 +94,7 @@ export default function WeekCalendar({ days, bestDay, hardestDay }: WeekCalendar
             {pair.map((day) => {
               const isBest = day.dayNumber === bestDay;
               const isHardest = day.dayNumber === hardestDay;
-              const desc = buildDescription(day.tags);
+              const desc = buildDescription(day.tags, lang);
 
               return (
                 <div
@@ -84,7 +116,7 @@ export default function WeekCalendar({ days, bestDay, hardestDay }: WeekCalendar
                         {SHORT_WEEKDAYS[day.weekday]}
                       </span>
                       <span className="text-xs text-white/40">
-                        {formatDate(day.date)}
+                        {formatDate(day.date, lang)}
                       </span>
                     </div>
 

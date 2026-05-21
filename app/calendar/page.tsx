@@ -40,12 +40,16 @@ const MONTH_NAMES_RU = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ];
+const MONTH_NAMES_EN = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
-function formatDateRu(dateStr: string): string {
-  // dateStr is ISO "2026-05-18"
+function formatDateLocalized(dateStr: string, lang: string): string {
   const parts = dateStr.split("-");
   const month = parseInt(parts[1] ?? "1", 10);
   const day = parseInt(parts[2] ?? "1", 10);
+  if (lang === "en") return `${MONTH_NAMES_EN[month - 1] ?? ""} ${day}`;
   return `${day} ${MONTH_NAMES_RU[month - 1] ?? ""}`;
 }
 
@@ -64,7 +68,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [notableFilter, setNotableFilter] = useState<FilterId>("all");
-  const { t } = useT();
+  const { t, lang } = useT();
 
   useEffect(() => {
     setNotableFilter("all");
@@ -128,12 +132,12 @@ export default function CalendarPage() {
         <ForecastSkeleton label={t("loading.calendar")} />
       ) : loadError || !days ? (
         <div className="flex flex-col items-center justify-center min-h-[50dvh] px-6 gap-4">
-          <p className="text-sm text-white/50 text-center">Не удалось загрузить календарь. Проверьте соединение и попробуйте снова.</p>
+          <p className="text-sm text-white/50 text-center">{t("error.calendar")}</p>
           <button
             onClick={() => { setLoadError(false); setLoading(true); setDays(null); }}
             className="rounded-xl bg-white/10 border border-white/15 px-5 py-2.5 text-sm text-white/70"
           >
-            Повторить
+            {t("action.retry")}
           </button>
         </div>
       ) : (
@@ -145,7 +149,7 @@ export default function CalendarPage() {
           {/* Notable dates section */}
           {notableDays.length > 0 && (
             <div className="animate-fade-in-up px-5 flex flex-col gap-3">
-              <h3 className="text-base font-semibold text-white/80">Знаковые даты</h3>
+              <h3 className="text-base font-semibold text-white/80">{t("section.notableDates")}</h3>
 
               {/* Filter chips */}
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
@@ -178,7 +182,7 @@ export default function CalendarPage() {
                     >
                       {/* Date + badge row */}
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-black">{formatDateRu(day.date)}</span>
+                        <span className="text-sm font-semibold text-black">{formatDateLocalized(day.date, lang)}</span>
                         {day.transitLabel && (
                           <span
                             className="text-[11px] font-medium text-black/60 px-2.5 py-0.5 rounded-full"

@@ -235,6 +235,19 @@ const dict: Record<string, Record<Locale, string>> = {
   // Generic
   "generic.error": { ru: "Ошибка", en: "Error" },
   "generic.back": { ru: "Назад", en: "Back" },
+  "generic.error_occurred": { ru: "Произошла ошибка", en: "An error occurred" },
+  "error.forecast": { ru: "Не удалось загрузить прогноз. Проверьте соединение и попробуйте снова.", en: "Failed to load forecast. Check your connection and try again." },
+  "error.calendar": { ru: "Не удалось загрузить календарь. Проверьте соединение и попробуйте снова.", en: "Failed to load calendar. Check your connection and try again." },
+  "error.weekly": { ru: "Не удалось загрузить прогноз на неделю.", en: "Failed to load weekly forecast." },
+  "error.periods": { ru: "Не удалось загрузить периоды", en: "Failed to load periods" },
+  "error.data": { ru: "Не удалось загрузить данные.", en: "Failed to load data." },
+  "error.compat_result": { ru: "Не удалось загрузить результат", en: "Failed to load result" },
+  "action.retry": { ru: "Повторить", en: "Retry" },
+  "section.yourPeriods": { ru: "Твои периоды", en: "Your periods" },
+  "section.all": { ru: "Все", en: "All" },
+  "section.notableDates": { ru: "Знаковые даты", en: "Notable dates" },
+  "compat.analyzing": { ru: "Анализируем вашу совместимость...", en: "Analyzing your compatibility..." },
+  "swipe.hint": { ru: "свайп вниз для перехода", en: "swipe down to continue" },
 };
 
 // ===== Context =====

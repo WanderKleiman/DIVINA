@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { savePurchase, hasPurchase } from "@/lib/purchases";
+import { useT } from "@/lib/i18n";
 import type { CompatibilityAIResult } from "@/lib/ai-interpret";
 
 
@@ -50,6 +51,7 @@ function ScrollScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const { t } = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
   const activePageRef = useRef(0);
@@ -161,7 +163,7 @@ function ScrollScreen({
               >
                 {completionLabel}
               </button>
-              <p className="text-xs text-black/25">свайп вниз для перехода</p>
+              <p className="text-xs text-black/25">{t("swipe.hint")}</p>
             </div>
           </div>
 
@@ -186,6 +188,7 @@ function ScrollScreen({
 }
 
 function LoadingSkeleton({ partnerName }: { partnerName: string }) {
+  const { t } = useT();
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
       <div className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0">
@@ -198,7 +201,7 @@ function LoadingSkeleton({ partnerName }: { partnerName: string }) {
           <div className="h-3 w-24 rounded-full animate-pulse" style={{ background: "rgba(0,0,0,0.08)" }} />
           <div className="h-7 w-3/4 rounded-full animate-pulse" style={{ background: "rgba(0,0,0,0.10)" }} />
           {partnerName && (
-            <p className="text-sm text-black/40">Анализируем вашу совместимость...</p>
+            <p className="text-sm text-black/40">{t("compat.analyzing")}</p>
           )}
           <div className="flex gap-2 flex-wrap">
             {[1,2,3].map(n => (
@@ -218,6 +221,7 @@ function LoadingSkeleton({ partnerName }: { partnerName: string }) {
 
 export default function CompatibilityResultPage() {
   const router = useRouter();
+  const { t } = useT();
   const [result, setResult] = useState<CompatibilityAIResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -232,7 +236,7 @@ export default function CompatibilityResultPage() {
       try {
         const partnerRaw = sessionStorage.getItem("divina_compat_partner");
         if (!partnerRaw) {
-          setError("Партнёр не найден");
+          setError(t("compat.partnerNotFound"));
           setLoading(false);
           return;
         }
@@ -277,13 +281,14 @@ export default function CompatibilityResultPage() {
         }
       } catch (err) {
         if (err instanceof Error && err.name === "AbortError") return;
-        setError("Не удалось загрузить результат");
+        setError(t("error.compat_result"));
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     }
     load();
     return () => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openSection = useCallback((idx: number) => {
@@ -299,9 +304,9 @@ export default function CompatibilityResultPage() {
   if (error || !result) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6">
-        <p className="text-sm text-white/40 mb-4">{error || "Произошла ошибка"}</p>
+        <p className="text-sm text-white/40 mb-4">{error || t("generic.error_occurred")}</p>
         <button onClick={() => router.back()} className="text-sm text-white/50 border border-white/15 rounded-xl px-4 py-2">
-          Назад
+          {t("generic.back")}
         </button>
       </div>
     );

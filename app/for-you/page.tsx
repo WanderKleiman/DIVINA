@@ -9,6 +9,7 @@ import WeeklyPaywall from "@/components/paywall/WeeklyPaywall";
 import CompatibilityPaywall from "@/components/paywall/CompatibilityPaywall";
 import { getPurchases, type Purchase } from "@/lib/purchases";
 import { getUserData } from "@/lib/user-data";
+import { useT } from "@/lib/i18n";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 
 type PaywallType = "interpretation" | "weekly" | "compatibility" | null;
@@ -87,6 +88,7 @@ export default function ForYouPage() {
   const [periodsLoading, setPeriodsLoading] = useState(true);
   const [periodsError, setPeriodsError] = useState(false);
   const prices = getSubscriptionPrices();
+  const { t } = useT();
 
   function loadPeriods() {
     const user = getUserData();
@@ -151,13 +153,13 @@ export default function ForYouPage() {
           <div className="animate-fade-in-up">
             {/* Section header */}
             <div className="flex items-center justify-between px-5 mb-3">
-              <h2 className="text-base font-semibold text-white">Твои периоды</h2>
+              <h2 className="text-base font-semibold text-white">{t("section.yourPeriods")}</h2>
               {periodsData && !periodsLoading && (
                 <button
                   onClick={() => router.push("/for-you/periods")}
                   className="text-xs text-white/40 flex items-center gap-1"
                 >
-                  Все
+                  {t("section.all")}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
@@ -182,12 +184,12 @@ export default function ForYouPage() {
               ) : periodsError ? (
                 <div className="shrink-0 w-[270px] snap-start rounded-2xl p-4 flex flex-col gap-2"
                   style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.15)" }}>
-                  <p className="text-xs text-white/50">Не удалось загрузить периоды</p>
+                  <p className="text-xs text-white/50">{t("error.periods")}</p>
                   <button
                     onClick={() => loadPeriods()}
                     className="text-xs text-white/70 border border-white/20 rounded-xl px-3 py-1.5 self-start hover:bg-white/10 transition-colors"
                   >
-                    Повторить
+                    {t("action.retry")}
                   </button>
                 </div>
               ) : periodsData?.periods.map((p: LifePeriod, i: number) => {

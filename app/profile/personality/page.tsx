@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
+import { useT } from "@/lib/i18n";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
 interface Section { title: string; text: string }
@@ -57,6 +58,7 @@ function ScrollScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const { t } = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
   const activePageRef = useRef(0);
@@ -201,7 +203,7 @@ function ScrollScreen({
                 >
                   {completionLabel}
                 </button>
-                <p className="text-xs text-black/25">свайп вниз для перехода</p>
+                <p className="text-xs text-black/25">{t("swipe.hint")}</p>
               </div>
             </div>
           </div>{/* end scroll container */}
@@ -229,6 +231,7 @@ function ScrollScreen({
 
 export default function PersonalityPage() {
   const router = useRouter();
+  const { t } = useT();
   const [data, setData] = useState<PersonalityBreakdown | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -334,7 +337,7 @@ export default function PersonalityPage() {
     }
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-white/50 text-sm">Не удалось загрузить данные.</p>
+        <p className="text-white/50 text-sm">{t("error.data")}</p>
         <button onClick={() => router.push("/profile")} className="text-sm text-white/60 border border-white/15 rounded-xl px-5 py-2.5">
           Перейти в профиль
         </button>

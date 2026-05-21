@@ -100,6 +100,7 @@ function ScrollScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const { t } = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
   const activePageRef = useRef(0);
@@ -224,7 +225,7 @@ function ScrollScreen({
               >
                 {completionLabel}
               </button>
-              <p className="text-xs text-black/25">свайп вниз для перехода</p>
+              <p className="text-xs text-black/25">{t("swipe.hint")}</p>
               </div>
             </div>
           </div>
@@ -319,12 +320,12 @@ export default function WeeklyPage() {
       <div>
         <Header />
         <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6 gap-4">
-          <p className="text-sm text-white/50 text-center">Не удалось загрузить прогноз на неделю.</p>
+          <p className="text-sm text-white/50 text-center">{t("error.weekly")}</p>
           <button
             onClick={() => { setLoadError(false); setLoading(true); setRetryCount(c => c + 1); }}
             className="rounded-xl bg-white/10 border border-white/15 px-5 py-2.5 text-sm text-white/70"
           >
-            Повторить
+            {t("action.retry")}
           </button>
         </div>
       </div>

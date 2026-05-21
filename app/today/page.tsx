@@ -17,10 +17,17 @@ const AUTO_RETRY_DELAY_MS = 2200;
 
 // Weekday names for the skeleton header
 const WEEKDAYS_RU = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+const WEEKDAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS_RU = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function getTodayLabel() {
   const now = new Date();
+  let lang = "ru";
+  try { lang = localStorage.getItem("divina_lang") ?? "ru"; } catch {}
+  if (lang === "en") {
+    return `${WEEKDAYS_EN[now.getDay()]}, ${MONTHS_EN[now.getMonth()]} ${now.getDate()}`;
+  }
   return `${WEEKDAYS_RU[now.getDay()]}, ${now.getDate()} ${MONTHS_RU[now.getMonth()]}`;
 }
 
@@ -205,12 +212,12 @@ export default function TodayPage() {
       <div>
         <Header />
         <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6 gap-4">
-          <p className="text-sm text-white/50 text-center">Не удалось загрузить прогноз. Проверьте соединение и попробуйте снова.</p>
+          <p className="text-sm text-white/50 text-center">{t("error.forecast")}</p>
           <button
             onClick={() => { setLoadError(false); setLoading(true); autoRetryRef.current = 0; setRetryCount(c => c + 1); }}
             className="rounded-xl bg-white/10 border border-white/15 px-5 py-2.5 text-sm text-white/70"
           >
-            Повторить
+            {t("action.retry")}
           </button>
         </div>
       </div>
