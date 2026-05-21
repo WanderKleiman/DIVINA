@@ -34,6 +34,7 @@ const oneTimePurchases = [
   {
     id: "weekly" as const,
     videoSrc: "/cosmos-10.mp4",
+    href: "/weekly",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -259,7 +260,7 @@ export default function ForYouPage() {
 
         {/* One-time purchases */}
         <div className="animate-fade-in-up px-5 pt-2">
-          <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">Разовые покупки</h3>
+          <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">Для тебя</h3>
           <div className="space-y-2.5">
             {oneTimePurchases.map((f) => (
               <button
@@ -303,6 +304,9 @@ export default function ForYouPage() {
                 <div key={i} className="glass-strong rounded-2xl p-4 flex items-center justify-between">
                   <div>
                     <p className="text-sm text-white/80">{PURCHASE_LABELS[p.type] || p.type}</p>
+                    {p.type === "compatibility" && p.meta?.partnerName && (
+                      <p className="text-xs text-white/50 mt-0.5">с {p.meta.partnerName}</p>
+                    )}
                     <p className="text-xs text-white/30 mt-0.5">{formatPurchaseDate(p.date)}</p>
                   </div>
                   <button

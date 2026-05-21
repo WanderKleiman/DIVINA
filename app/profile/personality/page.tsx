@@ -230,25 +230,61 @@ function ScrollScreen({
 export default function PersonalityPage() {
   const router = useRouter();
   const [data, setData] = useState<PersonalityBreakdown | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
   const [phase, setPhase] = useState<"narrative" | "menu" | "chapter">("narrative");
   const [chapterIdx, setChapterIdx] = useState(0);
 
   useEffect(() => {
+    const userData = getUserData();
+    const lang = userData.lang ?? "ru";
+    const tone = userData.tone ?? "deep";
+
+    // Try cache first
     try {
-      const userData = getUserData();
-      const lang = userData.lang ?? "ru";
-      const tone = userData.tone ?? "deep";
-      // Try with tone suffix first (matches profile page cache key), then without (legacy)
       const raw = sessionStorage.getItem(`divina-personality-cache-v4_${lang}_${tone}`)
         ?? sessionStorage.getItem(`divina-personality-cache-v4_${lang}`);
       if (raw) {
         const parsed = JSON.parse(raw);
         const d = parsed.data ?? parsed;
-        if (d?.narrative || d?.essence) setData(d);
+        if (d?.narrative || d?.essence) {
+          setData(d);
+          setDataLoading(false);
+        }
       }
     } catch {}
+
+    // If cache miss, fetch personality from API directly
+    if (!sessionStorage.getItem(`divina-personality-cache-v4_${lang}_${tone}`)
+      && !sessionStorage.getItem(`divina-personality-cache-v4_${lang}`)) {
+      fetch("/api/personality", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          birthDate: userData.birthDate,
+          birthTime: userData.birthTime,
+          lat: userData.lat,
+          lng: userData.lng,
+          tzOffset: userData.tzOffset,
+          tone: userData.tone,
+          lang: userData.lang,
+        }),
+      })
+        .then(r => r.json())
+        .then(d => {
+          if (d?.narrative || d?.essence) {
+            setData(d);
+            try {
+              sessionStorage.setItem(`divina-personality-cache-v4_${lang}_${tone}`, JSON.stringify(d));
+            } catch {}
+          }
+        })
+        .catch(() => {})
+        .finally(() => setDataLoading(false));
+    } else {
+      setDataLoading(false);
+    }
 
     const cached = sessionStorage.getItem("divina-natal-deep-v4");
     if (cached) {
@@ -260,7 +296,6 @@ export default function PersonalityPage() {
       } catch {}
     }
 
-    const userData = getUserData();
     fetch("/api/interpretation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -289,9 +324,17 @@ export default function PersonalityPage() {
   const goToMenu = useCallback(() => setPhase("menu"), []);
 
   if (!data) {
+    if (dataLoading) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
+          <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
+          <p className="text-white/40 text-sm">Загрузка...</p>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-white/50 text-sm">Данные не загружены.</p>
+        <p className="text-white/50 text-sm">Не удалось загрузить данные.</p>
         <button onClick={() => router.push("/profile")} className="text-sm text-white/60 border border-white/15 rounded-xl px-5 py-2.5">
           Перейти в профиль
         </button>

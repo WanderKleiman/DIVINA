@@ -7,10 +7,8 @@ import CosmosBackground from "./SmokeBackground";
 const VIDEO_BACKGROUNDS = [
   { id: "video-3", label: "Космос 3", src: "/watermarked_preview.mp4" },
   { id: "video-4", label: "Космос 4", src: "/cosmos-4.mp4" },
-  { id: "video-5", label: "Космос 5", src: "/cosmos-5.mp4" },
-  { id: "video-7", label: "Космос 7", src: "/cosmos-7.mp4" },
   { id: "video-10", label: "Космос 10", src: "/cosmos-10.mp4" },
-  { id: "video-moon2", label: "Луна 2", src: "/moon2.mp4" },
+  { id: "video-moon2", label: "Луна", src: "/moon2.mp4" },
 ];
 
 const MAIN_VIDEO_SRC = "/main-video.mp4";
@@ -18,7 +16,6 @@ const MAIN_VIDEO_SRC = "/main-video.mp4";
 const BG_OPTIONS = [
   { id: "canvas", label: "Анимация" },
   ...VIDEO_BACKGROUNDS,
-  { id: "white", label: "Белый" },
 ];
 
 const VALID_IDS = new Set(BG_OPTIONS.map((o) => o.id));
@@ -110,8 +107,6 @@ export default function BackgroundSwitcher() {
       {/* Background layer */}
       {activeBg === "canvas" ? (
         <CosmosBackground />
-      ) : activeBg === "white" ? (
-        <div className="fixed inset-0 z-0 bg-white" aria-hidden="true" style={{ pointerEvents: "none" }} />
       ) : videoSrc ? (
         <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true" style={{ pointerEvents: "none" }}>
           <video
