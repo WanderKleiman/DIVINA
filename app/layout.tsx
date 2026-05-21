@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import BackgroundSwitcher from "@/components/BackgroundSwitcher";
 import BottomNav from "@/components/BottomNav";
 import { LanguageProvider } from "@/lib/i18n";
+import { ProStatusProvider } from "@/lib/pro-status";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -38,13 +39,15 @@ export default function RootLayout({
     <html lang="ru" className={`${playfair.variable} ${inter.variable}`}>
       <body>
         <LanguageProvider>
-          <BackgroundSwitcher />
-          <div className="relative z-10">
-            <div className="mx-auto min-h-dvh max-w-lg pb-24">
-              {children}
+          <ProStatusProvider>
+            <BackgroundSwitcher />
+            <div className="relative z-10">
+              <div className="mx-auto min-h-dvh max-w-lg pb-24">
+                {children}
+              </div>
             </div>
-          </div>
-          <BottomNav />
+            <BottomNav />
+          </ProStatusProvider>
         </LanguageProvider>
       </body>
     </html>
