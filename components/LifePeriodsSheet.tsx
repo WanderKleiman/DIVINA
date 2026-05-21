@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import type { LifePeriod } from "@/lib/ai-interpret";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -16,22 +17,24 @@ const intensityColors: Record<string, string> = {
   low:    "text-emerald-300 bg-emerald-500/10 border-emerald-500/20",
 };
 
-const intensityLabels: Record<string, string> = {
-  high: "Активный", medium: "Средний", low: "Фоновый",
-};
-
-const MONTHS_GEN = [
-  "января","февраля","марта","апреля","мая","июня",
-  "июля","августа","сентября","октября","ноября","декабря",
-];
-
-function formatDateRange(start: string, end: string) {
-  const [sy, sm, sd] = start.split("-").map(Number);
-  const [ey, em, ed] = end.split("-").map(Number);
-  return `с ${sd} ${MONTHS_GEN[sm - 1]} ${sy} по ${ed} ${MONTHS_GEN[em - 1]} ${ey}`;
-}
-
 export default function LifePeriodsSheet({ open, onClose, overallPhase, periods }: Props) {
+  const { t, lang } = useT();
+
+  const intensityLabels: Record<string, string> = {
+    high: t("periods.intensityHigh"),
+    medium: t("periods.intensityMedium"),
+    low: t("periods.intensityLow"),
+  };
+
+  function formatDateRange(start: string, end: string) {
+    const [sy, sm, sd] = start.split("-").map(Number);
+    const [ey, em, ed] = end.split("-").map(Number);
+    if (lang === "en") {
+      return `${t(`month.${sm}`)} ${sd}, ${sy} – ${t(`month.${em}`)} ${ed}, ${ey}`;
+    }
+    return `с ${sd} ${t(`monthGen.${sm}`)} ${sy} по ${ed} ${t(`monthGen.${em}`)} ${ey}`;
+  }
+
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -60,7 +63,7 @@ export default function LifePeriodsSheet({ open, onClose, overallPhase, periods 
 
         {/* Header */}
         <div className="px-6 pt-3 pb-4 shrink-0 border-b border-white/[0.06]">
-          <p className="text-[11px] text-white/40 tracking-wider uppercase mb-1">Твои периоды сейчас</p>
+          <p className="text-[11px] text-white/40 tracking-wider uppercase mb-1">{t("periods.yourPeriodsNow")}</p>
           <p className="text-sm text-white leading-relaxed">{overallPhase}</p>
         </div>
 
@@ -104,11 +107,11 @@ export default function LifePeriodsSheet({ open, onClose, overallPhase, periods 
               {/* Focus / Let go */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 p-3">
-                  <p className="text-[10px] font-medium text-emerald-400/80 uppercase tracking-wider mb-1">Направь силы</p>
+                  <p className="text-[10px] font-medium text-emerald-400/80 uppercase tracking-wider mb-1">{t("periods.focusOn")}</p>
                   <p className="text-xs text-white leading-relaxed">{p.whatToFocus}</p>
                 </div>
                 <div className="rounded-xl bg-amber-500/[0.06] border border-amber-500/15 p-3">
-                  <p className="text-[10px] font-medium text-amber-400/80 uppercase tracking-wider mb-1">Отпусти</p>
+                  <p className="text-[10px] font-medium text-amber-400/80 uppercase tracking-wider mb-1">{t("periods.letGo")}</p>
                   <p className="text-xs text-white leading-relaxed">{p.whatToLetGo}</p>
                 </div>
               </div>

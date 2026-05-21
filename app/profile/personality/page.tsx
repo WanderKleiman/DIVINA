@@ -355,7 +355,7 @@ export default function PersonalityPage() {
           <div key={i} className="flex flex-col">
             {i === 0 && (
               <>
-                <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Разбор</p>
+                <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("personality.breakdown")}</p>
                 <h2 className="text-[19px] font-bold text-black leading-tight mb-4">
                   {currentSection?.title}
                 </h2>
@@ -381,7 +381,7 @@ export default function PersonalityPage() {
     return (
       <ScrollScreen
         pages={chapterPages}
-        completionLabel="К разделам"
+        completionLabel={t("personality.backToSections")}
         onBack={goToMenu}
         onComplete={goToMenu}
       />
@@ -406,9 +406,9 @@ export default function PersonalityPage() {
         <div className="flex-1 min-h-0 px-4 py-2 pb-10">
           <div className="h-full rounded-3xl overflow-hidden" style={GLASS_STYLE}>
             <div className="h-full overflow-y-auto p-6">
-              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">Персональный разбор</p>
-              <h2 className="text-[20px] font-bold text-black mb-1">Выбери тему</h2>
-              <p className="text-sm text-black/40 mb-5">Глубокий разбор каждой сферы жизни</p>
+              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">{t("personality.personalBreakdown")}</p>
+              <h2 className="text-[20px] font-bold text-black mb-1">{t("personality.chooseTopic")}</h2>
+              <p className="text-sm text-black/40 mb-5">{t("personality.deepBreakdown")}</p>
               <div className="space-y-2">
                 {(sectionsLoading
                   ? SECTION_TITLES_FALLBACK.map(t => ({ title: t, text: "" }))
@@ -436,7 +436,7 @@ export default function PersonalityPage() {
                     <span className="text-lg font-bold text-black">{data.lifePathNumber}</span>
                   </div>
                   <div>
-                    <p className="text-[10px] text-black/35 uppercase tracking-wider mb-0.5">Число жизненного пути</p>
+                    <p className="text-[10px] text-black/35 uppercase tracking-wider mb-0.5">{t("personality.lifePathNumber")}</p>
                     <p className="text-sm text-black/70 leading-snug">{data.lifePathMeaning}</p>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ export default function PersonalityPage() {
     <div key={i} className="flex flex-col">
       {i === 0 && (
         <>
-          <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Твоя суть</p>
+          <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("personality.yourEssence")}</p>
           <h2 className="text-[21px] font-bold text-black leading-tight mb-3">{data.essence}</h2>
           <div className="flex flex-wrap gap-1.5 mb-4">
             {(data.keywords ?? []).map((kw, ki) => (
@@ -474,7 +474,7 @@ export default function PersonalityPage() {
   return (
     <ScrollScreen
       pages={narrativePages}
-      completionLabel="К разделам →"
+      completionLabel={t("personality.backToSectionsArrow")}
       onBack={() => router.back()}
       onComplete={goToMenu}
     />

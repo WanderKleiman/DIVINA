@@ -241,7 +241,7 @@ export default function CompatibilityResultPage() {
           return;
         }
         const partner = JSON.parse(partnerRaw);
-        const name = partner.name || "Партнёр";
+        const name = partner.name || t("compat.partner");
         setPartnerName(name);
 
         const user = getUserData();
@@ -324,7 +324,7 @@ export default function CompatibilityResultPage() {
           <div key={i} className="flex flex-col">
             {i === 0 && (
               <>
-                <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Совместимость</p>
+                <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("compat.section")}</p>
                 <h2 className="text-[19px] font-bold text-black leading-tight mb-4">
                   {currentSection?.title}
                 </h2>
@@ -335,7 +335,7 @@ export default function CompatibilityResultPage() {
         ))
       : [
           <div key="loading" className="flex flex-col gap-3">
-            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Совместимость</p>
+            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("compat.section")}</p>
             <h2 className="text-[19px] font-bold text-black leading-tight mb-4">
               {currentSection?.title ?? ""}
             </h2>
@@ -350,7 +350,7 @@ export default function CompatibilityResultPage() {
     return (
       <ScrollScreen
         pages={sectionPages}
-        completionLabel="К разделам"
+        completionLabel={t("compat.backToSections")}
         onBack={goToMenu}
         onComplete={goToMenu}
       />
@@ -375,9 +375,9 @@ export default function CompatibilityResultPage() {
         <div className="flex-1 min-h-0 px-4 py-2 pb-10">
           <div className="h-full rounded-3xl overflow-hidden" style={GLASS_STYLE}>
             <div className="h-full overflow-y-auto p-6">
-              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">Ты и {partnerName}</p>
-              <h2 className="text-[20px] font-bold text-black mb-1">Разделы совместимости</h2>
-              <p className="text-sm text-black/40 mb-5">Выбери тему для детального разбора</p>
+              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">{t("compat.youAndLabel")} {partnerName}</p>
+              <h2 className="text-[20px] font-bold text-black mb-1">{t("compat.sections")}</h2>
+              <p className="text-sm text-black/40 mb-5">{t("compat.chooseTopic")}</p>
 
               {/* Overall score */}
               <div className="mb-4 p-4 rounded-2xl flex items-center gap-4" style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
@@ -385,7 +385,7 @@ export default function CompatibilityResultPage() {
                   <span className="text-xl font-bold text-black">{result.overallPercent}%</span>
                 </div>
                 <div>
-                  <p className="text-[10px] text-black/35 uppercase tracking-wider mb-0.5">Общая совместимость</p>
+                  <p className="text-[10px] text-black/35 uppercase tracking-wider mb-0.5">{t("compat.overallScore")}</p>
                   <p className="text-sm text-black/70 leading-snug">{result.essence}</p>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function CompatibilityResultPage() {
                   className="w-full rounded-2xl py-3.5 text-sm font-medium text-black/55"
                   style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}
                 >
-                  Новая проверка
+                  {t("compat.newCheck")}
                 </button>
               </div>
             </div>
@@ -429,7 +429,7 @@ export default function CompatibilityResultPage() {
   const overviewPages: React.ReactNode[] = [
     // Page 1: essence + keywords + overall score
     <div key="intro" className="flex flex-col">
-      <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Ты и {partnerName}</p>
+      <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("compat.youAndLabel")} {partnerName}</p>
       <h2 className="text-[21px] font-bold text-black leading-tight mb-3">{result.essence}</h2>
       <div className="flex flex-wrap gap-1.5 mb-5">
         {(result.keywords ?? []).map((kw, ki) => (
@@ -444,7 +444,7 @@ export default function CompatibilityResultPage() {
       </div>
       <div className="flex items-end gap-2 mb-1">
         <span className="text-[52px] font-bold text-black leading-none">{result.overallPercent}%</span>
-        <span className="text-sm text-black/40 mb-2">совместимость</span>
+        <span className="text-sm text-black/40 mb-2">{t("compat.overall")}</span>
       </div>
       <p className="text-[14px] text-black/60 leading-relaxed mt-3">{result.summary}</p>
     </div>,
@@ -453,7 +453,7 @@ export default function CompatibilityResultPage() {
       <div key={`first-${i}`} className="flex flex-col">
         {i === 0 && (
           <>
-            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Совместимость</p>
+            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("compat.section")}</p>
             <h2 className="text-[19px] font-bold text-black leading-tight mb-4">
               {firstSection?.title}
             </h2>
@@ -467,7 +467,7 @@ export default function CompatibilityResultPage() {
   return (
     <ScrollScreen
       pages={overviewPages}
-      completionLabel="Все разделы →"
+      completionLabel={t("compat.allSections")}
       onBack={() => router.back()}
       onComplete={goToMenu}
     />

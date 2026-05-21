@@ -1,16 +1,13 @@
+"use client";
+
 import type { CalendarDay } from "@/lib/types";
 import MoonPhaseIcon from "./MoonPhaseIcon";
+import { useT } from "@/lib/i18n";
 
 interface DayDetailProps {
   day: CalendarDay;
   onClose: () => void;
 }
-
-const energyLabels: Record<string, string> = {
-  high: "Высокая энергия",
-  medium: "Средняя энергия",
-  low: "Низкая энергия",
-};
 
 const energyOpacity: Record<string, string> = {
   high: "text-white/70",
@@ -19,12 +16,28 @@ const energyOpacity: Record<string, string> = {
 };
 
 export default function DayDetail({ day, onClose }: DayDetailProps) {
+  const { t, lang } = useT();
+
+  // Format date: "21 мая" in Russian, "May 21" in English
+  const dateParts = day.date ? day.date.split("-") : [];
+  const dateLabel = dateParts.length === 3
+    ? lang === "en"
+      ? `${t(`month.${parseInt(dateParts[1], 10)}`)} ${parseInt(dateParts[2], 10)}`
+      : `${parseInt(dateParts[2], 10)} ${t(`monthGen.${parseInt(dateParts[1], 10)}`)}`
+    : `${day.dayNumber}`;
+
+  const energyLabels: Record<string, string> = {
+    high: t("cal.highEnergy"),
+    medium: t("cal.medEnergy"),
+    low: t("cal.lowEnergy"),
+  };
+
   return (
     <div className="glass-strong mx-5">
       <div className="relative z-10 p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-medium tracking-wide text-white">
-            {day.dayNumber} апреля 2026
+            {dateLabel}
           </h3>
           <button
             onClick={onClose}
@@ -40,7 +53,7 @@ export default function DayDetail({ day, onClose }: DayDetailProps) {
         <div className="flex items-center gap-4 mb-3">
           <div className="flex items-center gap-2">
             <MoonPhaseIcon phase={day.moonPhase} size={18} />
-            <span className="text-sm text-white/60">Луна в {day.moonSign}</span>
+            <span className="text-sm text-white/60">{t("cal.moonIn")} {day.moonSign}</span>
           </div>
           <span className={`text-sm ${energyOpacity[day.energy]}`}>
             {energyLabels[day.energy]}
@@ -63,7 +76,7 @@ export default function DayDetail({ day, onClose }: DayDetailProps) {
 
         {!day.hasTransit && (
           <p className="text-sm text-white/50">
-            Обычный день без значимых транзитов. Хорошее время для повседневных дел.
+            {t("cal.regularDay")}
           </p>
         )}
       </div>

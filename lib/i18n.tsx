@@ -242,6 +242,30 @@ const dict: Record<string, Record<Locale, string>> = {
   "wd.sat": { ru: "Сб", en: "Sat" },
   "wd.sun": { ru: "Вс", en: "Sun" },
 
+  // ===== Personality =====
+  "personality.breakdown": { ru: "Разбор", en: "Reading" },
+  "personality.backToSections": { ru: "К разделам", en: "Back to sections" },
+  "personality.backToSectionsArrow": { ru: "К разделам →", en: "Back to sections →" },
+  "personality.personalBreakdown": { ru: "Персональный разбор", en: "Personal breakdown" },
+  "personality.chooseTopic": { ru: "Выбери тему", en: "Choose a topic" },
+  "personality.deepBreakdown": { ru: "Глубокий разбор каждой сферы жизни", en: "Deep breakdown of each life area" },
+  "personality.lifePathNumber": { ru: "Число жизненного пути", en: "Life path number" },
+  "personality.yourEssence": { ru: "Твоя суть", en: "Your essence" },
+
+  // ===== Compatibility result =====
+  "compat.section": { ru: "Совместимость", en: "Compatibility" },
+  "compat.sections": { ru: "Разделы совместимости", en: "Compatibility sections" },
+  "compat.chooseTopic": { ru: "Выбери тему для детального разбора", en: "Choose a topic for detailed analysis" },
+  "compat.overallScore": { ru: "Общая совместимость", en: "Overall compatibility" },
+  "compat.youAndLabel": { ru: "Ты и", en: "You and" },
+  "compat.partner": { ru: "Партнёр", en: "Partner" },
+  "compat.allSections": { ru: "Все разделы →", en: "All sections →" },
+  "compat.backToSections": { ru: "К разделам", en: "Back to sections" },
+
+  // ===== Calendar detail =====
+  "cal.moonIn": { ru: "Луна в", en: "Moon in" },
+  "cal.regularDay": { ru: "Обычный день без значимых транзитов. Хорошее время для повседневных дел.", en: "A regular day without major transits. Good time for everyday tasks." },
+
   // Generic
   "generic.error": { ru: "Ошибка", en: "Error" },
   "generic.back": { ru: "Назад", en: "Back" },
@@ -278,6 +302,10 @@ const dict: Record<string, Record<Locale, string>> = {
   "periods.noDataHint": { ru: "Вернись на страницу «Для тебя» и подожди загрузки.", en: "Return to the For You page and wait for the data to load." },
   "periods.backArrow": { ru: "← Назад", en: "← Back" },
   "periods.toMain": { ru: "На главную", en: "To main" },
+  "periods.yourPeriodsNow": { ru: "Твои периоды сейчас", en: "Your periods now" },
+  "periods.intensityHigh": { ru: "Активный", en: "Active" },
+  "periods.intensityMedium": { ru: "Средний", en: "Moderate" },
+  "periods.intensityLow": { ru: "Фоновый", en: "Background" },
 
   // ===== For You page =====
   "forYou.forYouHeader": { ru: "Для тебя", en: "For you" },

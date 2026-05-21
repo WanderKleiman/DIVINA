@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { CalendarDay } from "@/lib/types";
 import DayCell from "./DayCell";
 import DayDetail from "./DayDetail";
+import { useT } from "@/lib/i18n";
 
 interface MonthGridProps {
   days: CalendarDay[];
@@ -11,15 +12,16 @@ interface MonthGridProps {
   month: number;
 }
 
-const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const MONTHS = [
-  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-];
-
 export default function MonthGrid({ days, year, month }: MonthGridProps) {
+  const { t } = useT();
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
   const [displayMonth, setDisplayMonth] = useState(month);
+
+  const WEEKDAYS = [t("wd.mon"), t("wd.tue"), t("wd.wed"), t("wd.thu"), t("wd.fri"), t("wd.sat"), t("wd.sun")];
+  const MONTHS = [
+    t("month.1"), t("month.2"), t("month.3"), t("month.4"), t("month.5"), t("month.6"),
+    t("month.7"), t("month.8"), t("month.9"), t("month.10"), t("month.11"), t("month.12"),
+  ];
 
   const today = new Date().getDate();
 
@@ -89,15 +91,15 @@ export default function MonthGrid({ days, year, month }: MonthGridProps) {
       <div className="flex items-center justify-center gap-4 text-xs text-white/40">
         <div className="flex items-center gap-1">
           <div className="h-2 w-2 rounded-full bg-white/70" />
-          <span>Высокая</span>
+          <span>{t("energy.high")}</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="h-2 w-2 rounded-full bg-white/40" />
-          <span>Средняя</span>
+          <span>{t("energy.medium")}</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="h-2 w-2 rounded-full bg-white/20" />
-          <span>Низкая</span>
+          <span>{t("energy.low")}</span>
         </div>
       </div>
 
