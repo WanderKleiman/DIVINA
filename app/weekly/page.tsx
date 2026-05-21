@@ -341,7 +341,7 @@ export default function WeeklyPage() {
     const storyPages: React.ReactNode[] = [
       // Title page
       <div key="title" className="flex flex-col">
-        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Твоя неделя</p>
+        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("week.yourWeek")}</p>
         <h2 className="text-[22px] font-bold text-black leading-tight mb-3">{w.weekLabel}</h2>
         <div className="flex gap-3 mb-5">
           <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.18)" }}>
@@ -363,7 +363,7 @@ export default function WeeklyPage() {
       )),
       // Advice page
       <div key="advice" className="flex flex-col">
-        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-3">Совет недели</p>
+        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-3">{t("week.advice")}</p>
         <p className="text-[18px] font-semibold text-black leading-snug italic">&ldquo;{w.weeklyAdvice}&rdquo;</p>
       </div>,
     ];
@@ -371,7 +371,7 @@ export default function WeeklyPage() {
     return (
       <ScrollScreen
         pages={storyPages}
-        completionLabel="По дням →"
+        completionLabel={t("week.byDaysArrow")}
         onBack={() => router.back()}
         onComplete={() => setPhase("days")}
       />

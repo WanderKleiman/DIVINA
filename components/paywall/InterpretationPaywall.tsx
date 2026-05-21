@@ -2,21 +2,22 @@
 
 import PaywallSheet from "./PaywallSheet";
 import { formatPrice } from "@/lib/pricing";
+import { useT } from "@/lib/i18n";
 
 interface InterpretationPaywallProps {
   open: boolean;
   onClose: () => void;
 }
 
-const perks = [
-  "Детальный анализ Солнца, Луны и Асцендента",
-  "Интерпретация всех 10 планет в знаках и домах",
-  "Ключевые аспекты и их влияние на вашу жизнь",
-  "Персональные таланты и зоны роста",
-  "Кармические уроки и жизненная миссия",
-];
-
 export default function InterpretationPaywall({ open, onClose }: InterpretationPaywallProps) {
+  const { t } = useT();
+  const perks = [
+    t("paywall.interp.perk1"),
+    t("paywall.interp.perk2"),
+    t("paywall.interp.perk3"),
+    t("paywall.interp.perk4"),
+    t("paywall.interp.perk5"),
+  ];
   return (
     <PaywallSheet
       open={open}
@@ -24,7 +25,7 @@ export default function InterpretationPaywall({ open, onClose }: InterpretationP
       videoSrc="/cosmos-7.mp4"
       cta={
         <button className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors">
-          Разблокировать — {formatPrice(5)}
+          {t("paywall.unlock")} — {formatPrice(5)}
         </button>
       }
     >
@@ -39,8 +40,8 @@ export default function InterpretationPaywall({ open, onClose }: InterpretationP
             <line x1="19" y1="12" x2="22" y2="12" opacity="0.5" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-1">Расшифровка карты</h2>
-        <p className="text-sm text-white/40">Полный разбор натальной карты рождения</p>
+        <h2 className="text-2xl font-bold text-white mb-1">{t("paywall.interp.title")}</h2>
+        <p className="text-sm text-white/40">{t("paywall.interp.subtitle")}</p>
       </div>
 
       <div className="space-y-3 mb-4">

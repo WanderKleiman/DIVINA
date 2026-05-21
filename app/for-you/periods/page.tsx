@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 import { getUserData } from "@/lib/user-data";
+import { useT } from "@/lib/i18n";
 
 const GLASS_STYLE: React.CSSProperties = {
   background: "rgba(255,255,255,0.80)",
@@ -49,6 +50,7 @@ function ScrollScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const { t } = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
   const activePageRef = useRef(0);
@@ -196,7 +198,7 @@ function ScrollScreen({
                 >
                   {completionLabel}
                 </button>
-                <p className="text-xs text-black/25">свайп вниз для перехода</p>
+                <p className="text-xs text-black/25">{t("swipe.hint")}</p>
               </div>
             </div>
           </div>
@@ -222,12 +224,18 @@ function ScrollScreen({
   );
 }
 
-const intensityLabel: Record<string, string> = {
-  high: "Активный период", medium: "Умеренный период", low: "Фоновый период",
-};
+function getIntensityLabel(intensity: string, t: (key: string) => string): string {
+  const map: Record<string, string> = {
+    high: t("periods.active"),
+    medium: t("periods.moderate"),
+    low: t("periods.background"),
+  };
+  return map[intensity] ?? t("periods.period");
+}
 
 export default function PeriodsPage() {
   const router = useRouter();
+  const { t } = useT();
   const [data, setData] = useState<LifePeriodsResult | null>(null);
   const [phase, setPhase] = useState<"intro" | "menu" | "period">("intro");
   const [periodIdx, setPeriodIdx] = useState(0);
@@ -250,11 +258,11 @@ export default function PeriodsPage() {
   if (!data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-white/50 text-sm">Данные не загружены.</p>
-        <p className="text-white/30 text-xs">Вернись на страницу «Для тебя» и подожди загрузки.</p>
+        <p className="text-white/50 text-sm">{t("periods.noData")}</p>
+        <p className="text-white/30 text-xs">{t("periods.noDataHint")}</p>
         <div className="flex gap-3 mt-2">
           <button onClick={() => router.back()} className="text-sm text-white/60 border border-white/15 rounded-xl px-5 py-2.5">
-            ← Назад
+            {t("periods.backArrow")}
           </button>
           <button
             onClick={() => {
@@ -262,7 +270,7 @@ export default function PeriodsPage() {
             }}
             className="text-sm text-white/80 bg-white/10 border border-white/20 rounded-xl px-5 py-2.5"
           >
-            На главную
+            {t("periods.toMain")}
           </button>
         </div>
       </div>
@@ -281,7 +289,7 @@ export default function PeriodsPage() {
           {i === 0 && (
             <>
               <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">
-                {intensityLabel[period.intensity] ?? "Период"}
+                {getIntensityLabel(period.intensity, t)}
               </p>
               <h2 className="text-[19px] font-bold text-black leading-tight mb-1">
                 {period.planetTitle}
@@ -296,17 +304,17 @@ export default function PeriodsPage() {
       )),
       // Practice page
       <div key="practice" className="flex flex-col">
-        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Практика</p>
+        <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("periods.practice")}</p>
         <h2 className="text-[19px] font-bold text-black leading-tight mb-5">
           {period.planetTitle}
         </h2>
         <div className="space-y-3">
           <div className="rounded-2xl px-4 py-4" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.18)" }}>
-            <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-2">Направь силы</p>
+            <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-2">{t("periods.focusOn")}</p>
             <p className="text-[15px] text-black/80 leading-relaxed">{period.whatToFocus}</p>
           </div>
           <div className="rounded-2xl px-4 py-4" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)" }}>
-            <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-2">Отпусти</p>
+            <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-2">{t("periods.letGo")}</p>
             <p className="text-[15px] text-black/80 leading-relaxed">{period.whatToLetGo}</p>
           </div>
         </div>
@@ -316,7 +324,7 @@ export default function PeriodsPage() {
     return (
       <ScrollScreen
         pages={periodPages}
-        completionLabel="К периодам"
+        completionLabel={t("periods.backToPeriods")}
         onBack={goToMenu}
         onComplete={goToMenu}
       />
@@ -341,9 +349,9 @@ export default function PeriodsPage() {
         <div className="flex-1 min-h-0 px-4 py-2 pb-10">
           <div className="h-full rounded-3xl overflow-hidden" style={GLASS_STYLE}>
             <div className="h-full overflow-y-auto p-6">
-              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">Твои периоды</p>
-              <h2 className="text-[20px] font-bold text-black mb-1">Выбери период</h2>
-              <p className="text-sm text-black/40 mb-5">Детальный разбор каждого планетарного влияния</p>
+              <p className="text-[10px] text-black/35 uppercase tracking-widest mb-1">{t("periods.yourPeriods")}</p>
+              <h2 className="text-[20px] font-bold text-black mb-1">{t("periods.choose")}</h2>
+              <p className="text-sm text-black/40 mb-5">{t("periods.detailSubtitle")}</p>
               <div className="space-y-2">
                 {data.periods.map((p: LifePeriod, i: number) => (
                   <button
@@ -369,9 +377,9 @@ export default function PeriodsPage() {
   // ── INTRO ─────────────────────────────────────────────────────────────────
   const introPages: React.ReactNode[] = [
     <div key="intro" className="flex flex-col">
-      <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Твоя жизнь сейчас</p>
+      <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("periods.yourLife")}</p>
       <h2 className="text-[21px] font-bold text-black leading-tight mb-4">
-        {data.periods.length} активных {data.periods.length === 1 ? "период" : data.periods.length < 5 ? "периода" : "периодов"}
+        {data.periods.length} {t("periods.active").toLowerCase()}
       </h2>
       <p className="text-[15px] text-black leading-[1.85]">
         {data.overallPhase}
@@ -382,7 +390,7 @@ export default function PeriodsPage() {
   return (
     <ScrollScreen
       pages={introPages}
-      completionLabel="К периодам →"
+      completionLabel={t("periods.backToPeriodsArrow")}
       onBack={() => router.back()}
       onComplete={goToMenu}
     />

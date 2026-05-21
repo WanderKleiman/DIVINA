@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { t, APP_LANG } from "@/lib/i18n";
 
 interface CityOption {
   name: string;
@@ -36,7 +37,7 @@ async function searchGeoNames(q: string): Promise<CityOption[]> {
 
 async function searchNominatim(q: string): Promise<CityOption[]> {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1&featuretype=city`;
-  const res = await fetch(url, { headers: { "Accept-Language": "ru,en" } });
+  const res = await fetch(url, { headers: { "Accept-Language": APP_LANG === "en" ? "en,ru" : "ru,en" } });
   const data = await res.json();
   if (!Array.isArray(data)) return [];
   return data.map((r: { display_name: string; name: string; lat: string; lon: string; address?: { country?: string } }) => ({
@@ -48,7 +49,9 @@ async function searchNominatim(q: string): Promise<CityOption[]> {
   }));
 }
 
-export default function CityAutocomplete({ value, onChange, placeholder = "Москва", className = "" }: CityAutocompleteProps) {
+export default function CityAutocomplete({ value, onChange, placeholder, className = "" }: CityAutocompleteProps) {
+  const defaultPlaceholder = t("city.placeholder");
+  const resolvedPlaceholder = placeholder ?? defaultPlaceholder;
   const [query, setQuery] = useState(value);
   const [options, setOptions] = useState<CityOption[]>([]);
   const [open, setOpen] = useState(false);
@@ -119,7 +122,7 @@ export default function CityAutocomplete({ value, onChange, placeholder = "Мо�
         value={query}
         onChange={(e) => handleInput(e.target.value)}
         onFocus={() => options.length > 0 && setOpen(true)}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         className={className || "w-full rounded-xl bg-white/[0.12] border border-white/15 px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/30 transition-colors"}
       />
       {loading && (

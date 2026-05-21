@@ -54,6 +54,7 @@ function ScrollScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const { t } = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
   const activePageRef = useRef(0);
@@ -164,7 +165,7 @@ function ScrollScreen({
                 >
                   {completionLabel}
                 </button>
-                <p className="text-xs text-black/25">свайп вниз для перехода</p>
+                <p className="text-xs text-black/25">{t("swipe.hint")}</p>
               </div>
             </div>
           </div>
@@ -264,7 +265,7 @@ export default function InterpretationPage() {
       ? [
           // First page: title + first chunk
           <div key="t" className="flex flex-col">
-            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Разбор карты</p>
+            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("interpretation.chartBreakdown")}</p>
             <h2 className="text-[20px] font-bold text-black leading-tight mb-4">{sec.title}</h2>
             <p className="text-[15px] text-black leading-[1.85]">{chunks[0]}</p>
           </div>,
@@ -276,7 +277,7 @@ export default function InterpretationPage() {
         ]
       : [
           <div key="loading" className="flex flex-col gap-3">
-            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Разбор карты</p>
+            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("interpretation.chartBreakdown")}</p>
             <h2 className="text-[20px] font-bold text-black leading-tight mb-4">{sec?.title}</h2>
             <div className="space-y-3">
               {[1,2,3,4].map(n => (
@@ -288,7 +289,7 @@ export default function InterpretationPage() {
     return (
       <ScrollScreen
         pages={storyPages}
-        completionLabel="К разделам"
+        completionLabel={t("interpretation.backToSections")}
         onBack={() => setOpenSection(null)}
         onComplete={() => setOpenSection(null)}
       />
@@ -300,9 +301,9 @@ export default function InterpretationPage() {
   if (error || sections.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6">
-        <p className="text-sm text-white/40 mb-4 text-center">Не удалось загрузить расшифровку.</p>
+        <p className="text-sm text-white/40 mb-4 text-center">{t("interpretation.error")}.</p>
         <button onClick={() => router.back()} className="text-sm text-white/50 border border-white/15 rounded-xl px-4 py-2">
-          Назад
+          {t("generic.back")}
         </button>
       </div>
     );
@@ -328,8 +329,8 @@ export default function InterpretationPage() {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 className="text-2xl font-bold text-white mb-1">Расшифровка карты</h1>
-        <p className="text-sm text-white/40">Глубокий анализ каждой сферы жизни</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t("interpretation.pageTitle")}</h1>
+        <p className="text-sm text-white/40">{t("interpretation.pageSubtitle")}</p>
       </div>
 
       {/* White cards */}

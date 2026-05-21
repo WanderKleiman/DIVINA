@@ -2,20 +2,21 @@
 
 import PaywallSheet from "./PaywallSheet";
 import { formatPrice } from "@/lib/pricing";
+import { useT } from "@/lib/i18n";
 
 interface CompatibilityPaywallProps {
   open: boolean;
   onClose: () => void;
 }
 
-const perks = [
-  "Общий процент совместимости",
-  "Анализ по 5 сферам: любовь, эмоции, интеллект, ценности, страсть",
-  "Ключевые аспекты вашей пары",
-  "Рекомендации для укрепления отношений",
-];
-
 export default function CompatibilityPaywall({ open, onClose }: CompatibilityPaywallProps) {
+  const { t } = useT();
+  const perks = [
+    t("paywall.compat.perk1"),
+    t("paywall.compat.perk2"),
+    t("paywall.compat.perk3"),
+    t("paywall.compat.perk4"),
+  ];
   return (
     <PaywallSheet
       open={open}
@@ -23,7 +24,7 @@ export default function CompatibilityPaywall({ open, onClose }: CompatibilityPay
       videoSrc="/moon2.mp4"
       cta={
         <button className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors">
-          Разблокировать — {formatPrice(2)}
+          {t("paywall.unlock")} — {formatPrice(2)}
         </button>
       }
     >
@@ -33,8 +34,8 @@ export default function CompatibilityPaywall({ open, onClose }: CompatibilityPay
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-1">Совместимость</h2>
-        <p className="text-sm text-white/40">Узнайте, насколько вы совместимы</p>
+        <h2 className="text-2xl font-bold text-white mb-1">{t("paywall.compat.title")}</h2>
+        <p className="text-sm text-white/40">{t("paywall.compat.subtitle")}</p>
       </div>
 
       <div className="space-y-3 mb-4">

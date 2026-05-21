@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSubscriptionPrices } from "@/lib/pricing";
-
-const perks = [
-  "Предсказуемые дни — знай, когда действовать, а когда ждать",
-  "План недели — конкретные вызовы на каждый день",
-  "5 проверок совместимости в месяц",
-  "Расшифровка натальной карты",
-  "Без рекламы",
-];
+import { useT } from "@/lib/i18n";
 
 export default function ProPage() {
   const router = useRouter();
+  const { t } = useT();
   const [plan, setPlan] = useState<"year" | "month">("year");
   const prices = getSubscriptionPrices();
+  const perks = [
+    t("pro.perk1"),
+    t("pro.perk2"),
+    t("pro.perk3"),
+    t("pro.perk4"),
+    t("pro.perk5"),
+  ];
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
@@ -47,8 +48,8 @@ export default function ProPage() {
           </svg>
         </div>
 
-        <h1 style={{ fontSize: 30, fontWeight: 700, color: "white", marginBottom: 8, textAlign: "center" }}>Divina Pro</h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", marginBottom: 28, textAlign: "center" }}>Раскрой полный потенциал прогноза</p>
+        <h1 style={{ fontSize: 30, fontWeight: 700, color: "white", marginBottom: 8, textAlign: "center" }}>{t("pro.title")}</h1>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", marginBottom: 28, textAlign: "center" }}>{t("pro.subtitle")}</p>
 
         {/* Perks — dark glass card */}
         <div style={{ width: "100%", maxWidth: 360, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 20, padding: 20, marginBottom: 8 }}>
@@ -73,14 +74,14 @@ export default function ProPage() {
               style={{ position: "relative", width: "100%", borderRadius: 16, padding: 16, border: plan === "year" ? "1px solid rgba(255,255,255,0.40)" : "1px solid rgba(255,255,255,0.10)", background: plan === "year" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.04)", cursor: "pointer" }}
             >
               <div style={{ position: "absolute", top: -10, right: 16, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.85)", letterSpacing: "0.05em" }}>
-                ВЫГОДНО −40%
+                {t("pro.badge")}
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ textAlign: "left" }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0 }}>Годовая подписка</p>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", margin: "4px 0 0" }} suppressHydrationWarning>{prices.yearWeekly} / неделя</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0 }}>{t("pro.yearlySubscription")}</p>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", margin: "4px 0 0" }} suppressHydrationWarning>{prices.yearWeekly} {t("pro.perWeek")}</p>
                 </div>
-                <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }} suppressHydrationWarning>{prices.yearTotal}<span style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 400 }}> /год</span></p>
+                <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }} suppressHydrationWarning>{prices.yearTotal}<span style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 400 }}> {t("pro.perYear")}</span></p>
               </div>
             </button>
 
@@ -90,10 +91,10 @@ export default function ProPage() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ textAlign: "left" }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0 }}>Месячная подписка</p>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", margin: "4px 0 0" }} suppressHydrationWarning>{prices.monthWeekly} / неделя</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0 }}>{t("pro.monthlySubscription")}</p>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.50)", margin: "4px 0 0" }} suppressHydrationWarning>{prices.monthWeekly} {t("pro.perWeek")}</p>
                 </div>
-                <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }} suppressHydrationWarning>{prices.monthTotal}<span style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 400 }}> /мес</span></p>
+                <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }} suppressHydrationWarning>{prices.monthTotal}<span style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 400 }}> {t("pro.perMonth")}</span></p>
               </div>
             </button>
           </div>
@@ -105,10 +106,10 @@ export default function ProPage() {
             onClick={() => router.push("/pro/checkout")}
             style={{ width: "100%", borderRadius: 16, background: "white", padding: "16px 0", fontSize: 16, fontWeight: 700, color: "rgba(0,0,0,0.88)", border: "none", cursor: "pointer", boxShadow: "0 4px 32px rgba(0,0,0,0.6)" }}
           >
-            Попробовать бесплатно 14 дней
+            {t("pro.trialCta")}
           </button>
           <p style={{ textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 10 }} suppressHydrationWarning>
-            Затем {plan === "year" ? prices.yearLabel : prices.monthLabel} · Отмена в любое время
+            {t("pro.then")} {plan === "year" ? prices.yearLabel : prices.monthLabel} · {t("pro.cancelAnytime")}
           </p>
         </div>
       </div>

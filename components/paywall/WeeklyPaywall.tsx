@@ -2,20 +2,21 @@
 
 import PaywallSheet from "./PaywallSheet";
 import { formatPrice } from "@/lib/pricing";
+import { useT } from "@/lib/i18n";
 
 interface WeeklyPaywallProps {
   open: boolean;
   onClose: () => void;
 }
 
-const perks = [
-  "Энергия и рекомендации на каждый день недели",
-  "Списки «делать» и «избегать» по дням",
-  "Лучший и самый сложный день недели",
-  "Общая стратегия на неделю",
-];
-
 export default function WeeklyPaywall({ open, onClose }: WeeklyPaywallProps) {
+  const { t } = useT();
+  const perks = [
+    t("paywall.weekly.perk1"),
+    t("paywall.weekly.perk2"),
+    t("paywall.weekly.perk3"),
+    t("paywall.weekly.perk4"),
+  ];
   return (
     <PaywallSheet
       open={open}
@@ -23,7 +24,7 @@ export default function WeeklyPaywall({ open, onClose }: WeeklyPaywallProps) {
       videoSrc="/cosmos-10.mp4"
       cta={
         <button className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors">
-          Разблокировать — {formatPrice(2)}
+          {t("paywall.unlock")} — {formatPrice(2)}
         </button>
       }
     >
@@ -36,8 +37,8 @@ export default function WeeklyPaywall({ open, onClose }: WeeklyPaywallProps) {
             <line x1="16" y1="2" x2="16" y2="6" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-1">Недельный расклад</h2>
-        <p className="text-sm text-white/40">Детальный прогноз на каждый день</p>
+        <h2 className="text-2xl font-bold text-white mb-1">{t("paywall.weekly.title")}</h2>
+        <p className="text-sm text-white/40">{t("paywall.weekly.subtitle")}</p>
       </div>
 
       <div className="space-y-3 mb-4">

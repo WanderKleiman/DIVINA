@@ -102,6 +102,10 @@ const dict: Record<string, Record<Locale, string>> = {
   "week.best": { ru: "лучший", en: "best" },
   "week.hardest": { ru: "сложный", en: "hardest" },
   "week.bestDayFor": { ru: "Лучший день для...", en: "Best day for..." },
+  "week.yourWeek": { ru: "Твоя неделя", en: "Your week" },
+  "week.advice": { ru: "Совет недели", en: "Weekly advice" },
+  "week.byDaysArrow": { ru: "По дням →", en: "By days →" },
+  "week.backToPeriods": { ru: "К периодам →", en: "Back to periods →" },
 
   // BestDayFor labels
   "bestDay.decisions": { ru: "Важные решения", en: "Important decisions" },
@@ -255,6 +259,82 @@ const dict: Record<string, Record<Locale, string>> = {
   "section.all": { ru: "Все", en: "All" },
   "section.notableDates": { ru: "Знаковые даты", en: "Notable dates" },
   "swipe.hint": { ru: "свайп вниз для перехода", en: "swipe down to continue" },
+
+  // ===== Periods =====
+  "periods.yourLife": { ru: "Твоя жизнь сейчас", en: "Your life now" },
+  "periods.choose": { ru: "Выбери период", en: "Choose a period" },
+  "periods.yourPeriods": { ru: "Твои периоды", en: "Your periods" },
+  "periods.detailSubtitle": { ru: "Детальный разбор каждого планетарного влияния", en: "Detailed breakdown of each planetary influence" },
+  "periods.backToPeriods": { ru: "К периодам", en: "Back to periods" },
+  "periods.backToPeriodsArrow": { ru: "К периодам →", en: "Back to periods →" },
+  "periods.practice": { ru: "Практика", en: "Practice" },
+  "periods.focusOn": { ru: "Направь силы", en: "Focus on" },
+  "periods.letGo": { ru: "Отпусти", en: "Let go" },
+  "periods.active": { ru: "Активный период", en: "Active period" },
+  "periods.moderate": { ru: "Умеренный период", en: "Moderate period" },
+  "periods.background": { ru: "Фоновый период", en: "Background period" },
+  "periods.period": { ru: "Период", en: "Period" },
+  "periods.noData": { ru: "Данные не загружены.", en: "Data not loaded." },
+  "periods.noDataHint": { ru: "Вернись на страницу «Для тебя» и подожди загрузки.", en: "Return to the For You page and wait for the data to load." },
+  "periods.backArrow": { ru: "← Назад", en: "← Back" },
+  "periods.toMain": { ru: "На главную", en: "To main" },
+
+  // ===== For You page =====
+  "forYou.forYouHeader": { ru: "Для тебя", en: "For you" },
+  "forYou.interpretationTitle": { ru: "Расшифровка натальной карты", en: "Natal chart interpretation" },
+  "forYou.interpretationDesc": { ru: "Полный разбор карты рождения с интерпретацией", en: "Full birth chart breakdown with interpretation" },
+  "forYou.weeklyTitle": { ru: "Расклад на 1 неделю", en: "1-week spread" },
+  "forYou.weeklyDesc": { ru: "Детальный прогноз на каждый день недели", en: "Detailed forecast for each day of the week" },
+  "forYou.compatTitle": { ru: "Совместимость", en: "Compatibility" },
+  "forYou.compatDesc": { ru: "Совместимость с партнёром по натальным картам", en: "Compatibility with a partner based on natal charts" },
+  "forYou.purchaseLabelInterpretation": { ru: "Расшифровка натальной карты", en: "Natal chart interpretation" },
+  "forYou.purchaseLabelCompatibility": { ru: "Совместимость", en: "Compatibility" },
+  "forYou.purchaseLabelWeekly": { ru: "Расклад на неделю", en: "Weekly spread" },
+  "forYou.withPartner": { ru: "с", en: "with" },
+  "forYou.periodDateSep": { ru: "—", en: "—" },
+
+  // ===== Pro page =====
+  "pro.perk1": { ru: "Предсказуемые дни — знай, когда действовать, а когда ждать", en: "Predictable days — know when to act and when to wait" },
+  "pro.perk2": { ru: "План недели — конкретные вызовы на каждый день", en: "Weekly plan — specific challenges for each day" },
+  "pro.perk3": { ru: "5 проверок совместимости в месяц", en: "5 compatibility checks per month" },
+  "pro.perk4": { ru: "Расшифровка натальной карты", en: "Natal chart interpretation" },
+  "pro.perk5": { ru: "Без рекламы", en: "No ads" },
+  "pro.trialCta": { ru: "Попробовать бесплатно 14 дней", en: "Try free for 14 days" },
+  "pro.then": { ru: "Затем", en: "Then" },
+  "pro.yearlySubscription": { ru: "Годовая подписка", en: "Yearly subscription" },
+  "pro.monthlySubscription": { ru: "Месячная подписка", en: "Monthly subscription" },
+  "pro.badge": { ru: "ВЫГОДНО −40%", en: "BEST VALUE −40%" },
+
+  // ===== Paywalls =====
+  "paywall.weekly.title": { ru: "Недельный расклад", en: "Weekly spread" },
+  "paywall.weekly.subtitle": { ru: "Детальный прогноз на каждый день", en: "Detailed forecast for each day" },
+  "paywall.weekly.perk1": { ru: "Энергия и рекомендации на каждый день недели", en: "Energy and recommendations for each day of the week" },
+  "paywall.weekly.perk2": { ru: "Списки «делать» и «избегать» по дням", en: "Do and avoid lists by day" },
+  "paywall.weekly.perk3": { ru: "Лучший и самый сложный день недели", en: "Best and hardest day of the week" },
+  "paywall.weekly.perk4": { ru: "Общая стратегия на неделю", en: "Overall weekly strategy" },
+  "paywall.interp.title": { ru: "Расшифровка карты", en: "Chart interpretation" },
+  "paywall.interp.subtitle": { ru: "Полный разбор натальной карты рождения", en: "Full birth natal chart breakdown" },
+  "paywall.interp.perk1": { ru: "Детальный анализ Солнца, Луны и Асцендента", en: "Detailed Sun, Moon, and Ascendant analysis" },
+  "paywall.interp.perk2": { ru: "Интерпретация всех 10 планет в знаках и домах", en: "Interpretation of all 10 planets in signs and houses" },
+  "paywall.interp.perk3": { ru: "Ключевые аспекты и их влияние на вашу жизнь", en: "Key aspects and their influence on your life" },
+  "paywall.interp.perk4": { ru: "Персональные таланты и зоны роста", en: "Personal talents and growth areas" },
+  "paywall.interp.perk5": { ru: "Кармические уроки и жизненная миссия", en: "Karmic lessons and life mission" },
+  "paywall.compat.title": { ru: "Совместимость", en: "Compatibility" },
+  "paywall.compat.subtitle": { ru: "Узнайте, насколько вы совместимы", en: "Discover how compatible you are" },
+  "paywall.compat.perk1": { ru: "Общий процент совместимости", en: "Overall compatibility percentage" },
+  "paywall.compat.perk2": { ru: "Анализ по 5 сферам: любовь, эмоции, интеллект, ценности, страсть", en: "Analysis across 5 areas: love, emotions, intellect, values, passion" },
+  "paywall.compat.perk3": { ru: "Ключевые аспекты вашей пары", en: "Key aspects of your couple" },
+  "paywall.compat.perk4": { ru: "Рекомендации для укрепления отношений", en: "Recommendations for strengthening the relationship" },
+  "paywall.unlock": { ru: "Разблокировать", en: "Unlock" },
+
+  // ===== CityAutocomplete =====
+  "city.placeholder": { ru: "Москва", en: "New York" },
+
+  // ===== Interpretation page (additional) =====
+  "interpretation.chartBreakdown": { ru: "Разбор карты", en: "Chart breakdown" },
+  "interpretation.backToSections": { ru: "К разделам", en: "Back to sections" },
+  "interpretation.pageTitle": { ru: "Расшифровка карты", en: "Chart interpretation" },
+  "interpretation.pageSubtitle": { ru: "Глубокий анализ каждой сферы жизни", en: "Deep analysis of each life area" },
 };
 
 // ===== Static t() function — reads APP_LANG at module load time =====
