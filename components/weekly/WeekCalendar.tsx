@@ -77,8 +77,7 @@ function buildDescription(tags: DayTag[], lang: string): string {
 }
 
 export default function WeekCalendar({ days, bestDay, hardestDay }: WeekCalendarProps) {
-  let lang = "ru";
-  try { lang = typeof localStorage !== "undefined" ? (localStorage.getItem("divina_lang") ?? "ru") : "ru"; } catch {}
+  const lang = process.env.NEXT_PUBLIC_APP_LANG === "en" ? "en" : "ru";
 
   // Pairs: [0,1], [2,3], [4,5], [6]
   const pairs: WeeklyDayHighlight[][] = [];

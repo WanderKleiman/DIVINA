@@ -23,8 +23,8 @@ const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July
 
 function getTodayLabel() {
   const now = new Date();
-  let lang = "ru";
-  try { lang = localStorage.getItem("divina_lang") ?? "ru"; } catch {}
+  // Use build-time env var — language is fixed per deployment
+  const lang = process.env.NEXT_PUBLIC_APP_LANG === "en" ? "en" : "ru";
   if (lang === "en") {
     return `${WEEKDAYS_EN[now.getDay()]}, ${MONTHS_EN[now.getMonth()]} ${now.getDate()}`;
   }
