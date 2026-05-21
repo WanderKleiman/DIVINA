@@ -268,6 +268,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      // URL param ?lang=en takes highest priority (shareable link)
+      const urlLang = new URLSearchParams(window.location.search).get("lang");
+      if (urlLang === "en" || urlLang === "ru") {
+        setLangState(urlLang);
+        localStorage.setItem("divina_lang", urlLang);
+        // Also persist into user data
+        const storedUser = localStorage.getItem("divina_user");
+        const userData = storedUser ? JSON.parse(storedUser) : {};
+        userData.lang = urlLang;
+        localStorage.setItem("divina_user", JSON.stringify(userData));
+        return;
+      }
+
       const stored = localStorage.getItem("divina_lang");
       if (stored === "en" || stored === "ru") {
         setLangState(stored);

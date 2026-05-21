@@ -99,8 +99,6 @@ export default function OnboardingFlow() {
     {
       icon: "✦",
       title: t("onboarding.slide1.title"),
-      description: t("onboarding.slide1.desc"),
-      subtitle: t("onboarding.slide1.subtitle"),
       bullets: [
         { bold: t("onboarding.slide1.b1.bold"), text: t("onboarding.slide1.b1.text") },
         { bold: t("onboarding.slide1.b2.bold"), text: t("onboarding.slide1.b2.text") },
@@ -123,19 +121,18 @@ export default function OnboardingFlow() {
               <h1 className="text-2xl font-bold text-white mb-3">
                 {slides[step].title}
               </h1>
-              <p className="text-sm leading-relaxed text-white mb-4 whitespace-pre-line">
-                {slides[step].description}
-              </p>
-              {slides[step].subtitle && (
-                <p className="text-sm font-medium text-white/80 mb-3 mt-2">{slides[step].subtitle}</p>
+              {slides[step].description && (
+                <p className="text-sm leading-relaxed text-white mb-4 whitespace-pre-line">
+                  {slides[step].description}
+                </p>
               )}
               {slides[step].bullets && (
                 <div className="text-left space-y-2.5 mb-6 w-full">
                   {slides[step].bullets!.map((b, i) => (
-                    <div key={i} className="rounded-2xl bg-white/[0.08] border border-white/[0.10] px-4 py-3 flex gap-3 items-start">
-                      <span className="text-white/30 shrink-0 mt-0.5 text-base">✦</span>
-                      <span className="text-sm leading-relaxed text-white/80">
-                        <strong className="text-white font-semibold">{b.bold}</strong> — {b.text}
+                    <div key={i} className="rounded-2xl bg-white border border-white/20 px-4 py-3 flex gap-3 items-start shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
+                      <span className="text-black/25 shrink-0 mt-0.5 text-base">✦</span>
+                      <span className="text-sm leading-relaxed text-black/65">
+                        <strong className="text-black/85 font-semibold">{b.bold}</strong> — {b.text}
                       </span>
                     </div>
                   ))}
