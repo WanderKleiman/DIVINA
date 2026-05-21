@@ -6,7 +6,7 @@ import { useT } from "@/lib/i18n";
 import type { ToneOfVoice } from "@/lib/ai-interpret";
 
 export default function SettingsSection() {
-  const { t, lang, setLang } = useT();
+  const { t } = useT();
   const [notifications, setNotifications] = useState(true);
   const [dailyReminder, setDailyReminder] = useState(true);
   const [tone, setTone] = useState<ToneOfVoice>("deep");
@@ -35,14 +35,6 @@ export default function SettingsSection() {
     } catch {}
   }
 
-  function handleLangChange(newLang: "ru" | "en") {
-    setLang(newLang);
-    // Clear ALL divina session caches so AI content regenerates in new language
-    for (const key of Object.keys(sessionStorage)) {
-      if (key.startsWith("divina")) sessionStorage.removeItem(key);
-    }
-  }
-
   return (
     <div className="glass mx-5">
       <div className="relative z-10 p-4">
@@ -68,33 +60,6 @@ export default function SettingsSection() {
                   <span className="block text-[10px] text-white/35 mt-0.5 leading-tight">{t(tn.descKey)}</span>
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Language selector */}
-          <div className="border-t border-white/10 pt-3">
-            <span className="text-sm text-white/70 block mb-2">{t("profile.language")}</span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleLangChange("ru")}
-                className={`rounded-xl border py-2.5 text-sm font-medium transition-colors ${
-                  lang === "ru"
-                    ? "border-white/40 bg-white/15 text-white"
-                    : "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/8"
-                }`}
-              >
-                Русский
-              </button>
-              <button
-                onClick={() => handleLangChange("en")}
-                className={`rounded-xl border py-2.5 text-sm font-medium transition-colors ${
-                  lang === "en"
-                    ? "border-white/40 bg-white/15 text-white"
-                    : "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/8"
-                }`}
-              >
-                English
-              </button>
             </div>
           </div>
 

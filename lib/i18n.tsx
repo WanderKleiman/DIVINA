@@ -1,8 +1,15 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export type Locale = "ru" | "en";
+
+// Language is determined at BUILD TIME via NEXT_PUBLIC_APP_LANG env var.
+// RU project: NEXT_PUBLIC_APP_LANG=ru  → divina-app.vercel.app
+// EN project: NEXT_PUBLIC_APP_LANG=en  → divina-en.vercel.app
+// No runtime switching — language is fixed per deployment.
+export const APP_LANG: Locale =
+  process.env.NEXT_PUBLIC_APP_LANG === "en" ? "en" : "ru";
 
 // ===== Dictionary =====
 const dict: Record<string, Record<Locale, string>> = {
@@ -64,7 +71,6 @@ const dict: Record<string, Record<Locale, string>> = {
   "profile.totalForecasts": { ru: "Всего прогнозов", en: "Total forecasts" },
   "profile.withUsSince": { ru: "С нами с", en: "With us since" },
   "profile.days": { ru: "дней", en: "days" },
-  "profile.language": { ru: "Язык", en: "Language" },
 
   // ===== Tones =====
   "tone.direct": { ru: "Прямой", en: "Direct" },
@@ -165,6 +171,7 @@ const dict: Record<string, Record<Locale, string>> = {
   "compat.newCheck": { ru: "Новая проверка", en: "New check" },
   "compat.partnerNotFound": { ru: "Данные партнёра не найдены", en: "Partner data not found" },
   "compat.error": { ru: "Не удалось рассчитать совместимость", en: "Failed to calculate compatibility" },
+  "compat.analyzing": { ru: "Анализируем вашу совместимость...", en: "Analyzing your compatibility..." },
 
   // ===== For You =====
   "forYou.title": { ru: "Для тебя", en: "For you" },
@@ -192,7 +199,6 @@ const dict: Record<string, Record<Locale, string>> = {
 
   // ===== Background =====
   "bg.animation": { ru: "Анимация", en: "Animation" },
-  "bg.white": { ru: "Белый", en: "White" },
   "bg.change": { ru: "Сменить фон", en: "Change background" },
 
   // ===== Months (nominative) =====
@@ -236,6 +242,8 @@ const dict: Record<string, Record<Locale, string>> = {
   "generic.error": { ru: "Ошибка", en: "Error" },
   "generic.back": { ru: "Назад", en: "Back" },
   "generic.error_occurred": { ru: "Произошла ошибка", en: "An error occurred" },
+
+  // ===== Errors & Actions =====
   "error.forecast": { ru: "Не удалось загрузить прогноз. Проверьте соединение и попробуйте снова.", en: "Failed to load forecast. Check your connection and try again." },
   "error.calendar": { ru: "Не удалось загрузить календарь. Проверьте соединение и попробуйте снова.", en: "Failed to load calendar. Check your connection and try again." },
   "error.weekly": { ru: "Не удалось загрузить прогноз на неделю.", en: "Failed to load weekly forecast." },
@@ -246,88 +254,33 @@ const dict: Record<string, Record<Locale, string>> = {
   "section.yourPeriods": { ru: "Твои периоды", en: "Your periods" },
   "section.all": { ru: "Все", en: "All" },
   "section.notableDates": { ru: "Знаковые даты", en: "Notable dates" },
-  "compat.analyzing": { ru: "Анализируем вашу совместимость...", en: "Analyzing your compatibility..." },
   "swipe.hint": { ru: "свайп вниз для перехода", en: "swipe down to continue" },
 };
 
-// ===== Context =====
-interface I18nContextValue {
-  lang: Locale;
-  setLang: (lang: Locale) => void;
-  t: (key: string) => string;
+// ===== Static t() function — reads APP_LANG at module load time =====
+export function t(key: string): string {
+  return dict[key]?.[APP_LANG] ?? key;
 }
 
-const I18nContext = createContext<I18nContextValue>({
-  lang: "ru",
-  setLang: () => {},
-  t: (key) => key,
-});
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Locale>("ru");
-
-  useEffect(() => {
-    try {
-      // URL param ?lang=en takes highest priority (shareable link)
-      const urlLang = new URLSearchParams(window.location.search).get("lang");
-      if (urlLang === "en" || urlLang === "ru") {
-        setLangState(urlLang);
-        localStorage.setItem("divina_lang", urlLang);
-        // Also persist into user data
-        const storedUser = localStorage.getItem("divina_user");
-        const userData = storedUser ? JSON.parse(storedUser) : {};
-        userData.lang = urlLang;
-        localStorage.setItem("divina_user", JSON.stringify(userData));
-        return;
-      }
-
-      const stored = localStorage.getItem("divina_lang");
-      if (stored === "en" || stored === "ru") {
-        setLangState(stored);
-      } else {
-        // Check user data for lang
-        const userData = localStorage.getItem("divina_user");
-        if (userData) {
-          const parsed = JSON.parse(userData);
-          if (parsed.lang === "en" || parsed.lang === "ru") {
-            setLangState(parsed.lang);
-          }
-        }
-      }
-    } catch {}
-  }, []);
-
-  const setLang = useCallback((newLang: Locale) => {
-    setLangState(newLang);
-    try {
-      localStorage.setItem("divina_lang", newLang);
-      // Also update user data
-      const stored = localStorage.getItem("divina_user");
-      const data = stored ? JSON.parse(stored) : {};
-      data.lang = newLang;
-      localStorage.setItem("divina_user", JSON.stringify(data));
-      // Update html lang attribute
-      document.documentElement.lang = newLang;
-    } catch {}
-  }, []);
-
-  const t = useCallback((key: string): string => {
-    return dict[key]?.[lang] ?? key;
-  }, [lang]);
-
-  return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
-      {children}
-    </I18nContext.Provider>
-  );
-}
-
+// ===== useT() hook — returns static values, no state =====
+// setLang is a no-op: language is fixed per deployment
 export function useT() {
-  return useContext(I18nContext);
+  return {
+    t,
+    lang: APP_LANG,
+    setLang: (_: Locale) => {
+      console.warn("setLang is disabled — language is fixed per Vercel deployment.");
+    },
+  };
+}
+
+// ===== LanguageProvider — pass-through, kept for layout compat =====
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }
 
 // Helper for formatting dates
-export function formatDateLocalized(iso: string, lang: Locale): string {
+export function formatDateLocalized(iso: string, lang: Locale = APP_LANG): string {
   const parts = iso.split("-");
   const day = parseInt(parts[2], 10);
   const month = parseInt(parts[1], 10);
@@ -338,7 +291,7 @@ export function formatDateLocalized(iso: string, lang: Locale): string {
 }
 
 // Short month+day for weekly cards
-export function formatShortDate(dayNumber: number, month: number, lang: Locale): string {
+export function formatShortDate(dayNumber: number, month: number, lang: Locale = APP_LANG): string {
   if (lang === "en") {
     const shortMonths = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return `${shortMonths[month]} ${dayNumber}`;

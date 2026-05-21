@@ -1,5 +1,9 @@
 // Client-side helper to get user birth data from localStorage
 
+// Language is fixed per deployment — never read from localStorage
+const APP_LANG: "ru" | "en" =
+  process.env.NEXT_PUBLIC_APP_LANG === "en" ? "en" : "ru";
+
 export interface UserBirthData {
   birthDate: string;
   birthTime: string;
@@ -26,15 +30,16 @@ const DEFAULT_USER: UserBirthData = {
 };
 
 export function getUserData(): UserBirthData {
-  if (typeof window === "undefined") return DEFAULT_USER;
+  if (typeof window === "undefined") return { ...DEFAULT_USER, lang: APP_LANG };
   try {
     const stored = localStorage.getItem("divina_user");
     if (stored) {
       const parsed = JSON.parse(stored);
-      return { ...DEFAULT_USER, ...parsed };
+      // Force lang to the deployment's fixed language — ignore any stored value
+      return { ...DEFAULT_USER, ...parsed, lang: APP_LANG };
     }
   } catch {}
-  return DEFAULT_USER;
+  return { ...DEFAULT_USER, lang: APP_LANG };
 }
 
 export function getToday(): string {
