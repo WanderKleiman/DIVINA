@@ -51,13 +51,12 @@ export default function BackgroundSwitcher() {
       if (saved && VALID_IDS.has(saved)) {
         setActiveBg(saved);
       } else {
-        // No valid saved bg — rotate to next video
-        const rotated = getRotatedBackground();
-        setActiveBg(rotated);
-        localStorage.setItem(STORAGE_KEY, rotated);
+        // No saved bg — default to canvas animation (works everywhere including simulator)
+        setActiveBg("canvas");
+        localStorage.setItem(STORAGE_KEY, "canvas");
       }
     } catch {
-      setActiveBg(VIDEO_BACKGROUNDS[0].id);
+      setActiveBg("canvas");
     }
   }, [isOnboarding]);
 
@@ -71,26 +70,27 @@ export default function BackgroundSwitcher() {
     setOpen(false);
   };
 
-  // On onboarding, show main video
+  // On onboarding, show main video (with solid color fallback while loading)
   if (isOnboarding) {
-    if (!mounted) return null;
     return (
-      <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true" style={{ pointerEvents: "none" }}>
-        <video
-          className="absolute top-1/2 left-1/2"
-          style={{
-            transform: "translate(-50%, -50%) rotate(90deg)",
-            minWidth: "100vh",
-            minHeight: "100vw",
-            width: "auto",
-            height: "auto",
-          }}
-          src={MAIN_VIDEO_SRC}
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
+      <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true" style={{ pointerEvents: "none", background: "#0f0824" }}>
+        {mounted && (
+          <video
+            className="absolute top-1/2 left-1/2"
+            style={{
+              transform: "translate(-50%, -50%) rotate(90deg)",
+              minWidth: "100vh",
+              minHeight: "100vw",
+              width: "auto",
+              height: "auto",
+            }}
+            src={MAIN_VIDEO_SRC}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        )}
         <div className="absolute inset-0 bg-black/40" />
       </div>
     );
