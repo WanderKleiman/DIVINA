@@ -16,7 +16,7 @@ import { useT } from "@/lib/i18n";
 import type { NatalChart, User } from "@/lib/types";
 import type { PersonalityBreakdown as PersonalityBreakdownType } from "@/lib/ai-interpret";
 
-const CACHE_KEY = "divina-natal-cache";
+const CACHE_KEY = "divina-natal-cache-v2";
 
 export default function ProfilePage() {
   const [chart, setChart] = useState<NatalChart | null>(null);

@@ -327,7 +327,7 @@ export default function ForYouPage() {
                         }
                         // Fallback: check if cached result exists (name-only stub lets result page find it)
                         const user = getUserData();
-                        const localResultKey = `divina-compat-local-v1_${partnerName}_${user.birthDate}_${user.lang}`;
+                        const localResultKey = `divina-compat-local-v2_${partnerName}_${user.birthDate}_${user.lang}`;
                         if (localStorage.getItem(localResultKey)) {
                           sessionStorage.setItem("divina_compat_partner", JSON.stringify({ name: partnerName }));
                           router.push("/compatibility/result");

@@ -247,8 +247,8 @@ export default function CompatibilityResultPage() {
         const user = getUserData();
 
         // Check session cache, then localStorage (persists across app restarts)
-        const cacheKey = `divina-compat-result-v3_${name}_${user.birthDate}_${user.lang}`;
-        const localKey = `divina-compat-local-v1_${name}_${user.birthDate}_${user.lang}`;
+        const cacheKey = `divina-compat-result-v4_${name}_${user.birthDate}_${user.lang}`;
+        const localKey = `divina-compat-local-v2_${name}_${user.birthDate}_${user.lang}`;
         const cached = sessionStorage.getItem(cacheKey) ?? localStorage.getItem(localKey);
         if (cached) {
           try {
