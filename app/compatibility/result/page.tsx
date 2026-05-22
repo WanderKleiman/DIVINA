@@ -97,7 +97,7 @@ function ScrollScreen({
       onClick={onBack}
     >
       <div
-        className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0"
+        className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -191,7 +191,7 @@ function LoadingSkeleton({ partnerName }: { partnerName: string }) {
   const { t } = useT();
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
-      <div className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0">
+      <div className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}>
         <div className="h-10 w-10 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.15)" }} />
         <div className="h-3 w-20 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.12)" }} />
         <div className="w-10" />
@@ -246,14 +246,16 @@ export default function CompatibilityResultPage() {
 
         const user = getUserData();
 
-        // Check session cache
-        const cacheKey = `divina-compat-result-v2_${name}_${user.birthDate}`;
-        const cached = sessionStorage.getItem(cacheKey);
+        // Check session cache, then localStorage (persists across app restarts)
+        const cacheKey = `divina-compat-result-v3_${name}_${user.birthDate}_${user.lang}`;
+        const localKey = `divina-compat-local-v1_${name}_${user.birthDate}_${user.lang}`;
+        const cached = sessionStorage.getItem(cacheKey) ?? localStorage.getItem(localKey);
         if (cached) {
           try {
             const parsed = JSON.parse(cached);
             if (parsed?.overallPercent) {
               setResult(parsed);
+              sessionStorage.setItem(cacheKey, cached);
               setLoading(false);
               return;
             }
@@ -275,7 +277,12 @@ export default function CompatibilityResultPage() {
         const data = await res.json() as CompatibilityAIResult;
         if (controller.signal.aborted) return;
         setResult(data);
-        sessionStorage.setItem(cacheKey, JSON.stringify(data));
+        const resultJson = JSON.stringify(data);
+        sessionStorage.setItem(cacheKey, resultJson);
+        // Save to localStorage so result persists across app restarts
+        try { localStorage.setItem(localKey, resultJson); } catch {}
+        // Save partner data to localStorage so history can restore it
+        try { localStorage.setItem(`divina-compat-partner-local-v1_${name}`, partnerRaw); } catch {}
         if (!hasPurchase("compatibility")) {
           savePurchase("compatibility", { partnerName: name });
         }
@@ -361,7 +368,7 @@ export default function CompatibilityResultPage() {
   if (phase === "menu") {
     return (
       <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
-        <div className="flex items-center px-5 pt-14 pb-2 shrink-0">
+        <div className="flex items-center px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}>
           <button
             onClick={goToOverview}
             className="flex h-10 w-10 items-center justify-center rounded-full"

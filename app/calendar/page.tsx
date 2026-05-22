@@ -8,7 +8,7 @@ import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { CalendarDay } from "@/lib/types";
 
-const CACHE_PREFIX = "divina-calendar-v2-";
+const CACHE_PREFIX = "divina-calendar-v3-";
 
 const FILTER_CHIPS = [
   { id: "all", label: "Все" },
@@ -72,7 +72,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     setNotableFilter("all");
-    const cacheKey = `${CACHE_PREFIX}${year}-${month}`;
+    const cacheKey = `${CACHE_PREFIX}${year}-${month}-${lang}`;
 
     // Check session cache
     const cached = sessionStorage.getItem(cacheKey);
@@ -90,7 +90,7 @@ export default function CalendarPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/calendar?year=${year}&month=${month}&birthDate=${user.birthDate}&birthTime=${user.birthTime}&lat=${user.lat}&lng=${user.lng}&tzOffset=${user.tzOffset}`
+          `/api/calendar?year=${year}&month=${month}&birthDate=${user.birthDate}&birthTime=${user.birthTime}&lat=${user.lat}&lng=${user.lng}&tzOffset=${user.tzOffset}&lang=${user.lang}`
         );
         const data = await res.json();
         if (data?.days) {

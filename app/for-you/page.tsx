@@ -315,7 +315,18 @@ export default function ForYouPage() {
                   <button
                     onClick={() => {
                       if (p.type === "interpretation") router.push("/interpretation");
-                      else if (p.type === "compatibility") router.push("/compatibility");
+                      else if (p.type === "compatibility") {
+                        // Restore partner data from localStorage so result page can re-use it
+                        const savedPartner = p.meta?.partnerName
+                          ? localStorage.getItem(`divina-compat-partner-local-v1_${p.meta.partnerName}`)
+                          : null;
+                        if (savedPartner) {
+                          sessionStorage.setItem("divina_compat_partner", savedPartner);
+                          router.push("/compatibility/result");
+                        } else {
+                          router.push("/compatibility");
+                        }
+                      }
                       else if (p.type === "weekly") router.push("/weekly");
                     }}
                     className="text-xs text-white/50 border border-white/15 rounded-xl px-3 py-1.5 hover:bg-white/10 transition-colors"

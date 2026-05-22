@@ -16,6 +16,8 @@ import {
   getSignIndex,
   getHouseForPlanet,
   SIGN_NAMES_RU,
+  SIGN_NAMES_EN,
+  PLANET_NAMES_EN,
   SIGN_SYMBOLS,
 } from "./ephemeris";
 import { getMoonData } from "./moon-calc";
@@ -510,15 +512,17 @@ export function generateCalendarDays(
   year: number,
   month: number,
   natalPositions?: PlanetPosition[],
-  natalCusps?: number[]
+  natalCusps?: number[],
+  lang: string = "ru"
 ): CalendarDay[] {
   const daysInMonth = new Date(year, month, 0).getDate();
   const days: CalendarDay[] = [];
+  const isEn = lang === "en";
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const jd = julianDay(sw, year, month, d, 12, 0);
-    const moon = getMoonData(sw, jd);
+    const moon = getMoonData(sw, jd, lang);
 
     // Check for major transits if natal data available
     let hasTransit = false;
@@ -529,13 +533,23 @@ export function generateCalendarDays(
     // Key events: new moon, full moon
     if (moon.phase === "new" || moon.phase === "full") {
       hasTransit = true;
-      transitLabel = `${moon.phaseRu} в ${moon.sign}`;
-      brief = moon.phase === "new"
-        ? "Новолуние — идеальный момент для намерений и новых начинаний."
-        : "Полнолуние усиливает эмоции. Время отпускать старое и подводить итоги.";
-      recommendation = moon.phase === "new"
-        ? "Ставьте цели и намерения на новый лунный цикл"
-        : "Отпустите то, что больше не служит вашему росту";
+      transitLabel = isEn
+        ? `${moon.phaseRu} in ${moon.sign}`
+        : `${moon.phaseRu} в ${moon.sign}`;
+      brief = isEn
+        ? (moon.phase === "new"
+          ? "New Moon — ideal moment for intentions and new beginnings."
+          : "Full Moon amplifies emotions. Time to release the old and reflect.")
+        : (moon.phase === "new"
+          ? "Новолуние — идеальный момент для намерений и новых начинаний."
+          : "Полнолуние усиливает эмоции. Время отпускать старое и подводить итоги.");
+      recommendation = isEn
+        ? (moon.phase === "new"
+          ? "Set goals and intentions for the new lunar cycle"
+          : "Release what no longer serves your growth")
+        : (moon.phase === "new"
+          ? "Ставьте цели и намерения на новый лунный цикл"
+          : "Отпустите то, что больше не служит вашему росту");
     }
 
     // Check for transits to natal planets (if available)
@@ -548,15 +562,26 @@ export function generateCalendarDays(
           const angle = diff > 180 ? 360 - diff : diff;
           if (angle < 1) { // very tight orb for calendar
             hasTransit = true;
-            const tName = tp.id === 5 ? "Юпитер" : "Сатурн";
-            const nName = SIGN_NAMES_RU[getSignIndex(np.longitude)];
-            transitLabel = `${tName} ☌ натальная позиция`;
+            const tName = isEn
+              ? (tp.id === 5 ? "Jupiter" : "Saturn")
+              : (tp.id === 5 ? "Юпитер" : "Сатурн");
+            transitLabel = isEn
+              ? `${tName} ☌ natal position`
+              : `${tName} ☌ натальная позиция`;
             if (tp.id === 5) {
-              brief = `Юпитер активирует натальную точку. Время возможностей и роста.`;
-              recommendation = "Принимайте важные решения и начинайте новые проекты для карьерного роста";
+              brief = isEn
+                ? "Jupiter activates a natal point. Time of opportunities and growth."
+                : "Юпитер активирует натальную точку. Время возможностей и роста.";
+              recommendation = isEn
+                ? "Make important decisions and start new projects for career growth"
+                : "Принимайте важные решения и начинайте новые проекты для карьерного роста";
             } else {
-              brief = `Сатурн активирует натальную точку. Значимый период ответственности.`;
-              recommendation = "Время для серьёзных решений, долгосрочных планов и карьерных изменений";
+              brief = isEn
+                ? "Saturn activates a natal point. A significant period of responsibility."
+                : "Сатурн активирует натальную точку. Значимый период ответственности.";
+              recommendation = isEn
+                ? "Time for serious decisions, long-term plans and career changes"
+                : "Время для серьёзных решений, долгосрочных планов и карьерных изменений";
             }
             break;
           }

@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const lat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : null;
     const lng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : null;
     const tzOffset = parseInt(searchParams.get("tzOffset") ?? "5");
+    const lang = searchParams.get("lang") ?? "ru";
 
     const sw = await initEphemeris();
 
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
       natalCusps = houses.cusps;
     }
 
-    const days = generateCalendarDays(sw, year, month, natalPositions, natalCusps);
+    const days = generateCalendarDays(sw, year, month, natalPositions, natalCusps, lang);
 
     return NextResponse.json({ year, month, days });
   } catch (e: unknown) {

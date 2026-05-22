@@ -147,7 +147,7 @@ export default function TodayPage() {
           }));
 
           // Load calendar in background — doesn't block the page
-          fetch(`/api/calendar?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}&birthDate=${user.birthDate}&birthTime=${user.birthTime}&lat=${user.lat}&lng=${user.lng}&tzOffset=${user.tzOffset}`)
+          fetch(`/api/calendar?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}&birthDate=${user.birthDate}&birthTime=${user.birthTime}&lat=${user.lat}&lng=${user.lng}&tzOffset=${user.tzOffset}&lang=${user.lang}`)
             .then(r => r.json())
             .then(calendarData => {
               if (cancelled) return;

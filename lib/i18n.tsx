@@ -186,7 +186,7 @@ const dict: Record<string, Record<Locale, string>> = {
   "forYou.perWeek": { ru: "/неделя", en: "/week" },
   "forYou.learnMore": { ru: "Подробнее", en: "Learn more" },
   "forYou.oneTime": { ru: "Разовые покупки", en: "One-time purchases" },
-  "forYou.myPurchases": { ru: "Мои покупки", en: "My purchases" },
+  "forYou.myPurchases": { ru: "История запросов", en: "Request history" },
   "forYou.open": { ru: "Открыть", en: "Open" },
 
   // ===== Pro =====

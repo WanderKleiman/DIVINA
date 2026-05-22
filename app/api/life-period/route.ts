@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  initEphemeris, getSignIndex, SIGN_NAMES_RU, SIGN_NAMES_RU_PREP, PLANET_NAMES_RU,
+  initEphemeris, getSignIndex,
+  SIGN_NAMES_RU, SIGN_NAMES_RU_PREP, PLANET_NAMES_RU,
+  SIGN_NAMES_EN, PLANET_NAMES_EN,
   calcAllPlanets, calcHouseCusps, julianDay, calcPlanetPosition,
   findSignTransitDates,
 } from "@/lib/ephemeris";
@@ -37,12 +39,15 @@ export async function POST(req: NextRequest) {
     const natalPositions = calcAllPlanets(sw, birthJd);
     const houses = calcHouseCusps(sw, birthJd, lat, lng);
 
-    const sunSign = SIGN_NAMES_RU[getSignIndex(natalPositions[0].longitude)];
-    const ascSign = SIGN_NAMES_RU[getSignIndex(houses.ascendant)];
+    const SIGN_NAMES = lang === "en" ? SIGN_NAMES_EN : SIGN_NAMES_RU;
+    const PLANET_NAMES = lang === "en" ? PLANET_NAMES_EN : PLANET_NAMES_RU;
+
+    const sunSign = SIGN_NAMES[getSignIndex(natalPositions[0].longitude)];
+    const ascSign = SIGN_NAMES[getSignIndex(houses.ascendant)];
 
     const now = new Date();
     const todayJd = julianDay(sw, now.getFullYear(), now.getMonth() + 1, now.getDate(), 12, 0);
-    const moon = getMoonData(sw, todayJd);
+    const moon = getMoonData(sw, todayJd, lang);
 
     // Current transit positions → natal aspects
     const transitPositions = calcAllPlanets(sw, todayJd);
@@ -61,22 +66,25 @@ export async function POST(req: NextRequest) {
     for (const { id, step } of SLOW_PLANETS) {
       const pos = calcPlanetPosition(sw, todayJd, id);
       const signIdx = getSignIndex(pos.longitude);
-      const sign = SIGN_NAMES_RU[signIdx];
-      const signPrep = SIGN_NAMES_RU_PREP[signIdx]; // "Раке", "Стрельце", etc.
+      const sign = SIGN_NAMES[signIdx];
+      // For EN, use sign name directly (no prepositional case needed in English)
+      const signPrep = lang === "en" ? SIGN_NAMES_EN[signIdx] : SIGN_NAMES_RU_PREP[signIdx];
       const { startDate, endDate } = findSignTransitDates(sw, todayJd, id, step);
 
       const planetAspects = rawAspects
         .filter(a => a.transitPlanetId === id)
         .slice(0, 3)
         .map(a => ({
-          planet: PLANET_NAMES_RU[a.natalPlanetId],
-          aspect: ASPECT_NAMES[a.aspectName]?.ru ?? a.aspectName,
+          planet: PLANET_NAMES[a.natalPlanetId],
+          aspect: lang === "en"
+            ? (ASPECT_NAMES[a.aspectName]?.en ?? a.aspectName)
+            : (ASPECT_NAMES[a.aspectName]?.ru ?? a.aspectName),
           impact: guessImpact(a.aspectName),
           orb: +a.orb.toFixed(1),
         }));
 
       slowPlanetPeriods.push({
-        planetName: PLANET_NAMES_RU[id],
+        planetName: PLANET_NAMES[id],
         sign,
         signPrep,
         startDate,

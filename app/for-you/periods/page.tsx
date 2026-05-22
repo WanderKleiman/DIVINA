@@ -136,7 +136,7 @@ function ScrollScreen({
     >
       {/* Top bar — stop propagation so clicks here don't close */}
       <div
-        className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0"
+        className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -335,7 +335,7 @@ export default function PeriodsPage() {
   if (phase === "menu") {
     return (
       <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
-        <div className="flex items-center px-5 pt-14 pb-2 shrink-0">
+        <div className="flex items-center px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}>
           <button
             onClick={() => setPhase("intro")}
             className="flex h-10 w-10 items-center justify-center rounded-full"
