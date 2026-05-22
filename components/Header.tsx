@@ -30,7 +30,7 @@ export default function Header({ settingsHref }: HeaderProps) {
   const { t } = useT();
 
   return (
-    <header className="flex items-center justify-between px-5 pb-2" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}>
+    <header className="flex items-center justify-between px-5 pb-2" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
       <h1 className="font-heading text-2xl font-bold text-glow">Divina</h1>
       {settingsHref ? (
         <Link href={settingsHref} className={btnClass} aria-label={t("header.settings")}>

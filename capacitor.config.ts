@@ -15,27 +15,31 @@ const config: CapacitorConfig = {
     cleartext: false,
   },
   ios: {
-    contentInset: "automatic",
+    // "never" = WebView fills the full screen including under status bar / Dynamic Island
+    // CSS env(safe-area-inset-*) then provides the correct inset values
+    contentInset: "never",
     preferredContentMode: "mobile",
-    backgroundColor: "#070415",
+    backgroundColor: "#0f0824",
   },
   android: {
-    backgroundColor: "#070415",
+    backgroundColor: "#0f0824",
     allowMixedContent: false,
   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1500,
       launchAutoHide: true,
-      backgroundColor: "#070415",
+      backgroundColor: "#0f0824",
       androidSplashResourceName: "splash",
       iosSplashResourceName: "Splash",
       showSpinner: false,
     },
     StatusBar: {
-      style: "dark",
-      backgroundColor: "#070415",
-      overlaysWebView: false,
+      // LIGHT = white icons/time on dark background
+      style: "LIGHT",
+      // overlaysWebView: true lets the WebView render behind the status bar
+      // so viewport-fit=cover + env(safe-area-inset-top) work correctly
+      overlaysWebView: true,
     },
   },
 };

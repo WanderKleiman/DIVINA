@@ -316,12 +316,20 @@ export default function ForYouPage() {
                     onClick={() => {
                       if (p.type === "interpretation") router.push("/interpretation");
                       else if (p.type === "compatibility") {
-                        // Restore partner data from localStorage so result page can re-use it
-                        const savedPartner = p.meta?.partnerName
-                          ? localStorage.getItem(`divina-compat-partner-local-v1_${p.meta.partnerName}`)
-                          : null;
+                        const partnerName = p.meta?.partnerName;
+                        if (!partnerName) { router.push("/compatibility"); return; }
+                        // Try saved partner birth data first (full restore)
+                        const savedPartner = localStorage.getItem(`divina-compat-partner-local-v1_${partnerName}`);
                         if (savedPartner) {
                           sessionStorage.setItem("divina_compat_partner", savedPartner);
+                          router.push("/compatibility/result");
+                          return;
+                        }
+                        // Fallback: check if cached result exists (name-only stub lets result page find it)
+                        const user = getUserData();
+                        const localResultKey = `divina-compat-local-v1_${partnerName}_${user.birthDate}_${user.lang}`;
+                        if (localStorage.getItem(localResultKey)) {
+                          sessionStorage.setItem("divina_compat_partner", JSON.stringify({ name: partnerName }));
                           router.push("/compatibility/result");
                         } else {
                           router.push("/compatibility");

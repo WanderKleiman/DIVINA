@@ -5,12 +5,12 @@ import Header from "@/components/Header";
 import MonthGrid from "@/components/calendar/MonthGrid";
 import ForecastSkeleton from "@/components/ForecastSkeleton";
 import { getUserData } from "@/lib/user-data";
-import { useT } from "@/lib/i18n";
+import { useT, APP_LANG } from "@/lib/i18n";
 import type { CalendarDay } from "@/lib/types";
 
 const CACHE_PREFIX = "divina-calendar-v3-";
 
-const FILTER_CHIPS = [
+const FILTER_CHIPS_RU = [
   { id: "all", label: "Все" },
   { id: "decisions", label: "Решения" },
   { id: "love", label: "Любовь" },
@@ -19,13 +19,34 @@ const FILTER_CHIPS = [
   { id: "health", label: "Здоровье" },
 ] as const;
 
-type FilterId = (typeof FILTER_CHIPS)[number]["id"];
+const FILTER_CHIPS_EN = [
+  { id: "all", label: "All" },
+  { id: "decisions", label: "for decisions" },
+  { id: "love", label: "for love" },
+  { id: "rest", label: "for chill" },
+  { id: "career", label: "for career" },
+  { id: "health", label: "for health" },
+] as const;
+
+const FILTER_CHIPS = APP_LANG === "en" ? FILTER_CHIPS_EN : FILTER_CHIPS_RU;
+
+type FilterId = (typeof FILTER_CHIPS_RU)[number]["id"];
 
 function matchesFilter(day: CalendarDay, filter: FilterId): boolean {
   if (filter === "all") return true;
   const text = [day.brief ?? "", day.recommendation ?? "", day.transitLabel ?? ""]
     .join(" ")
     .toLowerCase();
+  if (APP_LANG === "en") {
+    switch (filter) {
+      case "decisions": return /decision|choice|intention|goal|plan|start|commit/.test(text);
+      case "love":      return /love|relation|feeling|emotion|heart|tender|connect|partner/.test(text);
+      case "rest":      return /rest|recover|peace|let go|relax|slow|quiet|reflect/.test(text);
+      case "career":    return /work|career|project|business|finance|money|income|growth/.test(text);
+      case "health":    return /health|body|energy|strength|vital|wellness/.test(text);
+      default:          return true;
+    }
+  }
   switch (filter) {
     case "decisions": return /решени|выбор|намерени|цел|начинани|планир/.test(text);
     case "love":      return /любов|отношени|чувств|эмоц|сердц|нежн/.test(text);
@@ -112,7 +133,10 @@ export default function CalendarPage() {
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
 
   const notableDays = days
-    ? days.filter(d => d.hasTransit === true && (!isCurrentMonth || d.dayNumber >= todayNum))
+    ? days.filter(d =>
+        (d.hasTransit === true || d.energy === "high") &&
+        (!isCurrentMonth || d.dayNumber >= todayNum)
+      )
     : [];
 
   const filteredNotable = notableDays.filter(d => matchesFilter(d, notableFilter));
@@ -160,8 +184,8 @@ export default function CalendarPage() {
                     className="shrink-0 rounded-full transition-all"
                     style={
                       notableFilter === chip.id
-                        ? { background: "white", border: "1px solid white", color: "rgba(0,0,0,0.82)", padding: "7px 16px", fontSize: 13, fontWeight: 600 }
-                        : { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.80)", padding: "7px 16px", fontSize: 13, fontWeight: 500 }
+                        ? { background: "white", border: "1px solid white", color: "rgba(0,0,0,0.85)", padding: "7px 18px", fontSize: 13, fontWeight: 700 }
+                        : { background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", padding: "7px 18px", fontSize: 13, fontWeight: 500 }
                     }
                   >
                     {chip.label}
@@ -171,7 +195,7 @@ export default function CalendarPage() {
 
               {/* Cards */}
               {filteredNotable.length === 0 ? (
-                <p className="text-sm text-white/30 py-2">Нет дат по этому фильтру</p>
+                <p className="text-sm text-white/30 py-2">{APP_LANG === "en" ? "No dates for this filter" : "Нет дат по этому фильтру"}</p>
               ) : (
                 <div className="flex flex-col gap-3">
                   {filteredNotable.map((day, i) => (

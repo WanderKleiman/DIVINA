@@ -154,7 +154,7 @@ export default function TodayPage() {
               if (calendarData?.days) {
                 const todayNum = new Date().getDate();
                 const notable = calendarData.days
-                  .filter((d: { hasTransit: boolean; dayNumber: number }) => d.hasTransit && d.dayNumber > todayNum)
+                  .filter((d: { hasTransit: boolean; energy: string; dayNumber: number }) => (d.hasTransit || d.energy === "high") && d.dayNumber > todayNum)
                   .slice(0, 3)
                   .map((d: { date: string; dayNumber: number; transitLabel?: string; brief?: string; recommendation?: string }) => ({
                     date: d.date,

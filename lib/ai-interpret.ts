@@ -567,7 +567,69 @@ export async function interpretCompatibility(input: CompatibilityAIInput, tone: 
     `${a.planet1}(1) ${a.aspect} ${a.planet2}(2)`
   ).join(", ");
 
-  const userPrompt = `Проанализируй совместимость двух людей по натальным картам. Пиши напрямую читателю (ТЫ) о том, как эти два типа людей взаимодействуют в реальности.
+  const userPrompt = lang === "en"
+    ? `Analyze the compatibility of two people based on their natal charts. Write directly to the reader (YOU) about how these two types of people interact in real life.
+
+PERSON 1 (reader): Sun ${input.user.sunSign}, Moon ${input.user.moonSign}
+Planets: ${input.user.planets.map(p => `${p.name} in ${p.sign}`).join(", ")}
+
+PERSON 2 (partner): Sun ${input.partner.sunSign}, Moon ${input.partner.moonSign}
+Planets: ${input.partner.planets.map(p => `${p.name} in ${p.sign}`).join(", ")}
+
+Synastry aspects: ${aspectsDesc || "none significant"}
+
+RETURN JSON:
+{
+  "overallPercent": number 40-95,
+  "categories": [
+    { "name": "Love", "percent": number, "description": "(80-150 chars) specific insight" },
+    { "name": "Emotions", "percent": number, "description": "..." },
+    { "name": "Intellect", "percent": number, "description": "..." },
+    { "name": "Values", "percent": number, "description": "..." },
+    { "name": "Passion", "percent": number, "description": "..." }
+  ],
+  "essence": "(5-10 words) the core of this couple",
+  "keywords": ["3-5 keywords describing the pair"],
+  "sections": [
+    {
+      "title": "First attraction",
+      "story": "(3000-4000 chars) How you and this person perceive each other from the very first moments. What draws you to their personality type and what draws them to yours. How your energies read each other — what clicks instantly and what takes time. What surprises you, what sparks interest, what gives you pause. A concrete psychological analysis of two archetypes meeting."
+    },
+    {
+      "title": "Love and tenderness",
+      "story": "(3000-4000 chars) How you express love and how your partner receives it based on your natures. How your partner shows care and whether that matches what you need. Where your love languages align, where they diverge, and how this plays out in real situations. What each of you needs to feel truly loved. How your emotional archetypes interact in intimacy."
+    },
+    {
+      "title": "Emotions and feelings",
+      "story": "(3000-4000 chars) How each of you is wired emotionally by nature. How you react to stress, conflict, and joy — and how your partner does. Where your emotional responses resonate and where they create misunderstanding. How you support each other in difficult moments. What happens when one of you shuts down — how the other experiences it. A deep look at the emotional dynamics of this pairing."
+    },
+    {
+      "title": "Values and life goals",
+      "story": "(3000-4000 chars) What is fundamentally important to you in life based on your chart, and what matters to your partner. How you both view family, freedom, money, career, and personal growth. Where your priorities align and create a solid foundation. Where they diverge and how that might show up years into the relationship. What you need to discuss early to prevent those differences from becoming sources of disappointment."
+    },
+    {
+      "title": "Passion and attraction",
+      "story": "(3000-4000 chars) How strong the physical and sensual attraction is between your two types. What fuels it — which qualities in each other you find irresistible. How your natural energies of desire and attraction interact. What keeps the spark alive long-term for people with your charts. What can extinguish it and how to prevent that. How your passion transforms over time."
+    },
+    {
+      "title": "Conflicts and disagreements",
+      "story": "(3000-4000 chars) The typical tension zones between your types — where and why you clash. How you behave in conflict by nature, and how your partner does. What bothers each of you most. How you make up — and what gets in the way. What argument patterns are characteristic of this sign combination. What to change in your approach so conflicts become growth points."
+    },
+    {
+      "title": "Shared growth and potential",
+      "story": "(3000-4000 chars) What you gain from this person for your own development — what they teach you, which sides of you they bring out. What your partner gains from you. What lesson this combination holds for you. Where this couple can arrive if both are willing to do the work. What makes this union special and rare. The long-term potential of your relationship."
+    }
+  ],
+  "summary": "(150-300 chars) The essential truth about this couple — direct and honest"
+}
+
+RULES:
+- Address the reader as "you", refer to the partner as "they" or "your partner"
+- No invented scenes or stories ("they met one evening", etc.)
+- Write like a real psychological astrologer: analyze archetypes and how they interact
+- No planet names or astrological jargon in the text — only the essence
+- Each section must be a full, rich read — several paragraphs minimum`
+    : `Проанализируй совместимость двух людей по натальным картам. Пиши напрямую читателю (ТЫ) о том, как эти два типа людей взаимодействуют в реальности.
 
 ЧЕЛОВЕК 1 (читатель): Солнце ${input.user.sunSign}, Луна ${input.user.moonSign}
 Планеты: ${input.user.planets.map(p => `${p.name} в ${p.sign}`).join(", ")}

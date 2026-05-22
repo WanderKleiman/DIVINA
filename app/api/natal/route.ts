@@ -107,7 +107,8 @@ export async function POST(req: NextRequest) {
       SIGN_NAMES[sunIdx],
       SIGN_NAMES[ascIdx],
       SIGN_NAMES[moonIdx],
-      planets
+      planets,
+      lang
     );
 
     const chart: NatalChart = {
@@ -160,10 +161,15 @@ function generateAspectInterpretation(p1: string, aspect: string, p2: string): s
   return aspectMap[key1] ?? aspectMap[key2] ?? aspectMap["default"] ?? `${aspect} ${p1} и ${p2}.`;
 }
 
-function buildChartInterpretation(sun: string, asc: string, moon: string, planets: Planet[]): string {
+function buildChartInterpretation(sun: string, asc: string, moon: string, planets: Planet[], lang: string = "ru"): string {
+  if (lang === "en") {
+    const mercurySign = planets.find((p) => p.name === "Mercury")?.sign ?? "";
+    const venusSign = planets.find((p) => p.name === "Venus")?.sign ?? "";
+    const marsSign = planets.find((p) => p.name === "Mars")?.sign ?? "";
+    return `Sun in ${sun} defines your essence and life energy, while the Ascendant in ${asc} shapes how others perceive you. Moon in ${moon} governs your emotional needs and inner world. ${mercurySign ? `Mercury in ${mercurySign} reflects your thinking and communication style.` : ""} ${venusSign ? `Venus in ${venusSign} influences your relationships and values.` : ""} ${marsSign ? `Mars in ${marsSign} drives your actions and motivation.` : ""}`.trim();
+  }
   const mercurySign = planets.find((p) => p.name === "Меркурий")?.sign ?? "";
   const venusSign = planets.find((p) => p.name === "Венера")?.sign ?? "";
   const marsSign = planets.find((p) => p.name === "Марс")?.sign ?? "";
-
   return `Солнце в ${sun} определяет вашу сущность и жизненную энергию, а Асцендент в ${asc} формирует то, как вас воспринимают окружающие. Луна в ${moon} отвечает за эмоциональные потребности и внутренний мир. ${mercurySign ? `Меркурий в ${mercurySign} определяет стиль мышления и общения.` : ""} ${venusSign ? `Венера в ${venusSign} влияет на отношения и ценности.` : ""} ${marsSign ? `Марс в ${marsSign} задаёт стиль действий и мотивацию.` : ""}`.trim();
 }

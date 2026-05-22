@@ -87,8 +87,8 @@ export default function BottomNav() {
   ) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="mx-auto max-w-lg border-t border-white/10 bg-black/40 backdrop-blur-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-xl border-t border-white/10">
+      <div className="mx-auto max-w-lg">
         <div className="flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)]">
           {tabIds.map((tab) => {
             const isActive = pathname.startsWith(tab.href);
