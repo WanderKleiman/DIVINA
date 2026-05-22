@@ -7,10 +7,13 @@ import { getSubscriptionPrices } from "@/lib/pricing";
 import InterpretationPaywall from "@/components/paywall/InterpretationPaywall";
 import WeeklyPaywall from "@/components/paywall/WeeklyPaywall";
 import CompatibilityPaywall from "@/components/paywall/CompatibilityPaywall";
+import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { getPurchases, type Purchase } from "@/lib/purchases";
 import { getUserData } from "@/lib/user-data";
 import { useT, APP_LANG, formatShortDate } from "@/lib/i18n";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
+import { isInFreeTrial, ensureTrialStarted } from "@/lib/trial";
+import { useProStatus } from "@/lib/pro-status";
 
 type PaywallType = "interpretation" | "weekly" | "compatibility" | null;
 
@@ -78,12 +81,14 @@ function formatPurchaseDate(iso: string) {
 export default function ForYouPage() {
   const router = useRouter();
   const [openPaywall, setOpenPaywall] = useState<PaywallType>(null);
+  const [openSubPaywall, setOpenSubPaywall] = useState(false);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [periodsData, setPeriodsData] = useState<LifePeriodsResult | null>(null);
   const [periodsLoading, setPeriodsLoading] = useState(true);
   const [periodsError, setPeriodsError] = useState(false);
   const prices = getSubscriptionPrices();
   const { t } = useT();
+  const { isPro } = useProStatus();
   const oneTimePurchases = getOneTimePurchases(t);
   const PURCHASE_LABELS: Record<string, string> = {
     interpretation: t("forYou.purchaseLabelInterpretation"),
@@ -129,12 +134,19 @@ export default function ForYouPage() {
   }
 
   useEffect(() => {
+    ensureTrialStarted();
     setPurchases(getPurchases());
     loadPeriods();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleItemClick(item: typeof oneTimePurchases[0]) {
+    if (item.id === "compatibility") {
+      if (!isInFreeTrial() && !isPro) {
+        setOpenSubPaywall(true);
+        return;
+      }
+    }
     if (item.href) {
       router.push(item.href);
     } else {
@@ -298,6 +310,96 @@ export default function ForYouPage() {
           </div>
         </div>
 
+        {/* Pro subscription features */}
+        <div className="animate-fade-in-up px-5 pt-2">
+          <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
+          <div className="space-y-2.5">
+            {/* Year Forecast */}
+            <button
+              onClick={() => {
+                if (isInFreeTrial() || isPro) {
+                  router.push("/for-you/year");
+                } else {
+                  setOpenSubPaywall(true);
+                }
+              }}
+              className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+            >
+              <video
+                src="/cosmos-4.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ pointerEvents: "none" }}
+              />
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                    <path d="M12 14v4M10 16h4" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="text-sm font-medium text-white">{t("forYou.yearTitle")}</h3>
+                    <span className="text-[9px] font-semibold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5 tracking-wider">PRO</span>
+                  </div>
+                  <p className="text-xs text-white/50 line-clamp-1">{t("forYou.yearDesc")}</p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25 group-hover:text-white/40 transition-colors">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </button>
+
+            {/* Natal Chart for Others */}
+            <button
+              onClick={() => {
+                if (isInFreeTrial() || isPro) {
+                  router.push("/for-you/others");
+                } else {
+                  setOpenSubPaywall(true);
+                }
+              }}
+              className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+            >
+              <video
+                src="/cosmos-7.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ pointerEvents: "none" }}
+              />
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+                    <line x1="19" y1="8" x2="19" y2="14" />
+                    <line x1="22" y1="11" x2="16" y2="11" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="text-sm font-medium text-white">{t("forYou.othersTitle")}</h3>
+                    <span className="text-[9px] font-semibold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5 tracking-wider">PRO</span>
+                  </div>
+                  <p className="text-xs text-white/50 line-clamp-1">{t("forYou.othersDesc")}</p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25 group-hover:text-white/40 transition-colors">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* Purchase history */}
         {purchases.length > 0 && (
           <div className="animate-fade-in-up px-5 pt-2 pb-4">
@@ -351,6 +453,7 @@ export default function ForYouPage() {
       <InterpretationPaywall open={openPaywall === "interpretation"} onClose={() => setOpenPaywall(null)} />
       <WeeklyPaywall open={openPaywall === "weekly"} onClose={() => setOpenPaywall(null)} />
       <CompatibilityPaywall open={openPaywall === "compatibility"} onClose={() => setOpenPaywall(null)} />
+      <SubscriptionPaywall open={openSubPaywall} onClose={() => setOpenSubPaywall(false)} />
 
     </>
   );

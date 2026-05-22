@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import WeekDayList from "@/components/weekly/WeekDayList";
 import BestDayCard from "@/components/weekly/BestDayCard";
+import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { getUserData, getWeekStart } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { WeeklyForecast } from "@/lib/types";
+import { isInFreeTrial } from "@/lib/trial";
+import { useProStatus } from "@/lib/pro-status";
 
 const CACHE_KEY = "divina-weekly-cache";
 
@@ -255,7 +258,15 @@ export default function WeeklyPage() {
   const [loadError, setLoadError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [phase, setPhase] = useState<"story" | "days">("story");
+  const [showPaywall, setShowPaywall] = useState(false);
   const { t } = useT();
+  const { isPro, isLoading: proLoading } = useProStatus();
+
+  useEffect(() => {
+    if (!isInFreeTrial() && !isPro && !proLoading) {
+      setShowPaywall(true);
+    }
+  }, [isPro, proLoading]);
 
   useEffect(() => {
     const user = getUserData();
@@ -311,6 +322,7 @@ export default function WeeklyPage() {
       <div>
         <Header />
         <WeeklySkeleton />
+        <SubscriptionPaywall open={showPaywall} onClose={() => { setShowPaywall(false); router.back(); }} />
       </div>
     );
   }
@@ -328,6 +340,7 @@ export default function WeeklyPage() {
             {t("action.retry")}
           </button>
         </div>
+        <SubscriptionPaywall open={showPaywall} onClose={() => { setShowPaywall(false); router.back(); }} />
       </div>
     );
   }
@@ -369,40 +382,46 @@ export default function WeeklyPage() {
     ];
 
     return (
-      <ScrollScreen
-        pages={storyPages}
-        completionLabel={t("week.byDaysArrow")}
-        onBack={() => router.back()}
-        onComplete={() => setPhase("days")}
-      />
+      <>
+        <ScrollScreen
+          pages={storyPages}
+          completionLabel={t("week.byDaysArrow")}
+          onBack={() => router.back()}
+          onComplete={() => setPhase("days")}
+        />
+        <SubscriptionPaywall open={showPaywall} onClose={() => { setShowPaywall(false); router.back(); }} />
+      </>
     );
   }
 
   // ── DAYS PHASE ──────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-4 pb-28">
-      <div className="flex items-center gap-3 px-5 pt-4">
-        <button
-          onClick={() => setPhase("story")}
-          className="flex h-10 w-10 items-center justify-center rounded-full"
-          style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <h2 className="text-lg font-semibold text-white/90">{w.weekLabel}</h2>
+    <>
+      <div className="flex flex-col gap-4 pb-28">
+        <div className="flex items-center gap-3 px-5 pt-4">
+          <button
+            onClick={() => setPhase("story")}
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h2 className="text-lg font-semibold text-white/90">{w.weekLabel}</h2>
+        </div>
+
+        {w.bestDayFor && (
+          <BestDayCard bestDayFor={w.bestDayFor} />
+        )}
+
+        <WeekDayList
+          days={w.days}
+          bestDay={w.bestDay}
+          hardestDay={w.hardestDay}
+        />
       </div>
-
-      {w.bestDayFor && (
-        <BestDayCard bestDayFor={w.bestDayFor} />
-      )}
-
-      <WeekDayList
-        days={w.days}
-        bestDay={w.bestDay}
-        hardestDay={w.hardestDay}
-      />
-    </div>
+      <SubscriptionPaywall open={showPaywall} onClose={() => { setShowPaywall(false); router.back(); }} />
+    </>
   );
 }

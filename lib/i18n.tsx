@@ -374,6 +374,43 @@ const dict: Record<string, Record<Locale, string>> = {
   "paywall.purchaseError": { ru: "Не удалось совершить покупку. Попробуйте снова.", en: "Purchase failed. Please try again." },
   "paywall.restoreError": { ru: "Не удалось восстановить покупки.", en: "Could not restore purchases." },
 
+  // ===== Year Forecast =====
+  "yearForecast.title": { ru: "Расклад на год", en: "Year Forecast" },
+  "yearForecast.subtitle": { ru: "Персональный прогноз на 12 месяцев", en: "Personal 12-month forecast" },
+  "yearForecast.overallTheme": { ru: "Тема года", en: "Year theme" },
+  "yearForecast.loading": { ru: "Составляем расклад на год...", en: "Generating your year forecast..." },
+  "yearForecast.error": { ru: "Не удалось загрузить расклад на год", en: "Failed to load year forecast" },
+  "yearForecast.keyFocus": { ru: "Фокус месяца", en: "Monthly focus" },
+  "yearForecast.watchOut": { ru: "Обрати внимание", en: "Watch out" },
+  "yearForecast.retrogrades": { ru: "Ретрограды", en: "Retrogrades" },
+  "yearForecast.energy.high": { ru: "Высокая энергия", en: "High energy" },
+  "yearForecast.energy.medium": { ru: "Средняя энергия", en: "Medium energy" },
+  "yearForecast.energy.low": { ru: "Низкая энергия", en: "Low energy" },
+  "yearForecast.done": { ru: "Закрыть", en: "Done" },
+
+  // ===== Others (Natal for others) =====
+  "others.title": { ru: "Натальная карта другого человека", en: "Chart for someone else" },
+  "others.subtitle": { ru: "Введи данные рождения, чтобы узнать человека глубже", en: "Enter birth data to understand someone more deeply" },
+  "others.name": { ru: "Имя", en: "Name" },
+  "others.namePlaceholder": { ru: "Имя человека", en: "Person's name" },
+  "others.analyze": { ru: "Анализировать", en: "Analyze" },
+  "others.analyzing": { ru: "Анализируем...", en: "Analyzing..." },
+  "others.history": { ru: "Последние анализы", en: "Recent analyses" },
+  "others.error": { ru: "Не удалось загрузить анализ", en: "Failed to load analysis" },
+  "others.back": { ru: "Назад", en: "Back" },
+  "others.newAnalysis": { ru: "Новый анализ", en: "New analysis" },
+
+  // ===== Pro upsell =====
+  "upsell.title": { ru: "✦ Divina Pro", en: "✦ Divina Pro" },
+  "upsell.text": { ru: "Расклад на год, совместимость и многое другое", en: "Get year forecast, compatibility, and more" },
+  "upsell.cta": { ru: "Узнать о Pro", en: "Explore Pro" },
+
+  // ===== For You — new cards =====
+  "forYou.yearTitle": { ru: "Расклад на год", en: "Year Forecast" },
+  "forYou.yearDesc": { ru: "Персональный прогноз на каждый из 12 месяцев", en: "Personal forecast for each of the 12 months" },
+  "forYou.othersTitle": { ru: "Натальная карта другого человека", en: "Chart for Someone Else" },
+  "forYou.othersDesc": { ru: "Разбор личности любого человека по дате рождения", en: "Personality breakdown for anyone by birth date" },
+
   // ===== CityAutocomplete =====
   "city.placeholder": { ru: "Москва", en: "New York" },
 

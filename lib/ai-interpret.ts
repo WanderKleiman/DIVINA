@@ -1071,3 +1071,143 @@ ${isEn ? "CRITICAL: ALL text content MUST be in ENGLISH." : "Язык: Русс�
     };
   }
 }
+
+// ===== Year Forecast =====
+
+export interface YearMonth {
+  month: number; // 1-12
+  monthName: string;
+  year: number;
+  energy: "high" | "medium" | "low";
+  retrogrades: string[]; // e.g. ["Mercury", "Venus"]
+  jupiterSign: string;
+  saturnSign: string;
+  marsSign: string;
+  positiveAspects: number;
+  challengingAspects: number;
+}
+
+export interface YearForecastResult {
+  overallTheme: string; // 1 sentence about the year
+  months: {
+    month: number;
+    monthName: string;
+    year: number;
+    energy: "high" | "medium" | "low";
+    theme: string; // 3-5 words
+    story: string; // 3-4 paragraphs
+    keyFocus: string; // 1 sentence: what to focus on
+    watchOut: string; // 1 sentence: what to watch out for
+    retrogrades: string[];
+  }[];
+}
+
+export async function interpretYearForecast(input: {
+  sunSign: string;
+  moonSign: string;
+  ascendant: string;
+  months: YearMonth[];
+}, tone: ToneOfVoice = "deep", lang: string = "ru"): Promise<YearForecastResult> {
+  const isEn = lang === "en";
+
+  const monthsDesc = input.months.map((m, i) => {
+    const retros = m.retrogrades.length > 0 ? (isEn ? `Retrogrades: ${m.retrogrades.join(", ")}` : `Ретрограды: ${m.retrogrades.join(", ")}`) : "";
+    const aspects = isEn ? `Personal transits: ${m.positiveAspects} supportive, ${m.challengingAspects} challenging` : `Личные транзиты: ${m.positiveAspects} поддерживающих, ${m.challengingAspects} напряжённых`;
+    return `${i+1}. ${m.monthName} ${m.year}: Jupiter in ${m.jupiterSign}, Saturn in ${m.saturnSign}, Mars in ${m.marsSign}. ${retros} ${aspects}`;
+  }).join("\n");
+
+  const userPrompt = isEn ? `Write a personal year forecast for someone with Sun ${input.sunSign}, Moon ${input.moonSign}, Ascendant ${input.ascendant}.
+
+MONTHLY PLANETARY DATA:
+${monthsDesc}
+
+Return a detailed year forecast as JSON. Each month gets a short theme, a story (3-4 paragraphs, 600-800 chars), what to focus on, and what to watch out for. Write directly to "you". No astrological jargon — only real-life meaning.
+
+{
+  "overallTheme": "One sentence: the main theme of this year for this person",
+  "months": [
+    {
+      "month": 1,
+      "monthName": "...",
+      "year": 2026,
+      "energy": "high|medium|low",
+      "theme": "3-5 words",
+      "story": "3-4 paragraphs, 600-800 chars, direct and personal",
+      "keyFocus": "One concrete action or focus for this month",
+      "watchOut": "One thing to be aware of or avoid",
+      "retrogrades": []
+    }
+  ]
+}
+
+Rules: exactly 12 months, energy matches aspect balance (more positive = high, more challenging = low, balanced = medium), no planet names in story text, write about real life: relationships, work, energy, decisions.`
+  : `Напиши личный расклад на год для человека с Солнцем ${input.sunSign}, Луной ${input.moonSign}, Асцендентом ${input.ascendant}.
+
+ПЛАНЕТАРНЫЕ ДАННЫЕ ПО МЕСЯЦАМ:
+${monthsDesc}
+
+Верни подробный годовой расклад как JSON. Каждый месяц получает тему, историю (3-4 абзаца, 600-800 символов), на что фокусироваться и чего остерегаться. Пиши напрямую на «ты». Без астрологических терминов — только реальная жизнь.
+
+{
+  "overallTheme": "Одно предложение: главная тема этого года для этого человека",
+  "months": [
+    {
+      "month": 1,
+      "monthName": "...",
+      "year": 2026,
+      "energy": "high|medium|low",
+      "theme": "3-5 слов",
+      "story": "3-4 абзаца, 600-800 символов, прямо и лично",
+      "keyFocus": "Одно конкретное действие или фокус на этот месяц",
+      "watchOut": "Одна вещь на которую стоит обратить внимание или избежать",
+      "retrogrades": []
+    }
+  ]
+}
+
+Правила: ровно 12 месяцев, energy соответствует балансу аспектов, без названий планет в тексте, пиши о реальной жизни: отношения, работа, энергия, решения.`;
+
+  const cacheKey = `year_v1_${input.sunSign}_${input.ascendant}_${input.months[0]?.month}_${input.months[0]?.year}_${tone}_${lang}`;
+  const cached = getCached<YearForecastResult>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: getSystemPrompt(tone, lang) },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.75,
+      max_completion_tokens: 8000,
+      response_format: { type: "json_object" },
+    });
+    const text = response.choices[0]?.message?.content ?? "{}";
+    const result = JSON.parse(text) as YearForecastResult;
+    if (!result.months?.length) throw new Error("No months returned");
+    setCache(cacheKey, result);
+    return result;
+  } catch {
+    // Fallback
+    const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const MONTH_NAMES_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    return {
+      overallTheme: isEn ? "A year of gradual transformation and new clarity" : "Год постепенной трансформации и новой ясности",
+      months: input.months.map(m => ({
+        month: m.month,
+        monthName: m.monthName,
+        year: m.year,
+        energy: m.energy,
+        theme: isEn ? "Movement and clarity" : "Движение и ясность",
+        story: isEn
+          ? "For you this month brings a shift in how you see your situation. Something that felt stuck begins to move — not dramatically, but noticeably. Pay attention to small signs.\n\nYour energy this month follows the rhythm of the season. There will be days of real momentum and days when rest is the most productive choice. Trust the difference.\n\nBy the end of the month, you'll have a clearer sense of what you're building and what you're leaving behind. That clarity is worth the process."
+          : "Для тебя этот месяц приносит смещение в том, как ты видишь свою ситуацию. Что-то, что казалось застывшим, начинает двигаться — не драматично, но заметно. Обращай внимание на мелкие знаки.\n\nТвоя энергия в этом месяце следует ритму сезона. Будут дни настоящего импульса и дни, когда отдых — самый продуктивный выбор. Доверяй разнице.\n\nК концу месяца у тебя будет более чёткое ощущение того, что ты строишь и что оставляешь позади.",
+        keyFocus: isEn ? "Stay consistent with one important commitment" : "Оставайся последовательным в одном важном обязательстве",
+        watchOut: isEn ? "Don't scatter your attention across too many directions" : "Не распыляй внимание на слишком много направлений",
+        retrogrades: m.retrogrades,
+      })),
+    };
+    // suppress unused variable warning
+    void MONTH_NAMES_EN; void MONTH_NAMES_RU;
+  }
+}

@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
+import { useProStatus } from "@/lib/pro-status";
+import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
 interface Section { title: string; text: string }
@@ -232,6 +234,8 @@ function ScrollScreen({
 export default function PersonalityPage() {
   const router = useRouter();
   const { t } = useT();
+  const { isPro } = useProStatus();
+  const [openUpsell, setOpenUpsell] = useState(false);
   const [data, setData] = useState<PersonalityBreakdown | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -471,12 +475,34 @@ export default function PersonalityPage() {
     </div>
   ));
 
+  // Add upsell page at the end for non-Pro users
+  if (!isPro) {
+    narrativePages.push(
+      <div key="upsell" className="flex flex-col gap-5">
+        <div className="rounded-2xl p-5 flex flex-col gap-3" style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.08)" }}>
+          <p className="text-[15px] font-bold text-black">{t("upsell.title")}</p>
+          <p className="text-[13px] text-black/60 leading-relaxed">{t("upsell.text")}</p>
+          <button
+            onClick={() => setOpenUpsell(true)}
+            className="w-full rounded-xl py-3 text-sm font-semibold text-white"
+            style={{ background: "rgba(0,0,0,0.75)" }}
+          >
+            {t("upsell.cta")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <ScrollScreen
-      pages={narrativePages}
-      completionLabel={t("personality.backToSectionsArrow")}
-      onBack={() => router.back()}
-      onComplete={goToMenu}
-    />
+    <>
+      <ScrollScreen
+        pages={narrativePages}
+        completionLabel={t("personality.backToSectionsArrow")}
+        onBack={() => router.back()}
+        onComplete={goToMenu}
+      />
+      <SubscriptionPaywall open={openUpsell} onClose={() => setOpenUpsell(false)} />
+    </>
   );
 }
