@@ -1,14 +1,20 @@
 /**
  * purchases-native.ts
- * RevenueCat wrapper for Divina Pro subscriptions.
+ * RevenueCat wrapper for Divina subscriptions and one-time purchases.
  * Works only on native (iOS / Android) — returns safe stubs on web.
  *
  * Product IDs (create these in App Store Connect + Google Play Console):
- *   divina_pro_monthly  — monthly subscription
- *   divina_pro_yearly   — yearly subscription
+ *   divina_pro_monthly        — monthly Pro subscription
+ *   divina_pro_yearly         — yearly Pro subscription
+ *   divina_compatibility      — one-time: compatibility report
+ *   divina_interpretation     — one-time: natal chart interpretation
+ *   divina_weekly             — one-time: weekly forecast
  *
  * RevenueCat setup:
- *   Entitlement ID : "pro"
+ *   Entitlement ID : "pro"          (for subscription)
+ *   Entitlement ID : "compatibility" (for one-time)
+ *   Entitlement ID : "interpretation"
+ *   Entitlement ID : "weekly"
  *   Offering ID    : "default"
  */
 
@@ -140,7 +146,7 @@ export async function getOfferings(): Promise<RCOffering | null> {
 }
 
 /**
- * Purchase a package. Returns updated CustomerInfo.
+ * Purchase a package (subscription). Returns updated CustomerInfo.
  * Throws on user cancellation or payment error.
  */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
@@ -148,6 +154,45 @@ export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   const Purchases = await getPurchases();
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
+}
+
+/**
+ * Purchase a one-time product by its App Store product identifier.
+ * Finds the matching package in the default offering and purchases it.
+ * Returns updated CustomerInfo.
+ */
+export async function purchaseProduct(productId: string): Promise<CustomerInfo> {
+  if (!isNative()) throw new Error("Purchases not available on web");
+  const Purchases = await getPurchases();
+
+  // Get all offerings and find the package with this product ID
+  const { current } = await Purchases.getOfferings();
+  if (!current) throw new Error("No offerings available");
+
+  const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
+  const pkg = allPkgs.find(p => p.product.identifier === productId);
+  if (!pkg) throw new Error(`Product ${productId} not found in current offering`);
+
+  const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
+  return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
+}
+
+/**
+ * Get the localized price string for a product from App Store.
+ * Returns null if product not found (use fallback hardcoded price).
+ */
+export async function getProductPrice(productId: string): Promise<string | null> {
+  if (!isNative()) return null;
+  try {
+    const Purchases = await getPurchases();
+    const { current } = await Purchases.getOfferings();
+    if (!current) return null;
+    const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
+    const pkg = allPkgs.find(p => p.product.identifier === productId);
+    return pkg?.product.priceString ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**

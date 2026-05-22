@@ -1,16 +1,24 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import PaywallSheet from "./PaywallSheet";
 import { formatPrice } from "@/lib/pricing";
 import { useT } from "@/lib/i18n";
+import { useOneTimePurchase } from "@/lib/use-one-time-purchase";
+
+const PRODUCT_ID = "divina_interpretation";
 
 interface InterpretationPaywallProps {
   open: boolean;
   onClose: () => void;
+  onPurchased?: () => void;
 }
 
-export default function InterpretationPaywall({ open, onClose }: InterpretationPaywallProps) {
+export default function InterpretationPaywall({ open, onClose, onPurchased }: InterpretationPaywallProps) {
   const { t } = useT();
+  const router = useRouter();
+  const { purchasing, error, purchase } = useOneTimePurchase(PRODUCT_ID, "interpretation");
+
   const perks = [
     t("paywall.interp.perk1"),
     t("paywall.interp.perk2"),
@@ -18,15 +26,29 @@ export default function InterpretationPaywall({ open, onClose }: InterpretationP
     t("paywall.interp.perk4"),
     t("paywall.interp.perk5"),
   ];
+
+  function handleSuccess() {
+    onClose();
+    if (onPurchased) onPurchased();
+    else router.push("/interpretation");
+  }
+
   return (
     <PaywallSheet
       open={open}
       onClose={onClose}
       videoSrc="/cosmos-7.mp4"
       cta={
-        <button className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors">
-          {t("paywall.unlock")} — {formatPrice(5)}
-        </button>
+        <div className="space-y-1.5">
+          {error ? <p className="text-center text-xs text-red-400">{error}</p> : null}
+          <button
+            onClick={() => purchase(handleSuccess)}
+            disabled={purchasing}
+            className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors disabled:opacity-50"
+          >
+            {purchasing ? t("paywall.processing") : `${t("paywall.unlock")} — ${formatPrice(5)}`}
+          </button>
+        </div>
       }
     >
       <div className="text-center mb-8 pt-2">

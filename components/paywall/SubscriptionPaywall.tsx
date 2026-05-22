@@ -1,33 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PaywallSheet from "./PaywallSheet";
 import { getSubscriptionPrices } from "@/lib/pricing";
+import { getOfferings, purchasePackage, restorePurchases, type RCPackage } from "@/lib/purchases-native";
+import { useProStatus } from "@/lib/pro-status";
+import { useT } from "@/lib/i18n";
 
 interface SubscriptionPaywallProps {
   open: boolean;
   onClose: () => void;
 }
 
-const perks = [
-  "Детальный недельный прогноз каждую неделю",
-  "3 проверки совместимости в месяц",
-  "Расширенные транзиты и аспекты",
-  "Без рекламы",
-];
-
 export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywallProps) {
   const [plan, setPlan] = useState<"year" | "month">("year");
-  const prices = getSubscriptionPrices();
+  const [purchasing, setPurchasing] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [error, setError] = useState("");
+  const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
+  const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
+  const { refresh } = useProStatus();
+  const { t } = useT();
+  const fallback = getSubscriptionPrices();
+
+  // Load real prices from App Store via RevenueCat
+  useEffect(() => {
+    if (!open) return;
+    getOfferings().then(offering => {
+      if (!offering) return;
+      setMonthlyPkg(offering.monthly);
+      setYearlyPkg(offering.annual);
+    });
+  }, [open]);
+
+  // Display prices: use App Store price if available, else fallback to our estimates
+  const yearPrice = yearlyPkg?.product.priceString ?? fallback.yearTotal;
+  const monthPrice = monthlyPkg?.product.priceString ?? fallback.monthTotal;
+  const yearWeekly = fallback.yearWeekly;
+  const monthWeekly = fallback.monthWeekly;
+
+  async function handlePurchase() {
+    const pkg = plan === "year" ? yearlyPkg : monthlyPkg;
+    if (!pkg) {
+      setError(t("paywall.noProducts"));
+      return;
+    }
+    setPurchasing(true);
+    setError("");
+    try {
+      await purchasePackage(pkg);
+      await refresh();
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      // User cancellation is not an error worth showing
+      if (!msg.includes("cancel") && !msg.includes("Cancel")) {
+        setError(t("paywall.purchaseError"));
+      }
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
+  async function handleRestore() {
+    setRestoring(true);
+    setError("");
+    try {
+      await restorePurchases();
+      await refresh();
+      onClose();
+    } catch {
+      setError(t("paywall.restoreError"));
+    } finally {
+      setRestoring(false);
+    }
+  }
+
+  const perks = [
+    t("paywall.sub.perk1"),
+    t("paywall.sub.perk2"),
+    t("paywall.sub.perk3"),
+    t("paywall.sub.perk4"),
+  ];
 
   return (
     <PaywallSheet
       open={open}
       onClose={onClose}
       cta={
-        <button className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors">
-          Подписаться — {plan === "year" ? prices.yearLabel : prices.monthLabel}
-        </button>
+        <div className="space-y-2">
+          {error ? <p className="text-center text-xs text-red-400">{error}</p> : null}
+          <button
+            onClick={handlePurchase}
+            disabled={purchasing || restoring}
+            className="w-full rounded-2xl bg-white/15 border border-white/20 backdrop-blur-sm py-4 text-base font-semibold text-white active:bg-white/20 transition-colors disabled:opacity-50"
+          >
+            {purchasing
+              ? t("paywall.processing")
+              : `${t("paywall.subscribe")} — ${plan === "year" ? yearPrice : monthPrice}`}
+          </button>
+          <button
+            onClick={handleRestore}
+            disabled={purchasing || restoring}
+            className="w-full py-2 text-xs text-white/30 disabled:opacity-50"
+          >
+            {restoring ? t("paywall.restoring") : t("paywall.restore")}
+          </button>
+        </div>
       }
     >
       {/* Header */}
@@ -38,7 +117,7 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-white mb-1">Divina Pro</h2>
-        <p className="text-sm text-white/40">Раскройте полный потенциал прогноза</p>
+        <p className="text-sm text-white/40">{t("paywall.sub.subtitle")}</p>
       </div>
 
       {/* Perks */}
@@ -58,43 +137,39 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
         <button
           onClick={() => setPlan("year")}
           className={`w-full relative rounded-2xl p-4 border transition-colors ${
-            plan === "year"
-              ? "border-white/30 bg-white/10"
-              : "border-white/10 bg-white/[0.04]"
+            plan === "year" ? "border-white/30 bg-white/10" : "border-white/10 bg-white/[0.04]"
           }`}
         >
           <div className="absolute -top-2.5 right-4 rounded-full bg-white/20 border border-white/10 px-2.5 py-0.5 text-[10px] font-medium text-white/70 tracking-wider">
-            ВЫГОДНО
+            {t("paywall.bestValue")}
           </div>
           <div className="flex items-center justify-between">
             <div className="text-left">
-              <p className="text-sm font-medium text-white">Годовая</p>
-              <p className="text-xs text-white/30 mt-0.5">{prices.yearWeekly} / неделя</p>
+              <p className="text-sm font-medium text-white">{t("paywall.yearly")}</p>
+              <p className="text-xs text-white/30 mt-0.5">{yearWeekly} / {t("paywall.week")}</p>
             </div>
-            <p className="text-lg font-semibold text-white">{prices.yearTotal}<span className="text-xs text-white/30 font-normal"> / год</span></p>
+            <p className="text-lg font-semibold text-white">{yearPrice}<span className="text-xs text-white/30 font-normal"> / {t("paywall.year")}</span></p>
           </div>
         </button>
 
         <button
           onClick={() => setPlan("month")}
           className={`w-full rounded-2xl p-4 border transition-colors ${
-            plan === "month"
-              ? "border-white/30 bg-white/10"
-              : "border-white/10 bg-white/[0.04]"
+            plan === "month" ? "border-white/30 bg-white/10" : "border-white/10 bg-white/[0.04]"
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="text-left">
-              <p className="text-sm font-medium text-white">Месячная</p>
-              <p className="text-xs text-white/30 mt-0.5">{prices.monthWeekly} / неделя</p>
+              <p className="text-sm font-medium text-white">{t("paywall.monthly")}</p>
+              <p className="text-xs text-white/30 mt-0.5">{monthWeekly} / {t("paywall.week")}</p>
             </div>
-            <p className="text-lg font-semibold text-white">{prices.monthTotal}<span className="text-xs text-white/30 font-normal"> / мес</span></p>
+            <p className="text-lg font-semibold text-white">{monthPrice}<span className="text-xs text-white/30 font-normal"> / {t("paywall.month")}</span></p>
           </div>
         </button>
       </div>
 
       <p className="text-center text-[11px] text-white/20 mt-4">
-        Отмена в любое время
+        {t("paywall.cancelAnytime")}
       </p>
     </PaywallSheet>
   );
