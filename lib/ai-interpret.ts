@@ -825,27 +825,69 @@ function formatDateShortRu(iso: string): string {
   return `${d} ${M[m - 1]} ${y}`;
 }
 
+function formatDateShortEn(iso: string): string {
+  const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${M[m - 1]} ${d}, ${y}`;
+}
+
 export async function interpretLifePeriods(input: {
   sunSign: string;
   moonSign: string;
   ascendant: string;
   slowPlanetPeriods: SlowPlanetPeriodInput[];
 }, tone: ToneOfVoice = "deep", lang: string = "ru"): Promise<LifePeriodsResult> {
-  const cacheKey = `periods_v3_${input.sunSign}_${input.ascendant}_${input.slowPlanetPeriods.map(p => p.planetName + p.sign).join("")}_${tone}_${lang}`;
+  const cacheKey = `periods_v4_${input.sunSign}_${input.ascendant}_${input.slowPlanetPeriods.map(p => p.planetName + p.sign).join("")}_${tone}_${lang}`;
   const cached = getCached<LifePeriodsResult>(cacheKey);
   if (cached) return cached;
 
   const n = input.slowPlanetPeriods.length;
+  const isEn = lang === "en";
 
   const periodsDesc = input.slowPlanetPeriods.map((p, i) => {
-    const dateRange = `с ${formatDateShortRu(p.startDate)} по ${formatDateShortRu(p.endDate)}`;
+    const dateRange = isEn
+      ? `from ${formatDateShortEn(p.startDate)} to ${formatDateShortEn(p.endDate)}`
+      : `с ${formatDateShortRu(p.startDate)} по ${formatDateShortRu(p.endDate)}`;
     const aspects = p.natalAspects.length > 0
-      ? `Аспекты к натальным: ${p.natalAspects.map(a => `${a.planet} (${a.aspect}, ${a.orb}°, ${a.impact === "positive" ? "+" : a.impact === "challenging" ? "−" : "~"})`).join(", ")}`
-      : "Аспектов к натальным планетам нет — фоновое влияние";
-    return `${i + 1}. ${p.planetName} в ${p.sign} (${dateRange})\n   ${aspects}`;
+      ? isEn
+        ? `Aspects to natal: ${p.natalAspects.map(a => `${a.planet} (${a.aspect}, ${a.orb}°, ${a.impact === "positive" ? "+" : a.impact === "challenging" ? "−" : "~"})`).join(", ")}`
+        : `Аспекты к натальным: ${p.natalAspects.map(a => `${a.planet} (${a.aspect}, ${a.orb}°, ${a.impact === "positive" ? "+" : a.impact === "challenging" ? "−" : "~"})`).join(", ")}`
+      : isEn ? "No aspects to natal planets — background influence" : "Аспектов к натальным планетам нет — фоновое влияние";
+    return `${i + 1}. ${p.planetName} in ${p.sign} (${dateRange})\n   ${aspects}`;
   }).join("\n\n");
 
-  const userPrompt = `Ты — рассказчик, который знает будущее этого человека. Опиши его активные астрологические периоды как захватывающую историю о ЕГО жизни — что именно произойдёт, как подготовиться, через что придётся пройти.
+  const userPrompt = isEn
+    ? `You are a narrator who knows this person's future. Describe their active astrological periods as a compelling story about THEIR life — what will actually happen, how to prepare, what they will go through.
+
+PERSON: Sun ${input.sunSign}, Moon ${input.moonSign}, Ascendant ${input.ascendant}
+
+ACTIVE PERIODS:
+${periodsDesc}
+
+For each period, write like a detective who knows EXACTLY what awaits this person. Be specific and predictive: "During this period you'll notice...", "A moment will come when...", "By the end of this time you will...", "You are about to...". The person should read this and recognize their own situation.
+
+RETURN JSON:
+{
+  "overallPhase": "(50-80 chars) One phrase — the main theme of this life chapter",
+  "periods": [
+    {
+      "story": "(500-650 chars) Three paragraphs separated by \\n\\n. First: what is already happening or has begun — what the person feels and is going through right now. Second: what will unfold further in this period — specific patterns, situations, choices that are coming. Third: how it all resolves and where it leads — what the person will understand or gain by the end. Start the first paragraph with 'For you this is'. Write as 'you', no astrological terms.",
+      "whatToFocus": "(80-120 chars) A specific action or focus — what to do in this period to come out stronger",
+      "whatToLetGo": "(80-120 chars) What is specifically holding you back — a habit, fear, or pattern to release right now",
+      "emoji": "one emoji — the essence of this period",
+      "theme": "(1-2 words) Theme: Growth / Transformation / Relationships / Challenge / Opportunity / Liberation / Building / Awakening / Choice",
+      "intensity": "high | medium | low"
+    }
+  ]
+}
+
+RULES:
+- Exactly ${n} periods, in the same order as the data above
+- Each story is unique — different events, different tone, different life themes
+- intensity: high if aspects < 3° or challenging; low if no aspects
+- No astrological terms, planet names or zodiac signs in the story text
+- Write about real life: relationships, feelings, decisions, habits, fears, courage`
+    : `Ты — рассказчик, который знает будущее этого человека. Опиши его активные астрологические периоды как захватывающую историю о ЕГО жизни — что именно произойдёт, как подготовиться, через что придётся пройти.
 
 ЧЕЛОВЕК: ${input.sunSign}, Луна ${input.moonSign}, Асцендент ${input.ascendant}
 
@@ -901,7 +943,7 @@ ${periodsDesc}
       periods: input.slowPlanetPeriods.map((p, i) => {
         const ai = aiResult.periods[i] ?? aiResult.periods[0];
         return {
-          planetTitle: `${p.planetName} в ${p.signPrep ?? p.sign}`,
+          planetTitle: isEn ? `${p.planetName} in ${p.sign}` : `${p.planetName} в ${p.signPrep ?? p.sign}`,
           startDate: p.startDate,
           endDate: p.endDate,
           story: ai.story ?? "",
@@ -921,7 +963,7 @@ ${periodsDesc}
     return {
       overallPhase: isEn ? "A time of change and internal restructuring" : "Время перемен и внутренней перестройки",
       periods: input.slowPlanetPeriods.map((p) => ({
-        planetTitle: `${p.planetName} в ${p.signPrep ?? p.sign}`,
+        planetTitle: isEn ? `${p.planetName} in ${p.sign}` : `${p.planetName} в ${p.signPrep ?? p.sign}`,
         startDate: p.startDate,
         endDate: p.endDate,
         story: isEn

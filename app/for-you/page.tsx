@@ -93,7 +93,7 @@ export default function ForYouPage() {
 
   function loadPeriods() {
     const user = getUserData();
-    const periodsCacheKey = `divina_life_periods_v3_${user.lang}`;
+    const periodsCacheKey = `divina_life_periods_v4_${user.lang}`;
     const cached = sessionStorage.getItem(periodsCacheKey);
     if (cached) {
       try { setPeriodsData(JSON.parse(cached)); } catch {}
