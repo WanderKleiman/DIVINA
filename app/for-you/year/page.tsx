@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import { useProStatus } from "@/lib/pro-status";
-import { lcGet, lcSet, TTL_WEEK } from "@/lib/local-cache";
+import { lcGet, lcSet, TTL_MONTH } from "@/lib/local-cache";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { YearForecastResult } from "@/lib/ai-interpret";
 
@@ -262,7 +262,7 @@ export default function YearForecastPage() {
       .then(d => {
         if (d?.months?.length) {
           setData(d);
-          lcSet(cacheKey, d, TTL_WEEK);
+          lcSet(cacheKey, d, TTL_MONTH);
         } else {
           console.error("Year forecast: bad response", d);
           setError(true);
