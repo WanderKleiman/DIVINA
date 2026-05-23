@@ -326,13 +326,13 @@ export default function ForYouPage() {
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
             >
               <video
-                src="/prodaction2.mp4"
+                src="/cosmos-10.mp4"
                 autoPlay
                 loop
                 muted
                 playsInline
                 className="absolute inset-0 h-full w-full object-cover"
-                style={{ pointerEvents: "none", transform: "rotate(90deg) scale(1.8)" }}
+                style={{ pointerEvents: "none" }}
               />
               <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 p-4 flex items-center gap-3.5">
