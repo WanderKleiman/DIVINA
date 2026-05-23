@@ -266,7 +266,9 @@ export default function MonthForecastPage() {
 
     const user = getUserData();
     const now = new Date();
-    const cacheKey = `divina-month-forecast-v1_${user.birthDate}_${now.getFullYear()}_${now.getMonth()}_${user.lang}`;
+    // Cache per week (floor date to nearest 7 days) so content stays fresh
+    const weekStamp = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
+    const cacheKey = `divina-month-forecast-v2_${user.birthDate}_${weekStamp}_${user.lang}`;
 
     if (retryCount === 0) {
       const cached = sessionStorage.getItem(cacheKey);

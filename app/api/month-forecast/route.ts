@@ -47,14 +47,33 @@ export async function POST(req: NextRequest) {
     const moonSign = SIGN_NAMES[getSignIndex(natalPlanets[1].longitude)];
     const ascendant = SIGN_NAMES[getSignIndex(natalHouses.ascendant)];
 
-    // Current month
+    // Rolling 30-day window: today → today+30
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // 1-12
+    const endDate = new Date(now);
+    endDate.setDate(endDate.getDate() + 30);
 
     const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const MONTH_NAMES_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-    const monthName = (isEn ? MONTH_NAMES_EN : MONTH_NAMES_RU)[month - 1];
+
+    // Period label e.g. "23 мая — 22 июня" / "May 23 – Jun 22"
+    const startDay = now.getDate();
+    const startMonthIdx = now.getMonth();
+    const endDay = endDate.getDate();
+    const endMonthIdx = endDate.getMonth();
+
+    const MONTH_SHORT_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const MONTH_SHORT_RU = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+
+    const monthName = isEn
+      ? `${MONTH_NAMES_EN[startMonthIdx]} ${startDay} – ${MONTH_SHORT_EN[endMonthIdx]} ${endDay}`
+      : `${startDay} ${MONTH_SHORT_RU[startMonthIdx]} — ${endDay} ${MONTH_SHORT_RU[endMonthIdx]}`;
+
+    // Helper: add N days to today and return {year, month, day}
+    function offsetDate(offsetDays: number) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + offsetDays);
+      return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    }
 
     // Aspect name translations for dominant transit labels
     const ASPECT_RU: Record<string, string> = {
@@ -66,9 +85,10 @@ export async function POST(req: NextRequest) {
       5: "Jupiter", 6: "Saturn", 7: "Uranus", 8: "Neptune", 9: "Pluto",
     };
 
-    // Helper: compute aspects + retrogrades for a given date (day of month)
-    function computeDay(day: number) {
-      const jd = julianDay(sw, year, month, day, 12 - tzOffset, 0);
+    // Helper: compute aspects + retrogrades for a date offset from today
+    function computeOffset(offsetDays: number) {
+      const { year: y, month: m, day: d } = offsetDate(offsetDays);
+      const jd = julianDay(sw, y, m, d, 12 - tzOffset, 0);
       const planets = calcAllPlanets(sw, jd);
       const aspects = findTransitAspects(planets, natalPlanets);
       const retros: string[] = [];
@@ -81,7 +101,6 @@ export async function POST(req: NextRequest) {
       const positive = aspects.filter(a => a.aspectName === "trine" || a.aspectName === "sextile").length;
       const challenging = aspects.filter(a => a.aspectName === "square" || a.aspectName === "opposition").length;
 
-      // Top 3 tightest aspects as readable labels
       const topAspects = aspects.slice(0, 3).map(a => {
         const tp = PLANET_NAMES_EN_FULL[a.transitPlanetId] ?? `P${a.transitPlanetId}`;
         const np = PLANET_NAMES_EN_FULL[a.natalPlanetId] ?? `P${a.natalPlanetId}`;
@@ -93,23 +112,18 @@ export async function POST(req: NextRequest) {
       return { positive, challenging, retros, topAspects };
     }
 
-    // Overall month snapshot (day 15)
-    const overall = computeDay(15);
+    // Overall snapshot at day +15
+    const overall = computeOffset(15);
 
     let overallEnergy: "high" | "medium" | "low";
     if (overall.positive > overall.challenging + 2) overallEnergy = "high";
     else if (overall.challenging > overall.positive + 2) overallEnergy = "low";
     else overallEnergy = "medium";
 
-    // Weekly snapshots (days 5, 12, 19, 26)
-    const weekDays = [5, 12, 19, 26];
-    const weeks = weekDays.map((day, i) => {
-      const d = computeDay(day);
-      let wEnergy: "high" | "medium" | "low";
-      if (d.positive > d.challenging + 1) wEnergy = "high";
-      else if (d.challenging > d.positive + 1) wEnergy = "low";
-      else wEnergy = "medium";
-      void wEnergy;
+    // Weekly midpoints: +3, +10, +17, +24 (centres of 4 seven-day windows)
+    const weekOffsets = [3, 10, 17, 24];
+    const weeks = weekOffsets.map((offset, i) => {
+      const d = computeOffset(offset);
       return {
         weekNum: i + 1,
         positiveAspects: d.positive,
@@ -119,8 +133,11 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    // Dominant transits for the month (day 15, top 5)
-    const midJd = julianDay(sw, year, month, 15, 12 - tzOffset, 0);
+    // Dominant transits at day +15
+    const midJd = (() => {
+      const { year: y, month: m, day: d } = offsetDate(15);
+      return julianDay(sw, y, m, d, 12 - tzOffset, 0);
+    })();
     const midPlanets = calcAllPlanets(sw, midJd);
     const midAspects = findTransitAspects(midPlanets, natalPlanets);
     const dominantTransits = midAspects.slice(0, 5).map(a => {
@@ -136,7 +153,7 @@ export async function POST(req: NextRequest) {
       moonSign,
       ascendant,
       monthName,
-      year,
+      year: now.getFullYear(),
       overallEnergy,
       positiveAspects: overall.positive,
       challengingAspects: overall.challenging,
