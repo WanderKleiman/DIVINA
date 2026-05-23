@@ -379,6 +379,7 @@ const dict: Record<string, Record<Locale, string>> = {
   "yearForecast.subtitle": { ru: "Персональный прогноз на 12 месяцев", en: "Personal 12-month forecast" },
   "yearForecast.overallTheme": { ru: "Тема года", en: "Year theme" },
   "yearForecast.loading": { ru: "Составляем расклад на год...", en: "Generating your year forecast..." },
+  "yearForecast.loadingHint": { ru: "Это займёт около минуты", en: "This takes about a minute" },
   "yearForecast.error": { ru: "Не удалось загрузить расклад на год", en: "Failed to load year forecast" },
   "yearForecast.keyFocus": { ru: "Фокус месяца", en: "Monthly focus" },
   "yearForecast.watchOut": { ru: "Обрати внимание", en: "Watch out" },

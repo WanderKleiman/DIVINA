@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// Allow up to 60 seconds for the AI call (Vercel Pro / Hobby max)
+export const maxDuration = 60;
+
 import {
   initEphemeris,
   julianDay,

@@ -48,7 +48,10 @@ function YearSkeleton() {
       <div className="flex-1 min-h-0 px-4 pb-6 pt-2 flex flex-col gap-3">
         <div className="h-full rounded-3xl animate-pulse" style={{ background: "rgba(255,255,255,0.18)" }} />
       </div>
-      <div className="text-center pb-8 text-white/40 text-xs">{t("yearForecast.loading")}</div>
+      <div className="text-center pb-8 flex flex-col gap-1">
+        <p className="text-white/50 text-xs">{t("yearForecast.loading")}</p>
+        <p className="text-white/25 text-[10px]">{t("yearForecast.loadingHint")}</p>
+      </div>
     </div>
   );
 }
@@ -215,6 +218,7 @@ export default function YearForecastPage() {
   const [data, setData] = useState<YearForecastResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
@@ -228,21 +232,30 @@ export default function YearForecastPage() {
     const user = getUserData();
     const cacheKey = `divina-year-forecast-v1_${user.birthDate}_${user.lang}`;
 
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed?.months?.length) {
-          setData(parsed);
-          setLoading(false);
-          return;
-        }
-      } catch {}
+    if (retryCount === 0) {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed?.months?.length) {
+            setData(parsed);
+            setLoading(false);
+            return;
+          }
+        } catch {}
+      }
+    } else {
+      // On retry, clear the cached result so we re-fetch fresh
+      sessionStorage.removeItem(cacheKey);
     }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 55_000);
 
     fetch("/api/year-forecast", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         birthDate: user.birthDate,
         birthTime: user.birthTime,
@@ -259,12 +272,19 @@ export default function YearForecastPage() {
           setData(d);
           sessionStorage.setItem(cacheKey, JSON.stringify(d));
         } else {
+          console.error("Year forecast: bad response", d);
           setError(true);
         }
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [isPro, proLoading]);
+      .catch(err => {
+        console.error("Year forecast fetch error:", err);
+        setError(true);
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+  }, [isPro, proLoading, retryCount]);
 
   if (showPaywall) {
     return (
@@ -294,7 +314,7 @@ export default function YearForecastPage() {
         <div className="flex flex-col items-center justify-center flex-1 px-6 gap-4">
           <p className="text-sm text-white/50 text-center">{t("yearForecast.error")}</p>
           <button
-            onClick={() => { setError(false); setLoading(true); }}
+            onClick={() => { setError(false); setLoading(true); setRetryCount(c => c + 1); }}
             className="rounded-xl bg-white/10 border border-white/15 px-5 py-2.5 text-sm text-white/70"
           >
             {t("action.retry")}
