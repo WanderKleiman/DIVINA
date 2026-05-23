@@ -53,6 +53,18 @@ export default function BackgroundSwitcher() {
   }, [isOnboarding]);
 
   // Onboarding — always uses first production video
+  // Shared video style: videos are landscape-encoded, rotated to fill portrait screen
+  const videoStyle: React.CSSProperties = {
+    transform: "translate(-50%, -50%) rotate(90deg)",
+    minWidth: "100vh",
+    minHeight: "100vw",
+    width: "auto",
+    height: "auto",
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+  };
+
   if (isOnboarding) {
     return (
       <div
@@ -62,7 +74,7 @@ export default function BackgroundSwitcher() {
       >
         {mounted && (
           <video
-            className="absolute inset-0 w-full h-full object-cover"
+            style={videoStyle}
             src={MAIN_VIDEO_SRC}
             autoPlay
             loop
@@ -91,7 +103,7 @@ export default function BackgroundSwitcher() {
     >
       <video
         key={videoSrc}
-        className="absolute inset-0 w-full h-full object-cover"
+        style={videoStyle}
         src={videoSrc}
         autoPlay
         loop
