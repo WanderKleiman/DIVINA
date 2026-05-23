@@ -129,39 +129,31 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
         <div className="space-y-2">
           {error && <p className="text-center text-xs text-red-400">{error}</p>}
 
-          {/* Primary CTA */}
+          {/* Primary CTA — white button */}
           <button
             onClick={handlePurchase}
             disabled={purchasing || restoring}
-            className="w-full rounded-2xl py-4 text-base font-bold text-white active:opacity-80 transition-opacity disabled:opacity-50"
+            className="w-full rounded-2xl py-4 text-base font-bold text-black/80 active:opacity-80 transition-opacity disabled:opacity-50"
             style={{
-              background: "linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(99,102,241,0.9) 100%)",
-              boxShadow: "0 4px 20px rgba(139,92,246,0.35)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "rgba(255,255,255,0.92)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
             }}
           >
-            {purchasing
-              ? t("paywall.processing")
-              : hasTrial
-                ? t("paywall.trialCta")
-                : `${t("paywall.subscribe")} — ${plan === "year" ? yearPrice : monthPrice}`}
+            {purchasing ? t("paywall.processing") : t("paywall.trialCta")}
           </button>
 
-          {/* Trial hint */}
-          {hasTrial && !purchasing && (
-            <p className="text-center text-[11px] text-white/30">
-              {t("paywall.trialHint")} {trialHintPrice} · {t("paywall.cancelAnytime")}
+          {/* "$1.2 a week" hint */}
+          {!purchasing && (
+            <p className="text-center text-[12px] text-white/40">
+              {t("paywall.trialWeeklyPrice")}
             </p>
-          )}
-          {!hasTrial && !purchasing && (
-            <p className="text-center text-[11px] text-white/30">{t("paywall.cancelAnytime")}</p>
           )}
 
           {/* Restore */}
           <button
             onClick={handleRestore}
             disabled={purchasing || restoring}
-            className="w-full py-1.5 text-xs text-white/25 disabled:opacity-50"
+            className="w-full py-1 text-xs text-white/20 disabled:opacity-50"
           >
             {restoring ? t("paywall.restoring") : t("paywall.restore")}
           </button>
@@ -173,11 +165,14 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
         {userName ? (
           <p className="text-sm text-white/40 mb-1">{userName},</p>
         ) : null}
-        <h2 className="text-[28px] font-bold text-white leading-tight mb-3">
+        <h2 className="text-[26px] font-bold text-white leading-tight mb-3">
           {t("paywall.sub.headline")}
         </h2>
+        {/* Description with bold middle part */}
         <p className="text-sm text-white/55 leading-relaxed">
-          {t("paywall.sub.desc")}
+          {t("paywall.sub.descBefore")}
+          <span className="text-white/90 font-semibold">{t("paywall.sub.descBold")}</span>
+          {t("paywall.sub.descAfter")}
         </p>
       </div>
 
