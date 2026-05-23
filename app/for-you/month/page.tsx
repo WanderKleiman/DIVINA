@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
-import { isInFreeTrial } from "@/lib/trial";
 import { useProStatus } from "@/lib/pro-status";
+import { canUseMonthForecastFree, recordMonthForecastUse } from "@/lib/free-limits";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { MonthForecastResult } from "@/lib/ai-interpret";
 
@@ -257,12 +257,12 @@ export default function MonthForecastPage() {
   const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
-    if (!proLoading && !isInFreeTrial() && !isPro) {
+    if (proLoading) return;
+    if (!isPro && !canUseMonthForecastFree()) {
       setShowPaywall(true);
       setLoading(false);
       return;
     }
-    if (proLoading) return;
 
     const user = getUserData();
     const now = new Date();
@@ -308,6 +308,7 @@ export default function MonthForecastPage() {
         if (d?.weeks?.length) {
           setData(d);
           sessionStorage.setItem(cacheKey, JSON.stringify(d));
+          if (retryCount === 0) recordMonthForecastUse(); // count first successful fetch
         } else {
           console.error("Month forecast: bad response", d);
           setError(true);

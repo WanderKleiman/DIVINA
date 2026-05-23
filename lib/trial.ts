@@ -1,23 +1,18 @@
-// Free trial: 14 days from first launch
-// After trial expires AND no Pro subscription → show paywall
-const TRIAL_KEY = "divina_first_launch";
-const TRIAL_DAYS = 14;
+/**
+ * Trial / free-tier helpers.
+ *
+ * The old 14-day auto-trial is replaced with per-feature usage limits
+ * (see lib/free-limits.ts). These stubs are kept so existing imports compile.
+ */
 
 export function ensureTrialStarted(): void {
-  if (typeof window === "undefined") return;
-  if (!localStorage.getItem(TRIAL_KEY)) {
-    localStorage.setItem(TRIAL_KEY, new Date().toISOString());
-  }
+  // No-op — trial concept removed, limits are feature-based
 }
 
 export function getTrialDaysLeft(): number {
-  if (typeof window === "undefined") return TRIAL_DAYS;
-  const raw = localStorage.getItem(TRIAL_KEY);
-  if (!raw) return TRIAL_DAYS;
-  const days = (Date.now() - new Date(raw).getTime()) / 86_400_000;
-  return Math.max(0, TRIAL_DAYS - Math.floor(days));
+  return 0;
 }
 
 export function isInFreeTrial(): boolean {
-  return getTrialDaysLeft() > 0;
+  return false;
 }

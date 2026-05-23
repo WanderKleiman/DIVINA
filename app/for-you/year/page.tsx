@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
-import { isInFreeTrial } from "@/lib/trial";
 import { useProStatus } from "@/lib/pro-status";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { YearForecastResult } from "@/lib/ai-interpret";
@@ -222,12 +221,12 @@ export default function YearForecastPage() {
   const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
-    if (!proLoading && !isInFreeTrial() && !isPro) {
+    if (proLoading) return;
+    if (!isPro) {
       setShowPaywall(true);
       setLoading(false);
       return;
     }
-    if (proLoading) return;
 
     const user = getUserData();
     const cacheKey = `divina-year-forecast-v1_${user.birthDate}_${user.lang}`;

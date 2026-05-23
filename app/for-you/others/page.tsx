@@ -8,7 +8,6 @@ import CityAutocomplete from "@/components/ui/CityAutocomplete";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
-import { isInFreeTrial } from "@/lib/trial";
 import { useProStatus } from "@/lib/pro-status";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
@@ -233,7 +232,7 @@ export default function OthersPage() {
   const canSubmit = name.trim() !== "" && birthDate !== "" && birthTime !== "" && cityLat != null;
 
   useEffect(() => {
-    if (!proLoading && !isInFreeTrial() && !isPro) {
+    if (!proLoading && !isPro) {
       setShowPaywall(true);
     }
     // Load history

@@ -12,7 +12,8 @@ import { getPurchases, type Purchase } from "@/lib/purchases";
 import { getUserData } from "@/lib/user-data";
 import { useT, APP_LANG, formatShortDate } from "@/lib/i18n";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
-import { isInFreeTrial, ensureTrialStarted } from "@/lib/trial";
+import { ensureTrialStarted } from "@/lib/trial";
+import { canUseCompatibilityFree, recordCompatibilityUse } from "@/lib/free-limits";
 import { useProStatus } from "@/lib/pro-status";
 
 type PaywallType = "interpretation" | "weekly" | "compatibility" | null;
@@ -142,10 +143,11 @@ export default function ForYouPage() {
 
   function handleItemClick(item: typeof oneTimePurchases[0]) {
     if (item.id === "compatibility") {
-      if (!isInFreeTrial() && !isPro) {
+      if (!isPro && !canUseCompatibilityFree()) {
         setOpenSubPaywall(true);
         return;
       }
+      if (!isPro) recordCompatibilityUse();
     }
     if (item.href) {
       router.push(item.href);
@@ -317,11 +319,7 @@ export default function ForYouPage() {
             {/* Month Forecast */}
             <button
               onClick={() => {
-                if (isInFreeTrial() || isPro) {
-                  router.push("/for-you/month");
-                } else {
-                  setOpenSubPaywall(true);
-                }
+                router.push("/for-you/month"); // limit enforced inside the page
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
             >
@@ -358,11 +356,7 @@ export default function ForYouPage() {
             {/* Year Forecast */}
             <button
               onClick={() => {
-                if (isInFreeTrial() || isPro) {
-                  router.push("/for-you/year");
-                } else {
-                  setOpenSubPaywall(true);
-                }
+                router.push("/for-you/year"); // Pro-only gate enforced inside the page
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
             >
@@ -399,11 +393,7 @@ export default function ForYouPage() {
             {/* Natal Chart for Others */}
             <button
               onClick={() => {
-                if (isInFreeTrial() || isPro) {
-                  router.push("/for-you/others");
-                } else {
-                  setOpenSubPaywall(true);
-                }
+                router.push("/for-you/others"); // Pro-only gate enforced inside the page
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
             >

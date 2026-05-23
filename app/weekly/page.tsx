@@ -9,8 +9,8 @@ import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { getUserData, getWeekStart } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { WeeklyForecast } from "@/lib/types";
-import { isInFreeTrial } from "@/lib/trial";
 import { useProStatus } from "@/lib/pro-status";
+import { canUseWeekly, recordWeeklyUse } from "@/lib/free-limits";
 
 const CACHE_KEY = "divina-weekly-cache";
 
@@ -263,7 +263,9 @@ export default function WeeklyPage() {
   const { isPro, isLoading: proLoading } = useProStatus();
 
   useEffect(() => {
-    if (!isInFreeTrial() && !isPro && !proLoading) {
+    if (proLoading) return;
+    const weekStart = getWeekStart();
+    if (!isPro && !canUseWeekly(weekStart)) {
       setShowPaywall(true);
     }
   }, [isPro, proLoading]);
@@ -305,6 +307,7 @@ export default function WeeklyPage() {
         if (data && !data.error) {
           setForecast(data);
           sessionStorage.setItem(cacheKey, JSON.stringify({ _weekStart: weekStart, data }));
+          recordWeeklyUse(weekStart); // count this as one free weekly use
         }
       } catch (err) {
         console.error("Failed to load weekly forecast:", err);
