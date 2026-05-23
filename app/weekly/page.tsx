@@ -181,7 +181,7 @@ function ScrollScreen({
 
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }} onClick={onBack}>
-      <div className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }} onClick={e => e.stopPropagation()}>
         <button
           onClick={handleBack}
           className="flex h-10 w-10 items-center justify-center rounded-full"

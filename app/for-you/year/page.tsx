@@ -37,16 +37,18 @@ function EnergyBadge({ energy }: { energy: "high" | "medium" | "low" }) {
 }
 
 function YearSkeleton() {
+  const { t } = useT();
   return (
     <div className="flex flex-col" style={{ height: "100dvh" }}>
-      <div className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0">
-        <div className="h-10 w-10 rounded-full bg-white/15 animate-pulse" />
-        <div className="h-3 w-16 bg-white/20 rounded-full animate-pulse" />
+      <div className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}>
+        <div className="h-10 w-10 rounded-full bg-white/20 animate-pulse" />
+        <div className="h-3 w-24 bg-white/25 rounded-full animate-pulse" />
         <div className="w-10" />
       </div>
-      <div className="flex-1 min-h-0 px-4 pb-6 pt-2">
-        <div className="h-full rounded-3xl animate-pulse" style={{ background: "rgba(255,255,255,0.12)" }} />
+      <div className="flex-1 min-h-0 px-4 pb-6 pt-2 flex flex-col gap-3">
+        <div className="h-full rounded-3xl animate-pulse" style={{ background: "rgba(255,255,255,0.18)" }} />
       </div>
+      <div className="text-center pb-8 text-white/40 text-xs">{t("yearForecast.loading")}</div>
     </div>
   );
 }
@@ -138,7 +140,7 @@ function ScrollScreen({
 
   return (
     <div className="flex flex-col overflow-hidden" style={{ height: "100dvh" }} onClick={onBack}>
-      <div className="flex items-center justify-between px-5 pt-14 pb-2 shrink-0" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-5 pb-2 shrink-0" style={{ paddingTop: "max(3.5rem, env(safe-area-inset-top))" }} onClick={e => e.stopPropagation()}>
         <button
           onClick={handleBack}
           className="flex h-10 w-10 items-center justify-center rounded-full"

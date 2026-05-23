@@ -10,11 +10,19 @@ import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
 interface Section { title: string; text: string }
 
-const SECTION_TITLES_FALLBACK = [
-  "Как поступать в конфликтах", "Как любить и быть любимым",
-  "Как делать правильный выбор", "Когда сомневаешься",
-  "Дружба и окружение", "Карьера и призвание", "Деньги и ресурсы",
-];
+import { APP_LANG } from "@/lib/i18n";
+
+const SECTION_TITLES_FALLBACK = APP_LANG === "en"
+  ? [
+      "How to Handle Conflicts", "How to Love and Be Loved",
+      "How to Make the Right Choice", "When in Doubt",
+      "Friendships & Circle", "Career & Purpose", "Money & Resources",
+    ]
+  : [
+      "Как поступать в конфликтах", "Как любить и быть любимым",
+      "Как делать правильный выбор", "Когда сомневаешься",
+      "Дружба и окружение", "Карьера и призвание", "Деньги и ресурсы",
+    ];
 
 function splitIntoChunks(text: string, maxChars = 560): string[] {
   if (!text?.trim()) return [];

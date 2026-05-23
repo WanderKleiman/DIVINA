@@ -62,8 +62,10 @@ export function ProStatusProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Fallback: ensure isLoading becomes false within 5s even if RevenueCat hangs
+    const timeout = setTimeout(() => setIsLoading(false), 5000);
     // Init RevenueCat SDK, then check status
-    initPurchases().then(refresh);
+    initPurchases().then(refresh).finally(() => clearTimeout(timeout));
   }, [refresh]);
 
   return (
