@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n";
 import { useProStatus } from "@/lib/pro-status";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { canUsePersonalityFree, recordPersonalityUse } from "@/lib/free-limits";
+import { lcGet, lcSet, TTL_MONTH } from "@/lib/local-cache";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
 interface Section { title: string; text: string }
@@ -267,59 +268,39 @@ export default function PersonalityPage() {
     const lang = userData.lang ?? "ru";
     const tone = userData.tone ?? "deep";
 
-    // Try cache first
-    try {
-      const raw = sessionStorage.getItem(`divina-personality-cache-v4_${lang}_${tone}`)
-        ?? sessionStorage.getItem(`divina-personality-cache-v4_${lang}`);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const d = parsed.data ?? parsed;
-        if (d?.narrative || d?.essence) {
-          setData(d);
-          setDataLoading(false);
-        }
-      }
-    } catch {}
+    const personalityKey = `divina-personality-v5_${lang}_${tone}`;
+    const natKey = `divina-natal-v5_${lang}_${tone}`;
 
-    // If cache miss, fetch personality from API directly
-    if (!sessionStorage.getItem(`divina-personality-cache-v4_${lang}_${tone}`)
-      && !sessionStorage.getItem(`divina-personality-cache-v4_${lang}`)) {
+    // Personality — cached 30 days (static data, doesn't change)
+    const cachedPersonality = lcGet<{ narrative?: string; essence?: string }>(personalityKey);
+    if (cachedPersonality?.narrative || cachedPersonality?.essence) {
+      setData(cachedPersonality as never);
+      setDataLoading(false);
+    } else {
       fetch("/api/personality", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          birthDate: userData.birthDate,
-          birthTime: userData.birthTime,
-          lat: userData.lat,
-          lng: userData.lng,
-          tzOffset: userData.tzOffset,
-          tone: userData.tone,
-          lang: userData.lang,
+          birthDate: userData.birthDate, birthTime: userData.birthTime,
+          lat: userData.lat, lng: userData.lng,
+          tzOffset: userData.tzOffset, tone: userData.tone, lang: userData.lang,
         }),
       })
         .then(r => r.json())
         .then(d => {
           if (d?.narrative || d?.essence) {
             setData(d);
-            try {
-              sessionStorage.setItem(`divina-personality-cache-v4_${lang}_${tone}`, JSON.stringify(d));
-            } catch {}
+            lcSet(personalityKey, d, TTL_MONTH);
           }
         })
         .catch(() => {})
         .finally(() => setDataLoading(false));
-    } else {
-      setDataLoading(false);
     }
 
-    const cached = sessionStorage.getItem("divina-natal-deep-v4");
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSections(parsed); setSectionsLoading(false); return;
-        }
-      } catch {}
+    // Natal interpretation — cached 30 days
+    const cachedNatal = lcGet<unknown[]>(natKey);
+    if (Array.isArray(cachedNatal) && cachedNatal.length > 0) {
+      setSections(cachedNatal as never); setSectionsLoading(false); return;
     }
 
     fetch("/api/interpretation", {
@@ -335,7 +316,7 @@ export default function PersonalityPage() {
       .then(d => {
         if (d?.sections && Array.isArray(d.sections)) {
           setSections(d.sections);
-          sessionStorage.setItem("divina-natal-deep-v4", JSON.stringify(d.sections));
+          lcSet(natKey, d.sections, TTL_MONTH);
         }
       })
       .catch(() => {})

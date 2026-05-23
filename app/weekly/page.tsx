@@ -11,6 +11,7 @@ import { useT } from "@/lib/i18n";
 import type { WeeklyForecast } from "@/lib/types";
 import { useProStatus } from "@/lib/pro-status";
 import { canUseWeekly, recordWeeklyUse } from "@/lib/free-limits";
+import { lcGet, lcSet, ttlUntilNextMonday } from "@/lib/local-cache";
 
 const CACHE_KEY = "divina-weekly-cache";
 
@@ -275,16 +276,11 @@ export default function WeeklyPage() {
     const weekStart = getWeekStart();
     const cacheKey = `${CACHE_KEY}_${user.birthDate}_${user.tone}_${user.lang}`;
 
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed._weekStart === weekStart) {
-          setForecast(parsed.data);
-          setLoading(false);
-          return;
-        }
-      } catch {}
+    const cached = lcGet<{ _weekStart: string; data: WeeklyForecast }>(cacheKey);
+    if (cached?._weekStart === weekStart) {
+      setForecast(cached.data);
+      setLoading(false);
+      return;
     }
 
     async function load() {
@@ -306,7 +302,7 @@ export default function WeeklyPage() {
         const data = await res.json();
         if (data && !data.error) {
           setForecast(data);
-          sessionStorage.setItem(cacheKey, JSON.stringify({ _weekStart: weekStart, data }));
+          lcSet(cacheKey, { _weekStart: weekStart, data }, ttlUntilNextMonday());
           recordWeeklyUse(weekStart); // count this as one free weekly use
         }
       } catch (err) {

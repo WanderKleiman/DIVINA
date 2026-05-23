@@ -10,8 +10,9 @@ import NotableDates from "@/components/today/NotableDates";
 import { getUserData, getToday } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { DailyForecast, NotableDate } from "@/lib/types";
+import { lcGet, lcSet, ttlUntilMidnight } from "@/lib/local-cache";
 
-const CACHE_KEY = "divina-today-cache";
+const CACHE_KEY = "divina-today-v2";
 const MAX_AUTO_RETRIES = 2;
 const AUTO_RETRY_DELAY_MS = 2200;
 
@@ -97,18 +98,13 @@ export default function TodayPage() {
     const user = getUserData();
     const cacheKey = `${CACHE_KEY}_${user.birthDate}_${user.tone}_${user.lang}_${user.tzOffset}`;
 
-    // Check session cache first
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        if (parsed._date === today) {
-          setForecast(parsed.forecast);
-          setNotableDates(parsed.notableDates || []);
-          setLoading(false);
-          return;
-        }
-      } catch {}
+    // Check persistent cache first (survives app restarts, expires at midnight)
+    const cached = lcGet<{ _date: string; forecast: DailyForecast; notableDates: NotableDate[] }>(cacheKey);
+    if (cached && cached._date === today) {
+      setForecast(cached.forecast);
+      setNotableDates(cached.notableDates || []);
+      setLoading(false);
+      return;
     }
 
     let cancelled = false;
@@ -139,12 +135,8 @@ export default function TodayPage() {
           setLoading(false);
           autoRetryRef.current = 0; // reset auto-retry counter on success
 
-          // Cache partial result immediately — calendar loads separately below
-          sessionStorage.setItem(cacheKey, JSON.stringify({
-            _date: today,
-            forecast: forecastData,
-            notableDates: [],
-          }));
+          // Cache until midnight — survives app restarts
+          lcSet(cacheKey, { _date: today, forecast: forecastData, notableDates: [] }, ttlUntilMidnight());
 
           // Load calendar in background — doesn't block the page
           fetch(`/api/calendar?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}&birthDate=${user.birthDate}&birthTime=${user.birthTime}&lat=${user.lat}&lng=${user.lng}&tzOffset=${user.tzOffset}&lang=${user.lang}`)
@@ -165,11 +157,7 @@ export default function TodayPage() {
                   }));
                 setNotableDates(notable);
                 // Update cache with calendar data
-                sessionStorage.setItem(cacheKey, JSON.stringify({
-                  _date: today,
-                  forecast: forecastData,
-                  notableDates: notable,
-                }));
+                lcSet(cacheKey, { _date: today, forecast: forecastData, notableDates: notable }, ttlUntilMidnight());
               }
             })
             .catch(() => {}); // calendar failure is silent — page still works

@@ -14,6 +14,7 @@ import { useT, APP_LANG, formatShortDate } from "@/lib/i18n";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 import { ensureTrialStarted } from "@/lib/trial";
 import { canUseCompatibilityFree, recordCompatibilityUse } from "@/lib/free-limits";
+import { lcGet, lcSet, TTL_WEEK } from "@/lib/local-cache";
 import { useProStatus } from "@/lib/pro-status";
 
 type PaywallType = "interpretation" | "weekly" | "compatibility" | null;
@@ -99,10 +100,10 @@ export default function ForYouPage() {
 
   function loadPeriods() {
     const user = getUserData();
-    const periodsCacheKey = `divina_life_periods_v4_${user.lang}`;
-    const cached = sessionStorage.getItem(periodsCacheKey);
+    const periodsCacheKey = `divina_life_periods_v5_${user.lang}`;
+    const cached = lcGet<LifePeriodsResult>(periodsCacheKey);
     if (cached) {
-      try { setPeriodsData(JSON.parse(cached)); } catch {}
+      setPeriodsData(cached);
       setPeriodsLoading(false);
       return;
     }
@@ -125,7 +126,7 @@ export default function ForYouPage() {
       .then(data => {
         if (!data.error) {
           setPeriodsData(data);
-          sessionStorage.setItem(periodsCacheKey, JSON.stringify(data));
+          lcSet(periodsCacheKey, data, TTL_WEEK);
         } else {
           setPeriodsError(true);
         }

@@ -15,8 +15,9 @@ import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { NatalChart, User } from "@/lib/types";
 import type { PersonalityBreakdown as PersonalityBreakdownType } from "@/lib/ai-interpret";
+import { lcGet, lcSet, TTL_DAY, TTL_MONTH } from "@/lib/local-cache";
 
-const CACHE_KEY = "divina-natal-cache-v2";
+const CACHE_KEY = "divina-natal-v3";
 
 export default function ProfilePage() {
   const [chart, setChart] = useState<NatalChart | null>(null);
@@ -28,7 +29,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const userData = getUserData();
-    const personalityCacheKey = `divina-personality-cache-v4_${userData.lang}_${userData.tone}`;
+    const personalityCacheKey = `divina-personality-v5_${userData.lang}_${userData.tone}`;
 
     setUser({
       name: userData.name,
@@ -55,24 +56,17 @@ export default function ProfilePage() {
         const data = await res.json();
         if (data && !data.error) {
           setPersonality(data);
-          sessionStorage.setItem(personalityCacheKey, JSON.stringify({ _birthDate: userData.birthDate, data }));
+          lcSet(personalityCacheKey, data, TTL_MONTH);
         }
       } catch {}
       finally { setPersonalityLoading(false); }
     }
 
-    // Restore personality from cache if available
-    const cachedPersonality = sessionStorage.getItem(personalityCacheKey);
+    // Restore personality from cache (30 days)
+    const cachedPersonality = lcGet<PersonalityBreakdownType>(personalityCacheKey);
     if (cachedPersonality) {
-      try {
-        const parsed = JSON.parse(cachedPersonality);
-        if (parsed._birthDate === userData.birthDate) {
-          setPersonality(parsed.data);
-          setPersonalityLoading(false);
-        } else {
-          loadPersonality();
-        }
-      } catch { loadPersonality(); }
+      setPersonality(cachedPersonality);
+      setPersonalityLoading(false);
     } else {
       loadPersonality();
     }
@@ -81,16 +75,11 @@ export default function ProfilePage() {
 
     // Load natal chart — fast (~70ms), unlocks the page
     async function loadNatal() {
-      const cached = sessionStorage.getItem(natalCacheKey);
+      const cached = lcGet<NatalChart>(natalCacheKey);
       if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (parsed._birthDate === userData.birthDate) {
-            setChart(parsed.data);
-            setLoading(false);
-            return;
-          }
-        } catch {}
+        setChart(cached);
+        setLoading(false);
+        return;
       }
 
       try {
@@ -98,7 +87,7 @@ export default function ProfilePage() {
         const data = await res.json();
         if (data && !data.error) {
           setChart(data);
-          sessionStorage.setItem(natalCacheKey, JSON.stringify({ _birthDate: userData.birthDate, data }));
+          lcSet(natalCacheKey, data, TTL_DAY); // natal chart changes very rarely
         }
       } catch (err) {
         console.error("Failed to load natal:", err);

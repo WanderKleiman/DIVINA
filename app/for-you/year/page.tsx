@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import { useProStatus } from "@/lib/pro-status";
+import { lcGet, lcSet, TTL_WEEK } from "@/lib/local-cache";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { YearForecastResult } from "@/lib/ai-interpret";
 
@@ -229,23 +230,15 @@ export default function YearForecastPage() {
     }
 
     const user = getUserData();
-    const cacheKey = `divina-year-forecast-v1_${user.birthDate}_${user.lang}`;
+    const cacheKey = `divina-year-forecast-v2_${user.birthDate}_${user.lang}`;
 
     if (retryCount === 0) {
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (parsed?.months?.length) {
-            setData(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch {}
+      const cached = lcGet<YearForecastResult>(cacheKey);
+      if (cached?.months?.length) {
+        setData(cached);
+        setLoading(false);
+        return;
       }
-    } else {
-      // On retry, clear the cached result so we re-fetch fresh
-      sessionStorage.removeItem(cacheKey);
     }
 
     const controller = new AbortController();
@@ -269,7 +262,7 @@ export default function YearForecastPage() {
       .then(d => {
         if (d?.months?.length) {
           setData(d);
-          sessionStorage.setItem(cacheKey, JSON.stringify(d));
+          lcSet(cacheKey, d, TTL_WEEK);
         } else {
           console.error("Year forecast: bad response", d);
           setError(true);

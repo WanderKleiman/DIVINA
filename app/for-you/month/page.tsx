@@ -6,6 +6,7 @@ import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import { useProStatus } from "@/lib/pro-status";
 import { canUseMonthForecastFree, recordMonthForecastUse } from "@/lib/free-limits";
+import { lcGet, lcSet, TTL_WEEK } from "@/lib/local-cache";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import type { MonthForecastResult } from "@/lib/ai-interpret";
 
@@ -271,19 +272,12 @@ export default function MonthForecastPage() {
     const cacheKey = `divina-month-forecast-v2_${user.birthDate}_${weekStamp}_${user.lang}`;
 
     if (retryCount === 0) {
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (parsed?.weeks?.length) {
-            setData(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch {}
+      const cached = lcGet<MonthForecastResult>(cacheKey);
+      if (cached?.weeks?.length) {
+        setData(cached);
+        setLoading(false);
+        return;
       }
-    } else {
-      sessionStorage.removeItem(cacheKey);
     }
 
     const controller = new AbortController();
@@ -307,7 +301,7 @@ export default function MonthForecastPage() {
       .then(d => {
         if (d?.weeks?.length) {
           setData(d);
-          sessionStorage.setItem(cacheKey, JSON.stringify(d));
+          lcSet(cacheKey, d, TTL_WEEK);
           if (retryCount === 0) recordMonthForecastUse(); // count first successful fetch
         } else {
           console.error("Month forecast: bad response", d);
