@@ -1072,6 +1072,231 @@ ${isEn ? "CRITICAL: ALL text content MUST be in ENGLISH." : "Язык: Русс�
   }
 }
 
+// ===== Month Forecast =====
+
+export interface MonthForecastInput {
+  sunSign: string;
+  moonSign: string;
+  ascendant: string;
+  monthName: string;
+  year: number;
+  overallEnergy: "high" | "medium" | "low";
+  positiveAspects: number;
+  challengingAspects: number;
+  retrogrades: string[];
+  dominantTransits: string[]; // top 5 transit descriptions e.g. "Jupiter trine natal Sun"
+  weeks: {
+    weekNum: number; // 1-4
+    positiveAspects: number;
+    challengingAspects: number;
+    retrogrades: string[];
+    keyTransits: string[];
+  }[];
+}
+
+export interface MonthForecastResult {
+  monthName: string;
+  year: number;
+  overallTheme: string;
+  overallEnergy: "high" | "medium" | "low";
+  weeks: {
+    weekNum: number;
+    title: string;       // 3-5 words
+    story: string;       // 3-4 paragraphs, 500-700 chars
+    focus: string;       // 1 sentence
+  }[];
+  areas: {
+    area: "love" | "work" | "health" | "money" | "growth";
+    title: string;
+    story: string;       // 2-3 paragraphs, 400-600 chars
+    tip: string;         // 1 practical sentence
+  }[];
+  keyMoments: {
+    period: string;      // e.g. "5–10 мая"
+    description: string; // 1-2 sentences
+  }[];
+  advice: string;        // 1 closing paragraph
+}
+
+export async function interpretMonthForecast(
+  input: MonthForecastInput,
+  tone: ToneOfVoice = "deep",
+  lang: string = "ru"
+): Promise<MonthForecastResult> {
+  const isEn = lang === "en";
+
+  const weeksDesc = input.weeks.map(w => {
+    const retros = w.retrogrades.length > 0
+      ? (isEn ? `Retrogrades: ${w.retrogrades.join(", ")}` : `Ретрограды: ${w.retrogrades.join(", ")}`)
+      : "";
+    const transits = w.keyTransits.length > 0
+      ? (isEn ? `Key transits: ${w.keyTransits.join("; ")}` : `Ключевые транзиты: ${w.keyTransits.join("; ")}`)
+      : "";
+    return isEn
+      ? `Week ${w.weekNum}: ${w.positiveAspects} supportive aspects, ${w.challengingAspects} challenging. ${retros} ${transits}`
+      : `Неделя ${w.weekNum}: ${w.positiveAspects} поддерживающих аспектов, ${w.challengingAspects} напряжённых. ${retros} ${transits}`;
+  }).join("\n");
+
+  const dominantDesc = input.dominantTransits.length > 0
+    ? (isEn
+        ? `Dominant transits this month: ${input.dominantTransits.join("; ")}`
+        : `Доминирующие транзиты месяца: ${input.dominantTransits.join("; ")}`)
+    : "";
+
+  const userPrompt = isEn
+    ? `Write a personal month forecast for someone with Sun ${input.sunSign}, Moon ${input.moonSign}, Ascendant ${input.ascendant}.
+
+MONTH: ${input.monthName} ${input.year}
+Overall energy: ${input.overallEnergy} (${input.positiveAspects} supportive aspects, ${input.challengingAspects} challenging)
+${dominantDesc}
+${input.retrogrades.length > 0 ? `Retrogrades: ${input.retrogrades.join(", ")}` : "No retrogrades"}
+
+WEEKLY BREAKDOWN:
+${weeksDesc}
+
+Return a detailed month forecast as JSON. Write directly to "you". No planet names in text — only real-life meaning. Warm, direct tone.
+
+{
+  "monthName": "${input.monthName}",
+  "year": ${input.year},
+  "overallTheme": "One sentence: the main theme of this month",
+  "overallEnergy": "${input.overallEnergy}",
+  "weeks": [
+    {
+      "weekNum": 1,
+      "title": "3-5 words capturing the week's feel",
+      "story": "3-4 paragraphs, 500-700 chars, what this week brings, direct and personal",
+      "focus": "One concrete action or focus"
+    }
+  ],
+  "areas": [
+    { "area": "love", "title": "Love & Relationships", "story": "2-3 paragraphs, 400-600 chars", "tip": "One practical tip" },
+    { "area": "work", "title": "Work & Career", "story": "2-3 paragraphs, 400-600 chars", "tip": "One practical tip" },
+    { "area": "health", "title": "Health & Energy", "story": "2-3 paragraphs, 400-600 chars", "tip": "One practical tip" },
+    { "area": "money", "title": "Money & Resources", "story": "2-3 paragraphs, 400-600 chars", "tip": "One practical tip" },
+    { "area": "growth", "title": "Personal Growth", "story": "2-3 paragraphs, 400-600 chars", "tip": "One practical tip" }
+  ],
+  "keyMoments": [
+    { "period": "e.g. May 5–10", "description": "1-2 sentences about this window" }
+  ],
+  "advice": "One closing paragraph — the most important thing to remember this month"
+}
+
+Rules: exactly 4 weeks, exactly 5 areas in order (love/work/health/money/growth), 3-5 key moments, no planet names anywhere in the text.`
+    : `Напиши личный расклад на месяц для человека с Солнцем ${input.sunSign}, Луной ${input.moonSign}, Асцендентом ${input.ascendant}.
+
+МЕСЯЦ: ${input.monthName} ${input.year}
+Общая энергия: ${input.overallEnergy} (${input.positiveAspects} поддерживающих аспектов, ${input.challengingAspects} напряжённых)
+${dominantDesc}
+${input.retrogrades.length > 0 ? `Ретрограды: ${input.retrogrades.join(", ")}` : "Ретроградов нет"}
+
+НЕДЕЛИ:
+${weeksDesc}
+
+Верни подробный расклад на месяц как JSON. Пиши напрямую на «ты». Без названий планет — только реальная жизнь. Тёплый, прямой тон.
+
+{
+  "monthName": "${input.monthName}",
+  "year": ${input.year},
+  "overallTheme": "Одно предложение: главная тема этого месяца",
+  "overallEnergy": "${input.overallEnergy}",
+  "weeks": [
+    {
+      "weekNum": 1,
+      "title": "3-5 слов — суть недели",
+      "story": "3-4 абзаца, 500-700 символов, что принесёт эта неделя",
+      "focus": "Одно конкретное действие или фокус"
+    }
+  ],
+  "areas": [
+    { "area": "love", "title": "Любовь и отношения", "story": "2-3 абзаца, 400-600 символов", "tip": "Один практический совет" },
+    { "area": "work", "title": "Работа и карьера", "story": "2-3 абзаца, 400-600 символов", "tip": "Один практический совет" },
+    { "area": "health", "title": "Здоровье и энергия", "story": "2-3 абзаца, 400-600 символов", "tip": "Один практический совет" },
+    { "area": "money", "title": "Деньги и ресурсы", "story": "2-3 абзаца, 400-600 символов", "tip": "Один практический совет" },
+    { "area": "growth", "title": "Личный рост", "story": "2-3 абзаца, 400-600 символов", "tip": "Один практический совет" }
+  ],
+  "keyMoments": [
+    { "period": "напр. 5–10 мая", "description": "1-2 предложения об этом периоде" }
+  ],
+  "advice": "Один заключительный абзац — самое важное, что нужно помнить в этот месяц"
+}
+
+Правила: ровно 4 недели, ровно 5 сфер в порядке (love/work/health/money/growth), 3-5 ключевых моментов, нигде в тексте нет названий планет.`;
+
+  const cacheKey = `month_v1_${input.sunSign}_${input.ascendant}_${input.year}_${input.weeks[0]?.weekNum ?? 0}_${tone}_${lang}`;
+  const cached = getCached<MonthForecastResult>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: getSystemPrompt(tone, lang) },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.75,
+      max_completion_tokens: 6000,
+      response_format: { type: "json_object" },
+    });
+    const text = response.choices[0]?.message?.content ?? "{}";
+    const result = JSON.parse(text) as MonthForecastResult;
+    if (!result.weeks?.length || !result.areas?.length) throw new Error("Incomplete response");
+    setCache(cacheKey, result);
+    return result;
+  } catch {
+    // Fallback
+    return {
+      monthName: input.monthName,
+      year: input.year,
+      overallTheme: isEn ? "A month of movement, reflection and new clarity" : "Месяц движения, осмысления и новой ясности",
+      overallEnergy: input.overallEnergy,
+      weeks: [1, 2, 3, 4].map(w => ({
+        weekNum: w,
+        title: isEn ? "Steady forward motion" : "Устойчивое движение вперёд",
+        story: isEn
+          ? "This week brings a mix of momentum and reflection. There are days where things click naturally, and days where patience serves you better than pushing.\n\nPay attention to what feels right versus what you think you should be doing. Those two things aren't always aligned — and the gap between them is worth noticing.\n\nBy the end of the week, you'll have a clearer sense of what's truly a priority and what can wait."
+          : "Эта неделя приносит сочетание импульса и осмысления. Есть дни, когда всё складывается само, и дни, когда терпение служит лучше, чем напор.\n\nОбращай внимание на то, что ощущается правильным, а не на то, что, как ты думаешь, нужно делать. Эти две вещи не всегда совпадают — и разрыв между ними стоит замечать.\n\nК концу недели у тебя будет более чёткое понимание, что действительно важно, а что может подождать.",
+        focus: isEn ? "One clear commitment — keep it." : "Одно чёткое обязательство — соблюдай его.",
+      })),
+      areas: (["love", "work", "health", "money", "growth"] as const).map(area => ({
+        area,
+        title: isEn
+          ? area === "love" ? "Love & Relationships"
+          : area === "work" ? "Work & Career"
+          : area === "health" ? "Health & Energy"
+          : area === "money" ? "Money & Resources"
+          : "Personal Growth"
+          : area === "love" ? "Любовь и отношения"
+          : area === "work" ? "Работа и карьера"
+          : area === "health" ? "Здоровье и энергия"
+          : area === "money" ? "Деньги и ресурсы"
+          : "Личный рост",
+        story: isEn
+          ? "This area calls for attention this month. The energy here is one of gradual shift — not dramatic change, but noticeable movement if you stay present.\n\nThe main thing is not to force outcomes. What needs to happen will find its way if you stay open and consistent."
+          : "Эта сфера требует внимания в этом месяце. Энергия здесь — постепенный сдвиг, не драматическое изменение, но заметное движение, если ты будешь присутствовать.\n\nГлавное — не форсировать результаты. Что должно произойти, найдёт свой путь, если ты остаёшься открытым и последовательным.",
+        tip: isEn ? "Stay consistent. Small actions compound." : "Будь последовательным. Маленькие действия накапливаются.",
+      })),
+      keyMoments: [
+        {
+          period: isEn ? "First week" : "Первая неделя",
+          description: isEn ? "A window for starting something new or re-committing to something important." : "Возможность начать что-то новое или заново посвятить себя чему-то важному.",
+        },
+        {
+          period: isEn ? "Mid-month" : "Середина месяца",
+          description: isEn ? "A natural review point — assess what's working and adjust." : "Естественный момент для оценки — посмотри, что работает, и скорректируй.",
+        },
+        {
+          period: isEn ? "Final days" : "Последние дни",
+          description: isEn ? "Good time to close open loops and prepare for what's next." : "Хорошее время закрыть незавершённое и подготовиться к следующему.",
+        },
+      ],
+      advice: isEn
+        ? "The most important thing this month is to stay honest with yourself. Not every decision needs to be made quickly — and not every feeling needs to be acted on immediately. Give yourself the space to know what you actually want before committing to it."
+        : "Самое важное в этом месяце — оставаться честным с собой. Не каждое решение нужно принимать быстро, и не каждое чувство нужно сразу отыгрывать. Дай себе пространство понять, чего ты на самом деле хочешь, прежде чем брать на себя обязательства.",
+    };
+  }
+}
+
 // ===== Year Forecast =====
 
 export interface YearMonth {

@@ -389,6 +389,27 @@ const dict: Record<string, Record<Locale, string>> = {
   "yearForecast.energy.low": { ru: "Пониженная", en: "Reduced" },
   "yearForecast.done": { ru: "Закрыть", en: "Done" },
 
+  // ===== Month Forecast =====
+  "monthForecast.title": { ru: "Расклад на месяц", en: "Month Forecast" },
+  "monthForecast.subtitle": { ru: "Персональный прогноз на ближайший месяц", en: "Your personal forecast for the coming month" },
+  "monthForecast.overallTheme": { ru: "Тема месяца", en: "Month theme" },
+  "monthForecast.loading": { ru: "Составляем расклад на месяц...", en: "Generating your month forecast..." },
+  "monthForecast.loadingHint": { ru: "Это займёт около минуты", en: "This takes about a minute" },
+  "monthForecast.error": { ru: "Не удалось загрузить расклад на месяц", en: "Failed to load month forecast" },
+  "monthForecast.done": { ru: "Закрыть", en: "Done" },
+  "monthForecast.week": { ru: "Неделя", en: "Week" },
+  "monthForecast.focus": { ru: "Фокус недели", en: "Weekly focus" },
+  "monthForecast.tip": { ru: "Совет", en: "Tip" },
+  "monthForecast.keyMoments": { ru: "Ключевые периоды", en: "Key moments" },
+  "monthForecast.advice": { ru: "Главное на месяц", en: "Key advice" },
+  "monthForecast.energy.high": { ru: "Повышенная", en: "Elevated" },
+  "monthForecast.energy.medium": { ru: "Оптимальная", en: "Optimal" },
+  "monthForecast.energy.low": { ru: "Пониженная", en: "Reduced" },
+
+  // for-you card
+  "forYou.monthTitle": { ru: "Расклад на месяц", en: "Month Forecast" },
+  "forYou.monthDesc": { ru: "12 страниц о твоём ближайшем месяце: недели, сферы жизни, ключевые моменты", en: "12 pages about your coming month: weeks, life areas, key moments" },
+
   // ===== Others (Natal for others) =====
   "others.title": { ru: "Натальная карта другого человека", en: "Chart for someone else" },
   "others.subtitle": { ru: "Введи данные рождения, чтобы узнать человека глубже", en: "Enter birth data to understand someone more deeply" },

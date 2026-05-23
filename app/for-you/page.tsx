@@ -314,6 +314,47 @@ export default function ForYouPage() {
         <div className="animate-fade-in-up px-5 pt-2">
           <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
           <div className="space-y-2.5">
+            {/* Month Forecast */}
+            <button
+              onClick={() => {
+                if (isInFreeTrial() || isPro) {
+                  router.push("/for-you/month");
+                } else {
+                  setOpenSubPaywall(true);
+                }
+              }}
+              className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+            >
+              <video
+                src="/prodaction2.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ pointerEvents: "none", transform: "rotate(90deg) scale(1.8)" }}
+              />
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                    <circle cx="12" cy="16" r="2" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="text-sm font-medium text-white">{t("forYou.monthTitle")}</h3>
+                    <span className="text-[9px] font-semibold text-white/60 bg-white/15 rounded-full px-1.5 py-0.5 tracking-wider">PRO</span>
+                  </div>
+                  <p className="text-xs text-white/50 line-clamp-1">{t("forYou.monthDesc")}</p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25 group-hover:text-white/40 transition-colors">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </button>
+
             {/* Year Forecast */}
             <button
               onClick={() => {
