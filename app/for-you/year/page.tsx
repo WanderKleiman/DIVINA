@@ -20,9 +20,9 @@ const GLASS_STYLE: React.CSSProperties = {
 function EnergyBadge({ energy }: { energy: "high" | "medium" | "low" }) {
   const { t } = useT();
   const colors = {
-    high: { bg: "rgba(16,185,129,0.10)", border: "rgba(16,185,129,0.20)", text: "#065f46" },
-    medium: { bg: "rgba(245,158,11,0.10)", border: "rgba(245,158,11,0.20)", text: "#78350f" },
-    low: { bg: "rgba(239,68,68,0.10)", border: "rgba(239,68,68,0.20)", text: "#7f1d1d" },
+    high:   { bg: "rgba(139,92,246,0.12)",  border: "rgba(139,92,246,0.25)",  text: "#5b21b6" },
+    medium: { bg: "rgba(99,179,237,0.12)",  border: "rgba(99,179,237,0.25)",  text: "#1e4e7a" },
+    low:    { bg: "rgba(148,163,184,0.12)", border: "rgba(148,163,184,0.25)", text: "#475569" },
   };
   const c = colors[energy];
   const label = t(`yearForecast.energy.${energy}`);
@@ -327,14 +327,14 @@ export default function YearForecastPage() {
               style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
             >
               <p className="text-[9px] text-black/40 mb-1 truncate">{m.monthName.slice(0, 3)}</p>
-              <div className={`h-1.5 rounded-full mx-auto ${m.energy === "high" ? "bg-emerald-400" : m.energy === "low" ? "bg-red-400" : "bg-amber-400"}`} style={{ width: "70%" }} />
+              <div className="h-1.5 rounded-full mx-auto" style={{ width: "70%", background: m.energy === "high" ? "rgba(139,92,246,0.7)" : m.energy === "low" ? "rgba(148,163,184,0.6)" : "rgba(99,179,237,0.65)" }} />
             </div>
           ))}
         </div>
         <div className="flex items-center gap-3 justify-center">
-          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-emerald-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.high")}</span></div>
-          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-amber-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.medium")}</span></div>
-          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-red-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.low")}</span></div>
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full" style={{ background: "rgba(139,92,246,0.7)" }} /><span className="text-[9px] text-black/35">{t("yearForecast.energy.high")}</span></div>
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full" style={{ background: "rgba(99,179,237,0.65)" }} /><span className="text-[9px] text-black/35">{t("yearForecast.energy.medium")}</span></div>
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full" style={{ background: "rgba(148,163,184,0.6)" }} /><span className="text-[9px] text-black/35">{t("yearForecast.energy.low")}</span></div>
         </div>
       </div>
     </div>

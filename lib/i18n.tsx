@@ -383,9 +383,9 @@ const dict: Record<string, Record<Locale, string>> = {
   "yearForecast.keyFocus": { ru: "Фокус месяца", en: "Monthly focus" },
   "yearForecast.watchOut": { ru: "Обрати внимание", en: "Watch out" },
   "yearForecast.retrogrades": { ru: "Ретрограды", en: "Retrogrades" },
-  "yearForecast.energy.high": { ru: "Высокая энергия", en: "High energy" },
-  "yearForecast.energy.medium": { ru: "Средняя энергия", en: "Medium energy" },
-  "yearForecast.energy.low": { ru: "Низкая энергия", en: "Low energy" },
+  "yearForecast.energy.high": { ru: "Повышенная", en: "Elevated" },
+  "yearForecast.energy.medium": { ru: "Оптимальная", en: "Optimal" },
+  "yearForecast.energy.low": { ru: "Пониженная", en: "Reduced" },
   "yearForecast.done": { ru: "Закрыть", en: "Done" },
 
   // ===== Others (Natal for others) =====
