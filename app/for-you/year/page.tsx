@@ -318,17 +318,24 @@ export default function YearForecastPage() {
         <p className="text-[10px] text-black/40 uppercase tracking-widest mb-2">{t("yearForecast.overallTheme")}</p>
         <p className="text-[15px] text-black/80 leading-relaxed font-medium">{data.overallTheme}</p>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {data.months.slice(0, 6).map(m => (
-          <div
-            key={m.month}
-            className="rounded-xl p-2 text-center"
-            style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
-          >
-            <p className="text-[9px] text-black/40 mb-0.5">{m.monthName}</p>
-            <div className={`h-1.5 rounded-full mx-auto ${m.energy === "high" ? "bg-emerald-400" : m.energy === "low" ? "bg-red-400" : "bg-amber-400"}`} style={{ width: "60%" }} />
-          </div>
-        ))}
+      <div>
+        <div className="grid grid-cols-4 gap-1.5 mb-2">
+          {data.months.map(m => (
+            <div
+              key={m.month}
+              className="rounded-xl p-2 text-center"
+              style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
+            >
+              <p className="text-[9px] text-black/40 mb-1 truncate">{m.monthName.slice(0, 3)}</p>
+              <div className={`h-1.5 rounded-full mx-auto ${m.energy === "high" ? "bg-emerald-400" : m.energy === "low" ? "bg-red-400" : "bg-amber-400"}`} style={{ width: "70%" }} />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-3 justify-center">
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-emerald-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.high")}</span></div>
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-amber-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.medium")}</span></div>
+          <div className="flex items-center gap-1"><div className="h-1.5 w-3 rounded-full bg-red-400" /><span className="text-[9px] text-black/35">{t("yearForecast.energy.low")}</span></div>
+        </div>
       </div>
     </div>
   );

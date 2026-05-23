@@ -398,10 +398,10 @@ export default function WeeklyPage() {
   return (
     <>
       <div className="flex flex-col gap-4 pb-28">
-        <div className="flex items-center gap-3 px-5 pt-4">
+        <div className="flex items-center gap-3 px-5" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <button
             onClick={() => setPhase("story")}
-            className="flex h-10 w-10 items-center justify-center rounded-full"
+            className="flex h-10 w-10 items-center justify-center rounded-full shrink-0"
             style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
