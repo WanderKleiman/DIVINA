@@ -23,13 +23,20 @@ export default function ProPage() {
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-      {/* Video background */}
+      {/* Video background — same as paywall */}
       <video
-        src="/cosmos-4.mp4"
+        src="/prodaction2.mp4"
         autoPlay loop muted playsInline
-        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, pointerEvents: "none" }}
+        style={{
+          position: "fixed",
+          top: "50%", left: "50%",
+          transform: "translate(-50%, -50%) rotate(90deg)",
+          minWidth: "100vh", minHeight: "100vw",
+          width: "auto", height: "auto",
+          zIndex: 0, pointerEvents: "none",
+        }}
       />
-      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.60)", zIndex: 1, pointerEvents: "none" }} />
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1, pointerEvents: "none" }} />
 
       {/* Back button */}
       <div style={{ position: "relative", zIndex: 50, padding: "env(safe-area-inset-top) 20px 0", marginTop: 16 }}>
@@ -118,7 +125,7 @@ export default function ProPage() {
             {t("pro.trialCta")}
           </button>
           <p style={{ textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 10 }}>
-            {t("pro.then")} {plan === "year" ? `${YEAR_TOTAL}/${t("pro.perYear")}` : `${MONTH_TOTAL}/${t("pro.perMonth")}`} · {t("pro.cancelAnytime")}
+            {t("pro.then")} {plan === "year" ? `${YEAR_WEEKLY}/${t("pro.perWeek")}, billed ${YEAR_TOTAL}/yr` : `${MONTH_WEEKLY}/${t("pro.perWeek")}, billed ${MONTH_TOTAL}/mo`} · {t("pro.cancelAnytime")}
           </p>
         </div>
       </div>

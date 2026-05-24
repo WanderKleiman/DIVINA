@@ -6,6 +6,7 @@ import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import { lcGet, lcSet, TTL_MONTH } from "@/lib/local-cache";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
+import PersonalityBreakdownCard from "@/components/profile/PersonalityBreakdown";
 
 interface Section {
   title: string;
@@ -342,34 +343,11 @@ export default function InterpretationPage() {
       </div>
 
       {/* Personality card */}
-      <div className="px-5 mb-2.5">
-        <button
-          onClick={() => router.push("/profile/personality")}
-          className="w-full text-left relative overflow-hidden rounded-2xl active:scale-[0.98] transition-transform"
-          style={{ minHeight: 72 }}
-        >
-          <video src="/cosmos-5.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
-          <div className="absolute inset-0 bg-black/55" />
-          <div className="relative z-10 p-4 flex items-center gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-medium text-white mb-0.5">{t("profile.personalityTitle")}</h3>
-              {personality ? (
-                <p className="text-xs text-white/50 line-clamp-1">{personality.essence}</p>
-              ) : (
-                <p className="text-xs text-white/35">{t("profile.personalitySubtitle")}</p>
-              )}
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </div>
-        </button>
-      </div>
+      {personality && (
+        <div className="mb-2.5">
+          <PersonalityBreakdownCard data={personality} />
+        </div>
+      )}
 
       {/* White cards */}
       <div className="px-5 space-y-2.5 stagger">

@@ -326,7 +326,7 @@ export default function PersonalityPage() {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
           <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
-          <p className="text-white/40 text-sm">Загрузка...</p>
+          <p className="text-white/40 text-sm">{t("compat.loading")}</p>
         </div>
       );
     }
@@ -334,7 +334,7 @@ export default function PersonalityPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
         <p className="text-white/50 text-sm">{t("error.data")}</p>
         <button onClick={() => router.push("/profile")} className="text-sm text-white/60 border border-white/15 rounded-xl px-5 py-2.5">
-          Перейти в профиль
+          {t("generic.back")}
         </button>
       </div>
     );
@@ -361,7 +361,7 @@ export default function PersonalityPage() {
         ))
       : [
           <div key="loading" className="flex flex-col gap-3">
-            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">Разбор</p>
+            <p className="text-[10px] text-black/35 uppercase tracking-widest mb-2">{t("interpretation.chartBreakdown")}</p>
             <h2 className="text-[19px] font-bold text-black leading-tight mb-4">
               {currentSection?.title ?? ""}
             </h2>

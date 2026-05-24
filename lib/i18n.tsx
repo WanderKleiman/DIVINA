@@ -336,7 +336,7 @@ const dict: Record<string, Record<Locale, string>> = {
   "pro.then": { ru: "Затем", en: "Then" },
   "pro.yearlySubscription": { ru: "Годовая подписка", en: "Yearly subscription" },
   "pro.monthlySubscription": { ru: "Месячная подписка", en: "Monthly subscription" },
-  "pro.badge": { ru: "ВЫГОДНО −40%", en: "BEST VALUE −40%" },
+  "pro.badge": { ru: "ВЫГОДНО −58%", en: "BEST VALUE −58%" },
 
   // ===== Paywalls =====
   "paywall.weekly.title": { ru: "Недельный расклад", en: "Weekly spread" },
