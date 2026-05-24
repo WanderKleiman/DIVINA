@@ -32,10 +32,41 @@ export default function OnboardingFlow() {
 
   const canFinish = name.trim() !== "" && birthDate !== "" && birthTime !== "" && birthCity.trim() !== "";
 
-  const TONES: { value: ToneOfVoice; label: string; desc: string; emoji: string }[] = [
-    { value: "deep",     label: t("tone.deep"),     desc: t("tone.deep.desc"),     emoji: "🌊" },
-    { value: "direct",   label: t("tone.direct"),   desc: t("tone.direct.desc"),   emoji: "⚡" },
-    { value: "friendly", label: t("tone.friendly"), desc: t("tone.friendly.desc"), emoji: "☕" },
+  const TONES: { value: ToneOfVoice; label: string; desc: string; icon: React.ReactNode }[] = [
+    {
+      value: "deep",
+      label: t("tone.deep"),
+      desc: t("tone.deep.desc"),
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      ),
+    },
+    {
+      value: "direct",
+      label: t("tone.direct"),
+      desc: t("tone.direct.desc"),
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      ),
+    },
+    {
+      value: "friendly",
+      label: t("tone.friendly"),
+      desc: t("tone.friendly.desc"),
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      ),
+    },
   ];
 
   const planets = useMemo(() => {
@@ -137,9 +168,9 @@ export default function OnboardingFlow() {
                 </p>
               )}
               {slides[step].bullets && (
-                <div className="text-left space-y-2.5 mb-6 w-full">
+                <div className="text-left space-y-3 mt-8 mb-6 w-full">
                   {slides[step].bullets!.map((b, i) => (
-                    <div key={i} className="rounded-2xl bg-white border border-white/20 px-4 py-3 flex gap-3 items-start shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
+                    <div key={i} className="rounded-2xl bg-white border border-white/20 px-4 py-4 flex gap-3 items-start shadow-[0_2px_16px_rgba(0,0,0,0.18)]">
                       <span className="text-black/25 shrink-0 mt-0.5 text-base">✦</span>
                       <span className="text-sm leading-relaxed text-black/65">
                         <strong className="text-black/85 font-semibold">{b.bold}</strong> — {b.text}
@@ -193,23 +224,49 @@ export default function OnboardingFlow() {
                   onClick={() => setSelectedTone(tn.value)}
                   className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.98]"
                   style={selectedTone === tn.value
-                    ? { background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.50)" }
-                    : { background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)" }
+                    ? {
+                        background: "rgba(255,255,255,0.12)",
+                        border: "1.5px solid rgba(255,255,255,0.40)",
+                        backdropFilter: "blur(20px)",
+                        WebkitBackdropFilter: "blur(20px)",
+                      }
+                    : {
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1.5px solid rgba(255,255,255,0.10)",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                      }
                   }
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{tn.emoji}</span>
-                    <div>
-                      <p className={`text-sm font-semibold ${selectedTone === tn.value ? "text-white" : "text-white/70"}`}>
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                      style={selectedTone === tn.value
+                        ? { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.95)" }
+                        : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.45)" }
+                      }
+                    >
+                      {tn.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold leading-tight ${selectedTone === tn.value ? "text-white" : "text-white/65"}`}>
                         {tn.label}
                       </p>
-                      <p className="text-xs text-white/40 mt-0.5">{tn.desc}</p>
+                      <p className="text-xs text-white/35 mt-0.5 leading-snug">{tn.desc}</p>
                     </div>
-                    {selectedTone === tn.value && (
-                      <svg className="ml-auto shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
+                    <div
+                      className="shrink-0 h-5 w-5 rounded-full flex items-center justify-center transition-all"
+                      style={selectedTone === tn.value
+                        ? { background: "white" }
+                        : { border: "1.5px solid rgba(255,255,255,0.20)" }
+                      }
+                    >
+                      {selectedTone === tn.value && (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
                 </button>
               ))}
