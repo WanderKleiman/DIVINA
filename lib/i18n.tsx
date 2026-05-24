@@ -423,7 +423,9 @@ const dict: Record<string, Record<Locale, string>> = {
   // for-you card
   "forYou.monthTitle": { ru: "Расклад на месяц", en: "Month Forecast" },
   "forYou.monthDesc": { ru: "12 страниц о твоём ближайшем месяце: недели, сферы жизни, ключевые моменты", en: "12 pages about your coming month: weeks, life areas, key moments" },
-  "forYou.savedMonthTitle": { ru: "Сохранённый расклад месяца", en: "Saved Month Reading" },
+  "forYou.savedMonthTitle": { ru: "Расклад месяца", en: "Month Reading" },
+  "forYou.savedWeeklyTitle": { ru: "Недельный расклад", en: "Weekly Reading" },
+  "forYou.savedCompatTitle": { ru: "Совместимость", en: "Compatibility" },
   "forYou.savedBadge": { ru: "Сохранено", en: "Saved" },
 
   // ===== Others (Natal for others) =====

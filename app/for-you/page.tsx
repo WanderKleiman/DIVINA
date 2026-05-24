@@ -89,6 +89,8 @@ export default function ForYouPage() {
   const [periodsLoading, setPeriodsLoading] = useState(true);
   const [periodsError, setPeriodsError] = useState(false);
   const [savedMonthPeriod, setSavedMonthPeriod] = useState<string | null>(null);
+  const [savedCompatPartners, setSavedCompatPartners] = useState<string[]>([]);
+  const [savedWeeklyStart, setSavedWeeklyStart] = useState<string | null>(null);
   const prices = getSubscriptionPrices();
   const { t } = useT();
   const { isPro } = useProStatus();
@@ -140,13 +142,28 @@ export default function ForYouPage() {
     ensureTrialStarted();
     setPurchases(getPurchases());
     loadPeriods();
-    // Check if user has a saved month forecast in history
+    // Collect history from localStorage
     try {
-      const raw = localStorage.getItem("divina_month_history_v1");
-      if (raw) {
-        const hist = JSON.parse(raw);
-        setSavedMonthPeriod(hist.period ?? "");
+      // Month forecast
+      const monthRaw = localStorage.getItem("divina_month_history_v1");
+      if (monthRaw) setSavedMonthPeriod(JSON.parse(monthRaw).period ?? "");
+
+      // Compatibility — scan for all saved partner results
+      const user2 = getUserData();
+      const compatPrefix = `divina-compat-local-v2_`;
+      const partners: string[] = [];
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith(compatPrefix) && key.includes(`_${user2.birthDate}_`)) {
+          const name = key.replace(compatPrefix, "").replace(`_${user2.birthDate}_${user2.lang}`, "");
+          if (name) partners.push(name);
+        }
       }
+      setSavedCompatPartners(partners);
+
+      // Weekly forecast
+      const weeklyKey = `divina-weekly-cache_${user2.birthDate}_${user2.tone}_${user2.lang}`;
+      const weeklyRaw = lcGet<{ _weekStart: string }>(weeklyKey);
+      if (weeklyRaw?._weekStart) setSavedWeeklyStart(weeklyRaw._weekStart);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -322,47 +339,6 @@ export default function ForYouPage() {
           </div>
         </div>
 
-        {/* History — saved readings */}
-        {savedMonthPeriod !== null && (
-          <div className="animate-fade-in-up px-5 pt-2">
-            <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.history")}</h3>
-            <div className="space-y-2.5">
-              <button
-                onClick={() => router.push("/for-you/month")}
-                className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
-              >
-                <video
-                  src="/cosmos-10.mp4"
-                  autoPlay loop muted playsInline
-                  className="absolute inset-0 h-full w-full object-cover"
-                  style={{ pointerEvents: "none" }}
-                />
-                <div className="absolute inset-0 bg-black/60" />
-                <div className="relative z-10 p-4 flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
-                      <circle cx="12" cy="16" r="2"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="text-sm font-medium text-white">{t("forYou.savedMonthTitle")}</h3>
-                      <span className="text-[9px] font-semibold text-emerald-300/80 bg-emerald-500/15 rounded-full px-1.5 py-0.5 tracking-wider">{t("forYou.savedBadge")}</span>
-                    </div>
-                    <p className="text-xs text-white/50 line-clamp-1">{savedMonthPeriod || t("forYou.monthDesc")}</p>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </div>
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Pro subscription features */}
         <div className="animate-fade-in-up px-5 pt-2">
           <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
@@ -481,6 +457,101 @@ export default function ForYouPage() {
             </button>
           </div>
         </div>
+
+        {/* History — shows only items the user actually generated */}
+        {(savedMonthPeriod !== null || savedCompatPartners.length > 0 || savedWeeklyStart !== null) && (
+          <div className="animate-fade-in-up px-5 pt-2">
+            <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.history")}</h3>
+            <div className="space-y-2.5">
+
+              {/* Saved month forecast */}
+              {savedMonthPeriod !== null && (
+                <button
+                  onClick={() => router.push("/for-you/month")}
+                  className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                >
+                  <video src="/cosmos-10.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="relative z-10 p-4 flex items-center gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><circle cx="12" cy="16" r="2"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-white mb-0.5">{t("forYou.savedMonthTitle")}</h3>
+                      <p className="text-xs text-white/50 line-clamp-1">{savedMonthPeriod || t("forYou.monthDesc")}</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25"><polyline points="9 18 15 12 9 6" /></svg>
+                  </div>
+                </button>
+              )}
+
+              {/* Saved weekly forecast */}
+              {savedWeeklyStart !== null && (
+                <button
+                  onClick={() => router.push("/weekly")}
+                  className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                >
+                  <video src="/cosmos-10.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="relative z-10 p-4 flex items-center gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-white mb-0.5">{t("forYou.savedWeeklyTitle")}</h3>
+                      <p className="text-xs text-white/50">{
+                        (() => {
+                          const [, sm, sd] = savedWeeklyStart.split("-").map(Number);
+                          return APP_LANG === "en"
+                            ? `Week of ${formatShortDate(sd, sm, "en")}`
+                            : `Неделя ${formatShortDate(sd, sm, "ru")}`;
+                        })()
+                      }</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25"><polyline points="9 18 15 12 9 6" /></svg>
+                  </div>
+                </button>
+              )}
+
+              {/* Saved compatibility results */}
+              {savedCompatPartners.map((partnerName) => (
+                <button
+                  key={partnerName}
+                  onClick={() => {
+                    const savedPartner = localStorage.getItem(`divina-compat-partner-local-v1_${partnerName}`);
+                    if (savedPartner) {
+                      sessionStorage.setItem("divina_compat_partner", savedPartner);
+                    } else {
+                      sessionStorage.setItem("divina_compat_partner", JSON.stringify({ name: partnerName }));
+                    }
+                    router.push("/compatibility/result");
+                  }}
+                  className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                >
+                  <video src="/moon2.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="relative z-10 p-4 flex items-center gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-white mb-0.5">{t("forYou.savedCompatTitle")}</h3>
+                      <p className="text-xs text-white/50">{t("forYou.withPartner")} {partnerName}</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25"><polyline points="9 18 15 12 9 6" /></svg>
+                  </div>
+                </button>
+              ))}
+
+            </div>
+          </div>
+        )}
 
         {/* Purchase history */}
         {purchases.length > 0 && (
