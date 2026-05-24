@@ -1,0 +1,117 @@
+{
+  "identifier" : "CDCC4A15",
+  "nonConsumableProducts" : [
+
+  ],
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "123456789",
+    "_developerTeamID" : "",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verify receipt"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store sync"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "DIVINA_PRO_GROUP",
+      "localizations" : [
+
+      ],
+      "name" : "Divina Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familySharable" : false,
+          "groupNumber" : 1,
+          "internalID" : "divina_pro_monthly_id",
+          "introductoryOffer" : {
+            "duration" : 1,
+            "durationUnit" : "WEEK",
+            "offerIdentifier" : "divina_pro_monthly_trial",
+            "offerMode" : "FREE_TRIAL",
+            "offerPaymentMode" : "FREE_TRIAL",
+            "periodCount" : 1
+          },
+          "localizations" : [
+            {
+              "description" : "Full access to all Divina Pro features",
+              "displayName" : "Divina Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "divina_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Divina Pro Monthly",
+          "subscriptionGroupID" : "DIVINA_PRO_GROUP",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "24.99",
+          "familySharable" : false,
+          "groupNumber" : 2,
+          "internalID" : "divina_pro_yearly_id",
+          "introductoryOffer" : {
+            "duration" : 1,
+            "durationUnit" : "WEEK",
+            "offerIdentifier" : "divina_pro_yearly_trial",
+            "offerMode" : "FREE_TRIAL",
+            "offerPaymentMode" : "FREE_TRIAL",
+            "periodCount" : 1
+          },
+          "localizations" : [
+            {
+              "description" : "Full access to all Divina Pro features",
+              "displayName" : "Divina Pro Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "divina_pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Divina Pro Yearly",
+          "subscriptionGroupID" : "DIVINA_PRO_GROUP",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
