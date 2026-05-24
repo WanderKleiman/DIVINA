@@ -131,6 +131,16 @@ export default function SettingsSection() {
               {t("profile.goPremium")}
             </button>
           </div>
+          <div className="border-t border-white/10 pt-3">
+            <a
+              href="https://divina-app.vercel.app/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-xs text-white/30 hover:text-white/50 transition-colors py-1"
+            >
+              Privacy Policy
+            </a>
+          </div>
         </div>
       </div>
     </div>
