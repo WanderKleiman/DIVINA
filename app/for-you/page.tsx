@@ -553,54 +553,6 @@ export default function ForYouPage() {
           </div>
         )}
 
-        {/* Purchase history */}
-        {purchases.length > 0 && (
-          <div className="animate-fade-in-up px-5 pt-2 pb-4">
-            <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.myPurchases")}</h3>
-            <div className="space-y-2">
-              {purchases.map((p, i) => (
-                <div key={i} className="glass-strong rounded-2xl p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-white/80">{PURCHASE_LABELS[p.type] || p.type}</p>
-                    {p.type === "compatibility" && p.meta?.partnerName && (
-                      <p className="text-xs text-white/50 mt-0.5">{t("forYou.withPartner")} {p.meta.partnerName}</p>
-                    )}
-                    <p className="text-xs text-white/30 mt-0.5">{formatPurchaseDate(p.date)}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (p.type === "interpretation") router.push("/interpretation");
-                      else if (p.type === "compatibility") {
-                        const partnerName = p.meta?.partnerName;
-                        if (!partnerName) { router.push("/compatibility"); return; }
-                        // Try saved partner birth data first (full restore)
-                        const savedPartner = localStorage.getItem(`divina-compat-partner-local-v1_${partnerName}`);
-                        if (savedPartner) {
-                          sessionStorage.setItem("divina_compat_partner", savedPartner);
-                          router.push("/compatibility/result");
-                          return;
-                        }
-                        // Fallback: check if cached result exists (name-only stub lets result page find it)
-                        const user = getUserData();
-                        const localResultKey = `divina-compat-local-v2_${partnerName}_${user.birthDate}_${user.lang}`;
-                        if (localStorage.getItem(localResultKey)) {
-                          sessionStorage.setItem("divina_compat_partner", JSON.stringify({ name: partnerName }));
-                          router.push("/compatibility/result");
-                        } else {
-                          router.push("/compatibility");
-                        }
-                      }
-                      else if (p.type === "weekly") router.push("/weekly");
-                    }}
-                    className="text-xs text-white/50 border border-white/15 rounded-xl px-3 py-1.5 hover:bg-white/10 transition-colors"
-                  >
-                    {t("forYou.open")}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       <InterpretationPaywall open={openPaywall === "interpretation"} onClose={() => setOpenPaywall(null)} />
