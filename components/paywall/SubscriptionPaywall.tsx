@@ -49,11 +49,18 @@ const PERKS = [
   )},
 ] as const;
 
+const YEAR_TOTAL = "$24.99";
+const YEAR_WEEKLY = "$0.48";
+const MONTH_TOTAL = "$4.99";
+const MONTH_WEEKLY = "$1.2";
+
 export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywallProps) {
+  const [plan, setPlan] = useState<"year" | "month">("year");
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [error, setError] = useState("");
   const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
+  const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
   const { refresh } = useProStatus();
   const { t } = useT();
   const fallback = getSubscriptionPrices();
@@ -63,17 +70,18 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
     getOfferings().then(offering => {
       if (!offering) return;
       setMonthlyPkg(offering.monthly);
+      setYearlyPkg(offering.annual);
     });
   }, [open]);
 
-  const monthPrice = monthlyPkg?.product.priceString ?? fallback.monthTotal;
+  const selectedPkg = plan === "year" ? yearlyPkg : monthlyPkg;
 
   async function handlePurchase() {
-    if (!monthlyPkg) { setError(t("paywall.noProducts")); return; }
+    if (!selectedPkg) { setError(t("paywall.noProducts")); return; }
     setPurchasing(true);
     setError("");
     try {
-      await purchasePackage(monthlyPkg);
+      await purchasePackage(selectedPkg);
       await refresh();
       onClose();
     } catch (err: unknown) {
@@ -105,9 +113,9 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
   return (
     <PaywallSheet open={open} onClose={onClose} videoSrc="/prodaction2.mp4" rotateVideo>
       {/* ── Headline ── */}
-      <div className="pt-2 mb-6">
+      <div className="pt-2 mb-5">
         {userName ? <p className="text-sm text-white/40 mb-1">{userName},</p> : null}
-        <h2 className="text-[26px] font-bold text-white leading-tight mb-3">
+        <h2 className="text-[24px] font-bold text-white leading-tight mb-3">
           {t("paywall.sub.headline")}
         </h2>
         <p className="text-sm text-white/55 leading-relaxed">
@@ -118,7 +126,7 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
       </div>
 
       {/* ── Perks ── */}
-      <div className="space-y-3 mb-8">
+      <div className="space-y-3 mb-6">
         {PERKS.map(({ key, icon }) => (
           <div key={key} className="flex items-start gap-3">
             <div
@@ -132,24 +140,61 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
         ))}
       </div>
 
+      {/* ── Plan selector ── */}
+      <div className="flex flex-col gap-2.5 mb-5" style={{ background: "rgba(0,0,0,0.30)", borderRadius: 20, padding: 12 }}>
+        {/* Yearly */}
+        <button
+          onClick={() => setPlan("year")}
+          className="relative w-full rounded-2xl p-4 text-left transition-all"
+          style={{ border: plan === "year" ? "1px solid rgba(255,255,255,0.40)" : "1px solid rgba(255,255,255,0.10)", background: plan === "year" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.04)" }}
+        >
+          <div className="absolute -top-2.5 right-4 rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.85)" }}>
+            {t("pro.badge")}
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">{t("pro.yearlySubscription")}</p>
+              <p className="text-xs text-white/50 mt-0.5">{yearlyPkg?.product.priceString ? `${yearlyPkg.product.priceString}` : YEAR_TOTAL} · {YEAR_WEEKLY} {t("pro.perWeek")}</p>
+            </div>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ border: plan === "year" ? "none" : "1.5px solid rgba(255,255,255,0.25)", background: plan === "year" ? "white" : "transparent" }}>
+              {plan === "year" && <div className="w-2.5 h-2.5 rounded-full bg-black" />}
+            </div>
+          </div>
+        </button>
+
+        {/* Monthly */}
+        <button
+          onClick={() => setPlan("month")}
+          className="w-full rounded-2xl p-4 text-left transition-all"
+          style={{ border: plan === "month" ? "1px solid rgba(255,255,255,0.40)" : "1px solid rgba(255,255,255,0.10)", background: plan === "month" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.04)" }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">{t("pro.monthlySubscription")}</p>
+              <p className="text-xs text-white/50 mt-0.5">{monthlyPkg?.product.priceString ?? MONTH_TOTAL} · {MONTH_WEEKLY} {t("pro.perWeek")}</p>
+            </div>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ border: plan === "month" ? "none" : "1.5px solid rgba(255,255,255,0.25)", background: plan === "month" ? "white" : "transparent" }}>
+              {plan === "month" && <div className="w-2.5 h-2.5 rounded-full bg-black" />}
+            </div>
+          </div>
+        </button>
+      </div>
+
       {/* ── CTA ── */}
-      <div className="flex flex-col gap-3 mt-2">
+      <div className="flex flex-col gap-3">
         {error && <p className="text-center text-xs text-red-400">{error}</p>}
 
         <button
           onClick={handlePurchase}
           disabled={purchasing || restoring}
           className="w-full rounded-2xl py-4 text-base font-bold text-black/80 active:opacity-80 transition-opacity disabled:opacity-50"
-          style={{
-            background: "rgba(255,255,255,0.92)",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
-          }}
+          style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
         >
           {purchasing ? t("paywall.processing") : t("paywall.trialCta")}
         </button>
 
         <p className="text-center text-[12px] text-white/35">
-          {t("paywall.trialWeeklyPrice")} · {t("paywall.cancelAnytime")}
+          {t("pro.then")} {plan === "year" ? `${YEAR_WEEKLY}/${t("pro.perWeek")}, billed ${YEAR_TOTAL}/yr` : `${MONTH_WEEKLY}/${t("pro.perWeek")}, billed ${MONTH_TOTAL}/mo`} · {t("paywall.cancelAnytime")}
         </p>
 
         <button
