@@ -322,12 +322,11 @@ export default function ForYouPage() {
           </div>
         </div>
 
-        {/* Pro subscription features */}
-        <div className="animate-fade-in-up px-5 pt-2">
-          <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
-          <div className="space-y-2.5">
-            {/* Saved Month Reading — history card, shown after first generation */}
-            {savedMonthPeriod !== null && (
+        {/* History — saved readings */}
+        {savedMonthPeriod !== null && (
+          <div className="animate-fade-in-up px-5 pt-2">
+            <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.history")}</h3>
+            <div className="space-y-2.5">
               <button
                 onClick={() => router.push("/for-you/month")}
                 className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
@@ -342,7 +341,10 @@ export default function ForYouPage() {
                 <div className="relative z-10 p-4 flex items-center gap-3.5">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      <rect x="3" y="4" width="18" height="18" rx="2"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+                      <circle cx="12" cy="16" r="2"/>
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -357,8 +359,14 @@ export default function ForYouPage() {
                   </svg>
                 </div>
               </button>
-            )}
+            </div>
+          </div>
+        )}
 
+        {/* Pro subscription features */}
+        <div className="animate-fade-in-up px-5 pt-2">
+          <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
+          <div className="space-y-2.5">
             {/* Month Forecast */}
             <button
               onClick={() => {

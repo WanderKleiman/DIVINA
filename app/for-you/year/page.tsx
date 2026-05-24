@@ -278,6 +278,10 @@ export default function YearForecastPage() {
       });
   }, [isPro, proLoading, retryCount]);
 
+  // While RevenueCat is checking Pro status — show nothing (no skeleton)
+  // to avoid implying content is loading before we know the user's tier
+  if (proLoading) return null;
+
   if (showPaywall) {
     return (
       <SubscriptionPaywall

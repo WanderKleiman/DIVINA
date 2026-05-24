@@ -184,6 +184,7 @@ const dict: Record<string, Record<Locale, string>> = {
   // ===== For You =====
   "forYou.title": { ru: "Для тебя", en: "For you" },
   "forYou.subtitle": { ru: "Персональные инструменты для роста", en: "Personal tools for growth" },
+  "forYou.history": { ru: "ИСТОРИЯ", en: "HISTORY" },
   "forYou.subscription": { ru: "ПОДПИСКА", en: "SUBSCRIPTION" },
   "forYou.proDesc": { ru: "Недельные прогнозы, совместимость и расширенные транзиты — всё в одной подписке", en: "Weekly forecasts, compatibility and extended transits — all in one subscription" },
   "forYou.fromPerWeek": { ru: "от", en: "from" },
