@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import BirthDataForm from "@/components/profile/BirthDataForm";
-import StreakStats from "@/components/profile/StreakStats";
 import SettingsSection from "@/components/profile/SettingsSection";
 import { getUserData } from "@/lib/user-data";
 import type { User } from "@/lib/types";
@@ -42,10 +41,6 @@ export default function SettingsPage() {
 
       <div className="animate-fade-in-up">
         <BirthDataForm user={user!} />
-      </div>
-
-      <div className="animate-fade-in-up">
-        <StreakStats streak={user!.streak} />
       </div>
 
       <div className="animate-fade-in-up">
