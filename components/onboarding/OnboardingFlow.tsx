@@ -207,8 +207,7 @@ export default function OnboardingFlow() {
       {isToneStep && (
         <div className="flex flex-1 flex-col pt-14 pb-10">
           <div className="animate-fade-in-up w-full max-w-sm mx-auto flex flex-col flex-1">
-            <div className="text-center mb-8">
-              <div className="text-4xl mb-4">🎭</div>
+            <div className="text-center mb-10">
               <h1 className="text-2xl font-bold text-white mb-2">
                 {t("onboarding.toneTitle")}
               </h1>
@@ -217,7 +216,7 @@ export default function OnboardingFlow() {
               </p>
             </div>
 
-            <div className="space-y-3 mb-6">
+            <div className="space-y-3 mb-6 mt-4">
               {TONES.map((tn) => (
                 <button
                   key={tn.value}

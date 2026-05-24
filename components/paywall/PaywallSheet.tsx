@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface PaywallSheetProps {
   open: boolean;
@@ -12,11 +12,23 @@ interface PaywallSheetProps {
 }
 
 export default function PaywallSheet({ open, onClose, children, cta, videoSrc = "/cosmos-4.mp4", rotateVideo = false }: PaywallSheetProps) {
+  const touchStartY = useRef(0);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const delta = e.changedTouches[0].clientY - touchStartY.current;
+    if (delta > 80) onClose(); // swipe down > 80px → close
+  }
 
   if (!open) return null;
 
@@ -26,7 +38,12 @@ export default function PaywallSheet({ open, onClose, children, cta, videoSrc = 
       <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 max-h-[92dvh] flex flex-col rounded-t-3xl overflow-hidden animate-slide-up">
+      <div
+        ref={sheetRef}
+        className="absolute bottom-0 left-0 right-0 max-h-[92dvh] flex flex-col rounded-t-3xl overflow-hidden animate-slide-up"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Video background */}
         {rotateVideo ? (
           <video

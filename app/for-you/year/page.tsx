@@ -216,18 +216,18 @@ export default function YearForecastPage() {
   const { t } = useT();
   const { isPro, isLoading: proLoading } = useProStatus();
   const [data, setData] = useState<YearForecastResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [showPaywall, setShowPaywall] = useState(false);
+  // Show paywall immediately — hide only once Pro status is confirmed
+  const [showPaywall, setShowPaywall] = useState(true);
 
   useEffect(() => {
     if (proLoading) return;
-    if (!isPro) {
-      setShowPaywall(true);
-      setLoading(false);
-      return;
-    }
+    if (!isPro) return; // paywall already showing, nothing to do
+    // User is confirmed Pro — hide paywall and start loading
+    setShowPaywall(false);
+    setLoading(true);
 
     const user = getUserData();
     const cacheKey = `divina-year-forecast-v2_${user.birthDate}_${user.lang}`;
@@ -277,10 +277,6 @@ export default function YearForecastPage() {
         setLoading(false);
       });
   }, [isPro, proLoading, retryCount]);
-
-  // While RevenueCat is checking Pro status — show nothing (no skeleton)
-  // to avoid implying content is loading before we know the user's tier
-  if (proLoading) return null;
 
   if (showPaywall) {
     return (

@@ -182,10 +182,6 @@ const NatalChartWheel = memo(function NatalChartWheel({ planets, ascendantSymbol
               );
             })}
 
-            {/* Center label */}
-            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="rgba(255,255,255,0.35)" fontSize="10">
-              натал
-            </text>
           </svg>
         </div>
       </div>
