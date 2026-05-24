@@ -332,7 +332,7 @@ const dict: Record<string, Record<Locale, string>> = {
   "pro.perk3": { ru: "5 проверок совместимости в месяц", en: "5 compatibility checks per month" },
   "pro.perk4": { ru: "Расшифровка натальной карты", en: "Natal chart interpretation" },
   "pro.perk5": { ru: "Без рекламы", en: "No ads" },
-  "pro.trialCta": { ru: "Попробовать бесплатно 14 дней", en: "Try free for 14 days" },
+  "pro.trialCta": { ru: "Начать бесплатно — 7 дней", en: "Claim my free week" },
   "pro.then": { ru: "Затем", en: "Then" },
   "pro.yearlySubscription": { ru: "Годовая подписка", en: "Yearly subscription" },
   "pro.monthlySubscription": { ru: "Месячная подписка", en: "Monthly subscription" },

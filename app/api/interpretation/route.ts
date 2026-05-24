@@ -7,7 +7,9 @@ import {
   getSignIndex,
   getHouseForPlanet,
   PLANET_NAMES_RU,
+  PLANET_NAMES_EN,
   SIGN_NAMES_RU,
+  SIGN_NAMES_EN,
 } from "@/lib/ephemeris";
 import { ASPECT_NAMES } from "@/lib/interpretations";
 import { interpretNatalDeep } from "@/lib/ai-interpret";
@@ -37,11 +39,14 @@ export async function POST(req: NextRequest) {
     const positions = calcAllPlanets(sw, jd);
     const houses = calcHouseCusps(sw, jd, lat, lng);
 
+    const PLANET_NAMES = lang === "en" ? PLANET_NAMES_EN : PLANET_NAMES_RU;
+    const SIGN_NAMES   = lang === "en" ? SIGN_NAMES_EN   : SIGN_NAMES_RU;
+
     const planets = positions.map((p) => {
       const signIdx = getSignIndex(p.longitude);
       return {
-        name: PLANET_NAMES_RU[p.id],
-        sign: SIGN_NAMES_RU[signIdx],
+        name: PLANET_NAMES[p.id],
+        sign: SIGN_NAMES[signIdx],
         house: getHouseForPlanet(p.longitude, houses.cusps),
       };
     });
@@ -57,9 +62,9 @@ export async function POST(req: NextRequest) {
             const info = ASPECT_NAMES[def.name];
             if (info) {
               aspects.push({
-                planet1: PLANET_NAMES_RU[positions[i].id],
-                aspect: info.ru,
-                planet2: PLANET_NAMES_RU[positions[j].id],
+                planet1: PLANET_NAMES[positions[i].id],
+                aspect: lang === "en" ? info.en : info.ru,
+                planet2: PLANET_NAMES[positions[j].id],
               });
             }
             break;
@@ -75,9 +80,9 @@ export async function POST(req: NextRequest) {
     const sections = await interpretNatalDeep({
       planets,
       aspects,
-      sunSign: SIGN_NAMES_RU[sunIdx],
-      moonSign: SIGN_NAMES_RU[moonIdx],
-      ascendant: SIGN_NAMES_RU[ascIdx],
+      sunSign: SIGN_NAMES[sunIdx],
+      moonSign: SIGN_NAMES[moonIdx],
+      ascendant: SIGN_NAMES[ascIdx],
     }, tone, lang);
 
     return NextResponse.json({ sections });
