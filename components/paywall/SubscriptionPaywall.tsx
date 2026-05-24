@@ -103,7 +103,7 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
   const userName = getUserData().name?.split(" ")[0] ?? "";
 
   return (
-    <PaywallSheet open={open} onClose={onClose}>
+    <PaywallSheet open={open} onClose={onClose} videoSrc="/prodaction2.mp4" rotateVideo>
       {/* ── Headline ── */}
       <div className="pt-2 mb-6">
         {userName ? <p className="text-sm text-white/40 mb-1">{userName},</p> : null}

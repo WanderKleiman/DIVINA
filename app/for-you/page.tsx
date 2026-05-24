@@ -88,6 +88,7 @@ export default function ForYouPage() {
   const [periodsData, setPeriodsData] = useState<LifePeriodsResult | null>(null);
   const [periodsLoading, setPeriodsLoading] = useState(true);
   const [periodsError, setPeriodsError] = useState(false);
+  const [savedMonthPeriod, setSavedMonthPeriod] = useState<string | null>(null);
   const prices = getSubscriptionPrices();
   const { t } = useT();
   const { isPro } = useProStatus();
@@ -139,6 +140,14 @@ export default function ForYouPage() {
     ensureTrialStarted();
     setPurchases(getPurchases());
     loadPeriods();
+    // Check if user has a saved month forecast in history
+    try {
+      const raw = localStorage.getItem("divina_month_history_v1");
+      if (raw) {
+        const hist = JSON.parse(raw);
+        setSavedMonthPeriod(hist.period ?? "");
+      }
+    } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -317,10 +326,43 @@ export default function ForYouPage() {
         <div className="animate-fade-in-up px-5 pt-2">
           <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.subscription")}</h3>
           <div className="space-y-2.5">
+            {/* Saved Month Reading — history card, shown after first generation */}
+            {savedMonthPeriod !== null && (
+              <button
+                onClick={() => router.push("/for-you/month")}
+                className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+              >
+                <video
+                  src="/cosmos-10.mp4"
+                  autoPlay loop muted playsInline
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={{ pointerEvents: "none" }}
+                />
+                <div className="absolute inset-0 bg-black/60" />
+                <div className="relative z-10 p-4 flex items-center gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="text-sm font-medium text-white">{t("forYou.savedMonthTitle")}</h3>
+                      <span className="text-[9px] font-semibold text-emerald-300/80 bg-emerald-500/15 rounded-full px-1.5 py-0.5 tracking-wider">{t("forYou.savedBadge")}</span>
+                    </div>
+                    <p className="text-xs text-white/50 line-clamp-1">{savedMonthPeriod || t("forYou.monthDesc")}</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+              </button>
+            )}
+
             {/* Month Forecast */}
             <button
               onClick={() => {
-                router.push("/for-you/month"); // limit enforced inside the page
+                router.push("/for-you/month"); // cache = free forever; new forecast needs Pro
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
             >

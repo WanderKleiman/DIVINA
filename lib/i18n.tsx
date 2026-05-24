@@ -79,6 +79,8 @@ const dict: Record<string, Record<Locale, string>> = {
   "tone.deep.desc": { ru: "Мягкий, поддерживающий, как терапевт", en: "Soft, supportive, like a therapist" },
   "tone.friendly": { ru: "Дружеский", en: "Friendly" },
   "tone.friendly.desc": { ru: "Как близкий друг за чашкой кофе", en: "Like a close friend over coffee" },
+  "tone.changesLeft": { ru: "Осталось {n} смены", en: "{n} changes left" },
+  "tone.proOnly": { ru: "Только Pro", en: "Pro only" },
 
   // ===== Chart =====
   "chart.personality": { ru: "Ваша личность", en: "Your personality" },
@@ -150,6 +152,8 @@ const dict: Record<string, Record<Locale, string>> = {
   "onboarding.slide2.title": { ru: "Ваш космический код", en: "Your cosmic blueprint" },
   "onboarding.slide2.desc": { ru: "Divina объединяет данные NASA о расположении планет, вашу натальную карту и алгоритм, который даёт наиболее точные персональные ориентиры для вас.\n\nДля прогноза нам нужна ваша дата рождения — она создаёт уникальную карту неба, которая была в момент вашего появления на свет.", en: "Divina combines NASA planetary data, your natal chart, and an algorithm that provides the most accurate personal guidance for you.\n\nFor your forecast, we need your date of birth — it creates a unique sky map from the moment you were born." },
   "onboarding.next": { ru: "Далее", en: "Next" },
+  "onboarding.toneTitle": { ru: "Как Дивина общается?", en: "How should Divina speak?" },
+  "onboarding.toneDesc": { ru: "Выберите тон — он определит стиль всех прогнозов", en: "Choose a tone — it shapes the style of all your readings" },
   "onboarding.tellAboutYourself": { ru: "Расскажите о себе", en: "Tell us about yourself" },
   "onboarding.name": { ru: "Имя", en: "Name" },
   "onboarding.namePlaceholder": { ru: "Ваше имя", en: "Your name" },
@@ -418,6 +422,8 @@ const dict: Record<string, Record<Locale, string>> = {
   // for-you card
   "forYou.monthTitle": { ru: "Расклад на месяц", en: "Month Forecast" },
   "forYou.monthDesc": { ru: "12 страниц о твоём ближайшем месяце: недели, сферы жизни, ключевые моменты", en: "12 pages about your coming month: weeks, life areas, key moments" },
+  "forYou.savedMonthTitle": { ru: "Сохранённый расклад месяца", en: "Saved Month Reading" },
+  "forYou.savedBadge": { ru: "Сохранено", en: "Saved" },
 
   // ===== Others (Natal for others) =====
   "others.title": { ru: "Натальная карта другого человека", en: "Chart for someone else" },

@@ -4,16 +4,23 @@ import { useState, useEffect } from "react";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import type { ToneOfVoice } from "@/lib/ai-interpret";
+import { canChangeToneFree, recordToneChange, toneChangesUsed } from "@/lib/free-limits";
+import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
+import { useProStatus } from "@/lib/pro-status";
 
 export default function SettingsSection() {
   const { t } = useT();
+  const { isPro } = useProStatus();
   const [notifications, setNotifications] = useState(true);
   const [dailyReminder, setDailyReminder] = useState(true);
   const [tone, setTone] = useState<ToneOfVoice>("deep");
+  const [showTonePaywall, setShowTonePaywall] = useState(false);
+  const [changesLeft, setChangesLeft] = useState(2);
 
   useEffect(() => {
     const user = getUserData();
     setTone(user.tone || "deep");
+    setChangesLeft(Math.max(0, 2 - toneChangesUsed()));
   }, []);
 
   const TONES: { value: ToneOfVoice; labelKey: string; descKey: string }[] = [
@@ -23,26 +30,50 @@ export default function SettingsSection() {
   ];
 
   function handleToneChange(newTone: ToneOfVoice) {
+    if (newTone === tone) return; // no change
+    if (!isPro && !canChangeToneFree()) {
+      setShowTonePaywall(true);
+      return;
+    }
     setTone(newTone);
     try {
       const stored = localStorage.getItem("divina_user");
       const data = stored ? JSON.parse(stored) : {};
       data.tone = newTone;
       localStorage.setItem("divina_user", JSON.stringify(data));
+      // Clear ALL divina caches (both sessionStorage and localStorage) so new tone takes effect
       for (const key of Object.keys(sessionStorage)) {
         if (key.startsWith("divina")) sessionStorage.removeItem(key);
+      }
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith("divina-")) localStorage.removeItem(key); // cache entries only (not flags)
+      }
+      if (!isPro) {
+        recordToneChange();
+        setChangesLeft(c => Math.max(0, c - 1));
       }
     } catch {}
   }
 
   return (
+    <>
+    {showTonePaywall && <SubscriptionPaywall open={true} onClose={() => setShowTonePaywall(false)} />}
     <div className="glass mx-5">
       <div className="relative z-10 p-4">
         <h3 className="font-medium tracking-wide text-white mb-3">{t("profile.settings")}</h3>
         <div className="space-y-3">
           {/* Tone of Voice */}
           <div>
-            <span className="text-sm text-white/70 block mb-2">{t("profile.toneDivina")}</span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-white/70">{t("profile.toneDivina")}</span>
+              {!isPro && (
+                <span className="text-[10px] text-white/35">
+                  {changesLeft > 0
+                    ? t("tone.changesLeft").replace("{n}", String(changesLeft))
+                    : t("tone.proOnly")}
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-2">
               {TONES.map((tn) => (
                 <button
@@ -103,5 +134,6 @@ export default function SettingsSection() {
         </div>
       </div>
     </div>
+    </>
   );
 }

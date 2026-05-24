@@ -259,18 +259,13 @@ export default function MonthForecastPage() {
 
   useEffect(() => {
     if (proLoading) return;
-    if (!isPro && !canUseMonthForecastFree()) {
-      setShowPaywall(true);
-      setLoading(false);
-      return;
-    }
 
     const user = getUserData();
     const now = new Date();
-    // Cache per week (floor date to nearest 7 days) so content stays fresh
     const weekStamp = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
     const cacheKey = `divina-month-forecast-v2_${user.birthDate}_${weekStamp}_${user.lang}`;
 
+    // Always check cache first — cached reading is free forever (saved history)
     if (retryCount === 0) {
       const cached = lcGet<MonthForecastResult>(cacheKey);
       if (cached?.weeks?.length) {
@@ -278,6 +273,13 @@ export default function MonthForecastPage() {
         setLoading(false);
         return;
       }
+    }
+
+    // No cache — gate: need free use or Pro to generate new forecast
+    if (!isPro && !canUseMonthForecastFree()) {
+      setShowPaywall(true);
+      setLoading(false);
+      return;
     }
 
     const controller = new AbortController();
@@ -302,6 +304,11 @@ export default function MonthForecastPage() {
         if (d?.weeks?.length) {
           setData(d);
           lcSet(cacheKey, d, TTL_WEEK);
+          // Save history marker so for-you page can show "Saved reading" card
+          localStorage.setItem("divina_month_history_v1", JSON.stringify({
+            period: d.period ?? "",
+            savedAt: Date.now(),
+          }));
           if (retryCount === 0) recordMonthForecastUse(); // count first successful fetch
         } else {
           console.error("Month forecast: bad response", d);

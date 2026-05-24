@@ -6,7 +6,6 @@ import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
 import { useProStatus } from "@/lib/pro-status";
 import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
-import { canUsePersonalityFree, recordPersonalityUse } from "@/lib/free-limits";
 import { lcGet, lcSet, TTL_MONTH } from "@/lib/local-cache";
 import type { PersonalityBreakdown } from "@/lib/ai-interpret";
 
@@ -246,7 +245,6 @@ export default function PersonalityPage() {
   const { t } = useT();
   const { isPro } = useProStatus();
   const [openUpsell, setOpenUpsell] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [data, setData] = useState<PersonalityBreakdown | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -254,14 +252,7 @@ export default function PersonalityPage() {
   const [phase, setPhase] = useState<"narrative" | "menu" | "chapter">("narrative");
   const [chapterIdx, setChapterIdx] = useState(0);
 
-  // Gate: non-Pro users get 1 free personality breakdown
-  useEffect(() => {
-    if (!isPro && !canUsePersonalityFree()) {
-      setShowPaywall(true);
-    } else if (!isPro) {
-      recordPersonalityUse(); // consume the free use on first open
-    }
-  }, [isPro]);
+  // Personality is free forever — generated once, cached 30 days, always accessible
 
   useEffect(() => {
     const userData = getUserData();
@@ -492,10 +483,6 @@ export default function PersonalityPage() {
         </div>
       </div>
     );
-  }
-
-  if (showPaywall) {
-    return <SubscriptionPaywall open={true} onClose={() => router.back()} />;
   }
 
   return (

@@ -2,14 +2,15 @@
  * Free usage limits — what non-Pro users can access before hitting the paywall.
  *
  * weekly:       3 distinct weeks (same week re-opened = free, it's cached)
- * monthForecast: 1 generation
+ * monthForecast: 1 generation (cached result stays free forever after)
  * compatibility: 1 generation
- * personality:   1 open
+ * personality:   always free (cached forever)
+ * tone changes:  2 free changes, then Pro required
  *
  * Year forecast and "others" natal chart are Pro-only (no free quota).
  */
 
-export type FreeFeature = "weekly" | "monthForecast" | "compatibility" | "personality";
+export type FreeFeature = "weekly" | "monthForecast" | "compatibility" | "personality" | "tone";
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
 const KEY_WEEKLY_WEEKS  = "divina_free_weekly_weeks";   // JSON string[]
@@ -66,3 +67,24 @@ export function recordCompatibilityUse(): void       { singleRecord(KEY_COMPAT_U
 
 export function canUsePersonalityFree(): boolean    { return singleCanUse(KEY_PERSON_USED); }
 export function recordPersonalityUse(): void         { singleRecord(KEY_PERSON_USED); }
+
+// ── Tone changes ──────────────────────────────────────────────────────────────
+
+const KEY_TONE_CHANGES = "divina_free_tone_changes"; // numeric string
+
+export function toneChangesUsed(): number {
+  if (typeof window === "undefined") return 0;
+  return parseInt(localStorage.getItem(KEY_TONE_CHANGES) ?? "0", 10);
+}
+
+/** True if user can change tone for free (first 2 changes are free) */
+export function canChangeToneFree(): boolean {
+  return toneChangesUsed() < 2;
+}
+
+/** Call after a successful tone change */
+export function recordToneChange(): void {
+  if (typeof window === "undefined") return;
+  const count = toneChangesUsed();
+  localStorage.setItem(KEY_TONE_CHANGES, String(count + 1));
+}

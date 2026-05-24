@@ -6,11 +6,12 @@ interface PaywallSheetProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  cta?: React.ReactNode; // kept for backward compat with other paywalls
+  cta?: React.ReactNode;
   videoSrc?: string;
+  rotateVideo?: boolean; // true for landscape-encoded prodaction videos
 }
 
-export default function PaywallSheet({ open, onClose, children, cta, videoSrc = "/cosmos-4.mp4" }: PaywallSheetProps) {
+export default function PaywallSheet({ open, onClose, children, cta, videoSrc = "/cosmos-4.mp4", rotateVideo = false }: PaywallSheetProps) {
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -27,12 +28,30 @@ export default function PaywallSheet({ open, onClose, children, cta, videoSrc = 
       {/* Sheet */}
       <div className="absolute bottom-0 left-0 right-0 max-h-[92dvh] flex flex-col rounded-t-3xl overflow-hidden animate-slide-up">
         {/* Video background */}
-        <video
-          src={videoSrc}
-          autoPlay loop muted playsInline
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ pointerEvents: "none" }}
-        />
+        {rotateVideo ? (
+          <video
+            src={videoSrc}
+            autoPlay loop muted playsInline
+            style={{
+              pointerEvents: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) rotate(90deg)",
+              minWidth: "100vh",
+              minHeight: "100vw",
+              width: "auto",
+              height: "auto",
+            }}
+          />
+        ) : (
+          <video
+            src={videoSrc}
+            autoPlay loop muted playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
         <div className="absolute inset-0 bg-black/65" style={{ pointerEvents: "none" }} />
 
         {/* Handle + Close */}

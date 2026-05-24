@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import type { ToneOfVoice } from "@/lib/ai-interpret";
 import NatalChartWheel from "@/components/chart/NatalChartWheel";
 import DatePicker from "@/components/ui/DatePicker";
 import TimePicker from "@/components/ui/TimePicker";
@@ -22,12 +23,20 @@ export default function OnboardingFlow() {
   const [birthCity, setBirthCity] = useState("");
   const [cityLat, setCityLat] = useState<number | null>(null);
   const [cityLng, setCityLng] = useState<number | null>(null);
+  const [selectedTone, setSelectedTone] = useState<ToneOfVoice>("deep");
 
-  const SLIDE_COUNT = 2;
+  const SLIDE_COUNT = 2; // slides before tone screen
+  const isToneStep = step === SLIDE_COUNT;
   const isSlide = step < SLIDE_COUNT;
-  const isForm = step === SLIDE_COUNT;
+  const isForm = step === SLIDE_COUNT + 1;
 
   const canFinish = name.trim() !== "" && birthDate !== "" && birthTime !== "" && birthCity.trim() !== "";
+
+  const TONES: { value: ToneOfVoice; label: string; desc: string; emoji: string }[] = [
+    { value: "deep",     label: t("tone.deep"),     desc: t("tone.deep.desc"),     emoji: "🌊" },
+    { value: "direct",   label: t("tone.direct"),   desc: t("tone.direct.desc"),   emoji: "⚡" },
+    { value: "friendly", label: t("tone.friendly"), desc: t("tone.friendly.desc"), emoji: "☕" },
+  ];
 
   const planets = useMemo(() => {
     const date = new Date(birthDate + "T00:00:00");
@@ -66,6 +75,7 @@ export default function OnboardingFlow() {
       lat: cityLat,
       lng: cityLng,
       tzOffset,
+      tone: selectedTone,
     };
     localStorage.setItem("divina_user", JSON.stringify(userData));
     localStorage.setItem("divina_onboarded", "true");
@@ -151,6 +161,9 @@ export default function OnboardingFlow() {
                   }`}
                 />
               ))}
+              {/* tone step dot */}
+              <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
+              {/* form step dot */}
               <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
             </div>
             <button onClick={handleNext} className={BTN_CLASS}>
@@ -158,6 +171,66 @@ export default function OnboardingFlow() {
             </button>
           </div>
         </>
+      )}
+
+      {isToneStep && (
+        <div className="flex flex-1 flex-col pt-14 pb-10">
+          <div className="animate-fade-in-up w-full max-w-sm mx-auto flex flex-col flex-1">
+            <div className="text-center mb-8">
+              <div className="text-4xl mb-4">🎭</div>
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {t("onboarding.toneTitle")}
+              </h1>
+              <p className="text-sm text-white/55 leading-relaxed">
+                {t("onboarding.toneDesc")}
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              {TONES.map((tn) => (
+                <button
+                  key={tn.value}
+                  onClick={() => setSelectedTone(tn.value)}
+                  className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.98]"
+                  style={selectedTone === tn.value
+                    ? { background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.50)" }
+                    : { background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)" }
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{tn.emoji}</span>
+                    <div>
+                      <p className={`text-sm font-semibold ${selectedTone === tn.value ? "text-white" : "text-white/70"}`}>
+                        {tn.label}
+                      </p>
+                      <p className="text-xs text-white/40 mt-0.5">{tn.desc}</p>
+                    </div>
+                    {selectedTone === tn.value && (
+                      <svg className="ml-auto shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex-1" />
+
+            <div>
+              <div className="flex items-center justify-center gap-2 mb-5">
+                {slides.map((_, i) => (
+                  <div key={i} className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                ))}
+                <div className="h-1.5 w-6 rounded-full bg-white" />
+                <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
+              </div>
+              <button onClick={() => setStep(step + 1)} className={BTN_CLASS}>
+                {t("onboarding.next")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {isForm && (
@@ -216,6 +289,7 @@ export default function OnboardingFlow() {
                 {slides.map((_, i) => (
                   <div key={i} className="h-1.5 w-1.5 rounded-full bg-white/20" />
                 ))}
+                <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
                 <div className="h-1.5 w-6 rounded-full bg-white" />
               </div>
               <button

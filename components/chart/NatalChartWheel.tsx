@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { Planet } from "@/lib/types";
 
 interface NatalChartWheelProps {
@@ -69,7 +70,7 @@ function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-export default function NatalChartWheel({ planets, ascendantSymbol }: NatalChartWheelProps) {
+const NatalChartWheel = memo(function NatalChartWheel({ planets, ascendantSymbol }: NatalChartWheelProps) {
   const size = 320;
   const cx = size / 2;
   const cy = size / 2;
@@ -190,4 +191,6 @@ export default function NatalChartWheel({ planets, ascendantSymbol }: NatalChart
       </div>
     </div>
   );
-}
+});
+
+export default NatalChartWheel;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 import { getUserData } from "@/lib/user-data";
 import { useT } from "@/lib/i18n";
+import { lcGet } from "@/lib/local-cache";
 
 const GLASS_STYLE: React.CSSProperties = {
   background: "rgba(255,255,255,0.80)",
@@ -241,11 +242,9 @@ export default function PeriodsPage() {
   const [periodIdx, setPeriodIdx] = useState(0);
 
   useEffect(() => {
-    try {
-      const lang = getUserData().lang ?? "ru";
-      const raw = sessionStorage.getItem(`divina_life_periods_v3_${lang}`);
-      if (raw) setData(JSON.parse(raw));
-    } catch {}
+    const lang = getUserData().lang ?? "ru";
+    const cached = lcGet<LifePeriodsResult>(`divina_life_periods_v5_${lang}`);
+    if (cached) setData(cached);
   }, []);
 
   const openPeriod = useCallback((idx: number) => {
