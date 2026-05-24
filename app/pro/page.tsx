@@ -125,7 +125,7 @@ export default function ProPage() {
             {t("pro.trialCta")}
           </button>
           <p style={{ textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 10 }}>
-            {t("pro.then")} {plan === "year" ? `${YEAR_WEEKLY}/${t("pro.perWeek")}, billed ${YEAR_TOTAL}/yr` : `${MONTH_WEEKLY}/${t("pro.perWeek")}, billed ${MONTH_TOTAL}/mo`} · {t("pro.cancelAnytime")}
+            {t("pro.then")} {plan === "year" ? `${YEAR_WEEKLY}/week, billed ${YEAR_TOTAL}/yr` : `${MONTH_WEEKLY}/week, billed ${MONTH_TOTAL}/mo`} · {t("pro.cancelAnytime")}
           </p>
         </div>
       </div>
