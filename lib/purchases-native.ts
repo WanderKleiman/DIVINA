@@ -4,8 +4,8 @@
  * Works only on native (iOS / Android) — returns safe stubs on web.
  *
  * Product IDs (create these in App Store Connect + Google Play Console):
- *   divina_pro_monthly        — monthly Pro subscription
- *   divina_pro_yearly         — yearly Pro subscription
+ *   app_divina_pro_monthly    — monthly Pro subscription
+ *   app_divina_pro_yearly     — yearly Pro subscription
  *   divina_compatibility      — one-time: compatibility report
  *   divina_interpretation     — one-time: natal chart interpretation
  *   divina_weekly             — one-time: weekly forecast
@@ -33,7 +33,7 @@ export interface RCPackage {
   identifier: string;               // "$rc_monthly" | "$rc_annual" | …
   packageType: string;
   product: {
-    identifier: string;             // "divina_pro_monthly" / "divina_pro_yearly"
+    identifier: string;             // "app_divina_pro_monthly" / "app_divina_pro_yearly"
     priceString: string;            // "₽499" / "$4.99" — localized by Apple/Google
     title: string;
     description: string;
@@ -89,28 +89,46 @@ function parseCustomerInfo(raw: Record<string, unknown>): CustomerInfo {
   return { isPro, expirationDate, originalPurchaseDate, activePlanType };
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-let _initialized = false;
+// ─── Init (singleton promise — safe to call concurrently) ─────────────────────
 
 /**
- * Call once at app startup (e.g. in layout or root component).
- * Safe to call on web — does nothing.
+ * Cached init promise. All callers await the same promise — only one
+ * configure() call ever reaches the RevenueCat SDK.
+ */
+let _initPromise: Promise<void> | null = null;
+
+/**
+ * Call once at app startup (e.g. in ProStatusProvider).
+ * Safe to call multiple times — subsequent calls return the cached promise.
+ * Safe to call on web — resolves immediately.
  */
 export async function initPurchases(): Promise<void> {
-  if (!isNative() || _initialized) return;
-  try {
-    const Purchases = await getPurchases();
-    const platform = Capacitor.getPlatform();
-    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
-    if (!apiKey) return;
-    await Purchases.configure({ apiKey });
-    _initialized = true;
-    console.log("[Purchases] configured");
-  } catch (err) {
-    console.error("[Purchases] init failed:", err);
-  }
+  if (!isNative()) return;
+  if (_initPromise) return _initPromise;
+
+  _initPromise = (async () => {
+    try {
+      const Purchases = await getPurchases();
+      const platform = Capacitor.getPlatform();
+      const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
+      if (!apiKey) {
+        console.warn("[Purchases] No API key — configure() skipped");
+        return;
+      }
+      await Purchases.configure({ apiKey });
+      console.log("[Purchases] configured");
+    } catch (err) {
+      console.error("[Purchases] init failed:", err);
+      // Reset so the next call can retry
+      _initPromise = null;
+      throw err;
+    }
+  })();
+
+  return _initPromise;
 }
+
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Get current customer Pro status.
@@ -119,6 +137,7 @@ export async function initPurchases(): Promise<void> {
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
+    await initPurchases();
     const Purchases = await getPurchases();
     const { customerInfo } = await Purchases.getCustomerInfo();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
@@ -135,16 +154,13 @@ export async function getCustomerInfo(): Promise<CustomerInfo> {
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
   try {
+    await initPurchases();
     const Purchases = await getPurchases();
-    const platform = Capacitor.getPlatform();
-    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
-    if (!apiKey) return null;
-    // Always configure (RC ignores if already configured)
-    await Purchases.configure({ apiKey });
     const result = await Purchases.getOfferings();
     const current = result.current as unknown as RCOffering | null;
     if (!current) return null;
     const pkgs = (current.availablePackages ?? []) as RCPackage[];
+    // RC sometimes leaves monthly/annual null even when availablePackages has entries
     if (!current.monthly) current.monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
     if (!current.annual)  current.annual  = pkgs.find(p => p.identifier === "$rc_annual")  ?? null;
     return current;
@@ -160,6 +176,7 @@ export async function getOfferings(): Promise<RCOffering | null> {
  */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  await initPurchases();
   const Purchases = await getPurchases();
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
@@ -172,6 +189,7 @@ export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
  */
 export async function purchaseProduct(productId: string): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  await initPurchases();
   const Purchases = await getPurchases();
 
   // Get all offerings and find the package with this product ID
@@ -193,6 +211,7 @@ export async function purchaseProduct(productId: string): Promise<CustomerInfo> 
 export async function getProductPrice(productId: string): Promise<string | null> {
   if (!isNative()) return null;
   try {
+    await initPurchases();
     const Purchases = await getPurchases();
     const { current } = await Purchases.getOfferings();
     if (!current) return null;
@@ -211,6 +230,7 @@ export async function getProductPrice(productId: string): Promise<string | null>
 export async function restorePurchases(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
+    await initPurchases();
     const Purchases = await getPurchases();
     const { customerInfo } = await Purchases.restorePurchases();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);

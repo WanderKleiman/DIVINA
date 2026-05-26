@@ -22,7 +22,7 @@ export function useOneTimePurchase(productId: string, purchaseType: string) {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       // On web / dev: SDK not available — simulate the purchase so UI works
-      if (msg.includes("not available on web") || msg.includes("No offerings")) {
+      if (msg.includes("not available on web")) {
         savePurchase(purchaseType);
         onSuccess();
         return;

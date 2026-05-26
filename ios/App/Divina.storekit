@@ -53,11 +53,11 @@
           "displayPrice" : "4.99",
           "familySharable" : false,
           "groupNumber" : 1,
-          "internalID" : "divina_pro_monthly_id",
+          "internalID" : "app_divina_pro_monthly_id",
           "introductoryOffer" : {
             "duration" : 1,
             "durationUnit" : "WEEK",
-            "offerIdentifier" : "divina_pro_monthly_trial",
+            "offerIdentifier" : "app_divina_pro_monthly_trial",
             "offerMode" : "FREE_TRIAL",
             "offerPaymentMode" : "FREE_TRIAL",
             "periodCount" : 1
@@ -69,7 +69,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "divina_pro_monthly",
+          "productID" : "app_divina_pro_monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Divina Pro Monthly",
           "subscriptionGroupID" : "DIVINA_PRO_GROUP",
@@ -85,11 +85,11 @@
           "displayPrice" : "24.99",
           "familySharable" : false,
           "groupNumber" : 2,
-          "internalID" : "divina_pro_yearly_id",
+          "internalID" : "app_divina_pro_yearly_id",
           "introductoryOffer" : {
             "duration" : 1,
             "durationUnit" : "WEEK",
-            "offerIdentifier" : "divina_pro_yearly_trial",
+            "offerIdentifier" : "app_divina_pro_yearly_trial",
             "offerMode" : "FREE_TRIAL",
             "offerPaymentMode" : "FREE_TRIAL",
             "periodCount" : 1
@@ -101,7 +101,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "divina_pro_yearly",
+          "productID" : "app_divina_pro_yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Divina Pro Yearly",
           "subscriptionGroupID" : "DIVINA_PRO_GROUP",
