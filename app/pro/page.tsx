@@ -23,18 +23,15 @@ export default function ProPage() {
   const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
 
   useEffect(() => {
-    import("@revenuecat/purchases-capacitor").then(({ Purchases }) => {
-      setDebugInfo("sdk loaded");
-      const apiKey = process.env.NEXT_PUBLIC_REVENUECAT_IOS_KEY ?? "";
-      setDebugInfo("key=" + apiKey.slice(0, 8));
-      Purchases.configure({ apiKey }).then(() => {
-        setDebugInfo("configured, fetching...");
-        return Purchases.getOfferings();
-      }).then(result => {
-        const current = result?.current as { availablePackages?: unknown[] } | null;
-        setDebugInfo(`pkgs=${current?.availablePackages?.length ?? 0}`);
-      }).catch(e => setDebugInfo("err:" + String(e)));
-    }).catch(e => setDebugInfo("import err:" + String(e)));
+    getOfferings().then(offering => {
+      if (!offering) { setDebugInfo("null"); return; }
+      const pkgs = offering.availablePackages ?? [];
+      const monthly = offering.monthly ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_monthly") ?? null;
+      const annual = offering.annual ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_annual") ?? null;
+      setMonthlyPkg(monthly);
+      setYearlyPkg(annual);
+      setDebugInfo(`ok m=${monthly?.product?.identifier ?? "?"} y=${annual?.product?.identifier ?? "?"}`);
+    }).catch(e => setDebugInfo("err:" + String(e)));
   }, []);
 
   async function handlePurchase() {
