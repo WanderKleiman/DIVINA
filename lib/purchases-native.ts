@@ -20,9 +20,13 @@
 
 import { Capacitor } from "@capacitor/core";
 
-// RevenueCat API keys (set in Vercel env vars per platform)
-const RC_IOS_KEY = process.env.NEXT_PUBLIC_REVENUECAT_IOS_KEY ?? "";
-const RC_ANDROID_KEY = process.env.NEXT_PUBLIC_REVENUECAT_ANDROID_KEY ?? "";
+// RevenueCat API keys — public keys, safe to have in client bundle.
+// Set NEXT_PUBLIC_REVENUECAT_IOS_KEY in Vercel env vars to override.
+const RC_IOS_KEY =
+  process.env.NEXT_PUBLIC_REVENUECAT_IOS_KEY ||
+  "appl_saWJTsYcSArqrIOXjESrPBdnJgx";
+const RC_ANDROID_KEY =
+  process.env.NEXT_PUBLIC_REVENUECAT_ANDROID_KEY || "";
 
 // RevenueCat entitlement that unlocks Pro features
 export const PRO_ENTITLEMENT = "pro";
