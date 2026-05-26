@@ -23,15 +23,18 @@ export default function ProPage() {
   const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
 
   useEffect(() => {
-    getOfferings().then(offering => {
-      if (!offering) {
-        setDebugInfo("offering=null");
-        return;
-      }
-      setMonthlyPkg(offering.monthly);
-      setYearlyPkg(offering.annual);
-      setDebugInfo(`m=${offering.monthly?.product?.identifier ?? "null"} y=${offering.annual?.product?.identifier ?? "null"} pkgs=${offering.availablePackages?.length ?? 0}`);
-    }).catch(e => setDebugInfo("err:" + String(e)));
+    import("@revenuecat/purchases-capacitor").then(({ Purchases }) => {
+      setDebugInfo("sdk loaded");
+      const apiKey = process.env.NEXT_PUBLIC_REVENUECAT_IOS_KEY ?? "";
+      setDebugInfo("key=" + apiKey.slice(0, 8));
+      Purchases.configure({ apiKey }).then(() => {
+        setDebugInfo("configured, fetching...");
+        return Purchases.getOfferings();
+      }).then(result => {
+        const current = result?.current as { availablePackages?: unknown[] } | null;
+        setDebugInfo(`pkgs=${current?.availablePackages?.length ?? 0}`);
+      }).catch(e => setDebugInfo("err:" + String(e)));
+    }).catch(e => setDebugInfo("import err:" + String(e)));
   }, []);
 
   async function handlePurchase() {
