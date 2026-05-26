@@ -129,7 +129,6 @@ export async function initPurchases(): Promise<void> {
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
-    await initPurchases();
     const Purchases = await getPurchases();
     const { customerInfo } = await Purchases.getCustomerInfo();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
@@ -145,30 +144,34 @@ export async function getCustomerInfo(): Promise<CustomerInfo> {
  */
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
-  try {
-    await initPurchases();
-    const Purchases = await getPurchases();
-    const result = await Purchases.getOfferings();
-    const current = result.current as unknown as RCOffering | null;
-    console.log("[Purchases] getOfferings result:", JSON.stringify(result).slice(0, 300));
-    if (!current) {
-      console.warn("[Purchases] No current offering");
+  // Try up to 5 times with delay — waiting for PurchasesInit to finish configure()
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const Purchases = await getPurchases();
+      const result = await Purchases.getOfferings();
+      const current = result.current as unknown as RCOffering | null;
+      if (!current) {
+        await new Promise(r => setTimeout(r, 1000));
+        continue;
+      }
+      // Populate monthly/annual from availablePackages as fallback
+      const pkgs = (current.availablePackages ?? []) as RCPackage[];
+      if (!current.monthly) current.monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
+      if (!current.annual)  current.annual  = pkgs.find(p => p.identifier === "$rc_annual")  ?? null;
+      console.log("[Purchases] offerings ok, monthly:", current.monthly?.product?.identifier, "annual:", current.annual?.product?.identifier);
+      return current;
+    } catch (err: unknown) {
+      const msg = String(err);
+      // RC not configured yet — wait and retry
+      if (msg.includes("configure") || msg.includes("initialized") || attempt < 4) {
+        await new Promise(r => setTimeout(r, 800));
+        continue;
+      }
+      console.error("[Purchases] getOfferings failed:", err);
       return null;
     }
-    // Ensure monthly/annual are populated from availablePackages as fallback
-    const pkgs = (current.availablePackages ?? []) as RCPackage[];
-    if (!current.monthly) {
-      (current as RCOffering).monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
-    }
-    if (!current.annual) {
-      (current as RCOffering).annual = pkgs.find(p => p.identifier === "$rc_annual") ?? null;
-    }
-    console.log("[Purchases] monthly:", current.monthly?.product?.identifier, "annual:", current.annual?.product?.identifier);
-    return current;
-  } catch (err) {
-    console.error("[Purchases] getOfferings failed:", err);
-    return null;
   }
+  return null;
 }
 
 /**
@@ -177,7 +180,6 @@ export async function getOfferings(): Promise<RCOffering | null> {
  */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
-  await initPurchases();
   const Purchases = await getPurchases();
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
