@@ -93,43 +93,23 @@ function parseCustomerInfo(raw: Record<string, unknown>): CustomerInfo {
   return { isPro, expirationDate, originalPurchaseDate, activePlanType };
 }
 
-// ─── Init (singleton promise — safe to call concurrently) ─────────────────────
+// ─── Init ─────────────────────────────────────────────────────────────────────
 
 /**
- * Cached init promise. All callers await the same promise — only one
- * configure() call ever reaches the RevenueCat SDK.
- */
-let _initPromise: Promise<void> | null = null;
-
-/**
- * Call once at app startup (e.g. in ProStatusProvider).
- * Safe to call multiple times — subsequent calls return the cached promise.
- * Safe to call on web — resolves immediately.
+ * Configure RevenueCat. Safe to call multiple times — RC ignores duplicate calls.
+ * Safe to call on web — does nothing.
  */
 export async function initPurchases(): Promise<void> {
   if (!isNative()) return;
-  if (_initPromise) return _initPromise;
-
-  _initPromise = (async () => {
-    try {
-      const Purchases = await getPurchases();
-      const platform = Capacitor.getPlatform();
-      const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
-      if (!apiKey) {
-        console.warn("[Purchases] No API key — configure() skipped");
-        return;
-      }
-      await Purchases.configure({ apiKey });
-      console.log("[Purchases] configured");
-    } catch (err) {
-      console.error("[Purchases] init failed:", err);
-      // Reset so the next call can retry
-      _initPromise = null;
-      throw err;
-    }
-  })();
-
-  return _initPromise;
+  try {
+    const Purchases = await getPurchases();
+    const platform = Capacitor.getPlatform();
+    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
+    if (!apiKey) return;
+    await Purchases.configure({ apiKey });
+  } catch (err) {
+    console.error("[Purchases] init failed:", err);
+  }
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -141,8 +121,8 @@ export async function initPurchases(): Promise<void> {
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
-    await initPurchases();
     const Purchases = await getPurchases();
+    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { customerInfo } = await Purchases.getCustomerInfo();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
   } catch (err) {
@@ -158,13 +138,12 @@ export async function getCustomerInfo(): Promise<CustomerInfo> {
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
   try {
-    await initPurchases();
     const Purchases = await getPurchases();
+    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const result = await Purchases.getOfferings();
     const current = result.current as unknown as RCOffering | null;
     if (!current) return null;
     const pkgs = (current.availablePackages ?? []) as RCPackage[];
-    // RC sometimes leaves monthly/annual null even when availablePackages has entries
     if (!current.monthly) current.monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
     if (!current.annual)  current.annual  = pkgs.find(p => p.identifier === "$rc_annual")  ?? null;
     return current;
@@ -180,23 +159,20 @@ export async function getOfferings(): Promise<RCOffering | null> {
  */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
-  await initPurchases();
   const Purchases = await getPurchases();
+  await Purchases.configure({ apiKey: RC_IOS_KEY });
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
 }
 
 /**
  * Purchase a one-time product by its App Store product identifier.
- * Finds the matching package in the default offering and purchases it.
- * Returns updated CustomerInfo.
  */
 export async function purchaseProduct(productId: string): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
-  await initPurchases();
   const Purchases = await getPurchases();
+  await Purchases.configure({ apiKey: RC_IOS_KEY });
 
-  // Get all offerings and find the package with this product ID
   const { current } = await Purchases.getOfferings();
   if (!current) throw new Error("No offerings available");
 
@@ -210,13 +186,12 @@ export async function purchaseProduct(productId: string): Promise<CustomerInfo> 
 
 /**
  * Get the localized price string for a product from App Store.
- * Returns null if product not found (use fallback hardcoded price).
  */
 export async function getProductPrice(productId: string): Promise<string | null> {
   if (!isNative()) return null;
   try {
-    await initPurchases();
     const Purchases = await getPurchases();
+    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { current } = await Purchases.getOfferings();
     if (!current) return null;
     const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
@@ -229,13 +204,12 @@ export async function getProductPrice(productId: string): Promise<string | null>
 
 /**
  * Restore previous purchases (required by App Store guidelines).
- * Returns updated CustomerInfo.
  */
 export async function restorePurchases(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
-    await initPurchases();
     const Purchases = await getPurchases();
+    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { customerInfo } = await Purchases.restorePurchases();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
   } catch (err) {
