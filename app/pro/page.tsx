@@ -18,15 +18,20 @@ export default function ProPage() {
   const [plan, setPlan] = useState<"year" | "month">("year");
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState("");
+  const [debugInfo, setDebugInfo] = useState("");
   const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
   const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
 
   useEffect(() => {
     getOfferings().then(offering => {
-      if (!offering) return;
+      if (!offering) {
+        setDebugInfo("offering=null");
+        return;
+      }
       setMonthlyPkg(offering.monthly);
       setYearlyPkg(offering.annual);
-    });
+      setDebugInfo(`m=${offering.monthly?.product?.identifier ?? "null"} y=${offering.annual?.product?.identifier ?? "null"} pkgs=${offering.availablePackages?.length ?? 0}`);
+    }).catch(e => setDebugInfo("err:" + String(e)));
   }, []);
 
   async function handlePurchase() {
@@ -153,6 +158,7 @@ export default function ProPage() {
 
         {/* CTA */}
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
+          {debugInfo && <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{debugInfo}</p>}
           {error && <p style={{ textAlign: "center", fontSize: 12, color: "#f87171", marginBottom: 8 }}>{error}</p>}
           <button
             onClick={handlePurchase}
