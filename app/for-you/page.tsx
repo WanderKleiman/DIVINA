@@ -306,22 +306,13 @@ export default function ForYouPage() {
         <div className="animate-fade-in-up px-5 pt-2">
           <h3 className="text-xs font-medium text-white/70 tracking-wider uppercase mb-3">{t("forYou.forYouHeader")}</h3>
           <div className="space-y-2.5">
-            {oneTimePurchases.map((f) => (
+            {oneTimePurchases.map((f, idx) => (
               <button
                 key={f.id}
                 onClick={() => handleItemClick(f)}
                 className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                style={{ background: idx === 0 ? "linear-gradient(135deg, rgba(88,28,135,0.6), rgba(49,46,129,0.6))" : idx === 1 ? "linear-gradient(135deg, rgba(30,58,138,0.6), rgba(17,24,39,0.8))" : "linear-gradient(135deg, rgba(131,24,67,0.6), rgba(88,28,135,0.6))", border: "1px solid rgba(255,255,255,0.08)" }}
               >
-                <video
-                  src={f.videoSrc}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="absolute inset-0 h-full w-full object-cover"
-                  style={{ pointerEvents: "none" }}
-                />
-                <div className="absolute inset-0 bg-black/50" />
                 <div className="relative z-10 p-4 flex items-center gap-3.5">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                     {f.icon}
@@ -349,17 +340,8 @@ export default function ForYouPage() {
                 router.push("/for-you/month"); // cache = free forever; new forecast needs Pro
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+              style={{ background: "linear-gradient(135deg, rgba(17,94,89,0.65), rgba(30,58,138,0.65))", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              <video
-                src="/cosmos-10.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ pointerEvents: "none" }}
-              />
-              <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -386,17 +368,8 @@ export default function ForYouPage() {
                 router.push("/for-you/year"); // Pro-only gate enforced inside the page
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+              style={{ background: "linear-gradient(135deg, rgba(76,29,149,0.65), rgba(49,46,129,0.65))", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              <video
-                src="/cosmos-4.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ pointerEvents: "none" }}
-              />
-              <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -423,17 +396,8 @@ export default function ForYouPage() {
                 router.push("/for-you/others"); // Pro-only gate enforced inside the page
               }}
               className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+              style={{ background: "linear-gradient(135deg, rgba(30,58,138,0.65), rgba(88,28,135,0.65))", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              <video
-                src="/cosmos-7.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ pointerEvents: "none" }}
-              />
-              <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -469,9 +433,8 @@ export default function ForYouPage() {
                 <button
                   onClick={() => router.push("/for-you/month")}
                   className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                  style={{ background: "linear-gradient(135deg, rgba(17,94,89,0.55), rgba(30,58,138,0.55))", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <video src="/cosmos-10.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
-                  <div className="absolute inset-0 bg-black/60" />
                   <div className="relative z-10 p-4 flex items-center gap-3.5">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -492,9 +455,8 @@ export default function ForYouPage() {
                 <button
                   onClick={() => router.push("/weekly")}
                   className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                  style={{ background: "linear-gradient(135deg, rgba(30,58,138,0.55), rgba(17,24,39,0.75))", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <video src="/cosmos-10.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
-                  <div className="absolute inset-0 bg-black/60" />
                   <div className="relative z-10 p-4 flex items-center gap-3.5">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -531,9 +493,8 @@ export default function ForYouPage() {
                     router.push("/compatibility/result");
                   }}
                   className="w-full text-left relative overflow-hidden rounded-2xl group active:scale-[0.98] transition-transform"
+                  style={{ background: "linear-gradient(135deg, rgba(131,24,67,0.55), rgba(88,28,135,0.55))", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <video src="/moon2.mp4" autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" style={{ pointerEvents: "none" }} />
-                  <div className="absolute inset-0 bg-black/60" />
                   <div className="relative z-10 p-4 flex items-center gap-3.5">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/15 text-white/70">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useT } from "@/lib/i18n";
+import { getOfferings, purchasePackage, type RCPackage } from "@/lib/purchases-native";
+import { useProStatus } from "@/lib/pro-status";
 
 const YEAR_TOTAL = "$24.99";
 const YEAR_WEEKLY = "$0.48";
@@ -12,7 +14,40 @@ const MONTH_WEEKLY = "$1.2";
 export default function ProPage() {
   const router = useRouter();
   const { t } = useT();
+  const { refresh } = useProStatus();
   const [plan, setPlan] = useState<"year" | "month">("year");
+  const [purchasing, setPurchasing] = useState(false);
+  const [error, setError] = useState("");
+  const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
+  const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
+
+  useEffect(() => {
+    getOfferings().then(offering => {
+      if (!offering) return;
+      setMonthlyPkg(offering.monthly);
+      setYearlyPkg(offering.annual);
+    });
+  }, []);
+
+  async function handlePurchase() {
+    const pkg = plan === "year" ? yearlyPkg : monthlyPkg;
+    if (!pkg) { setError(t("paywall.noProducts")); return; }
+    setPurchasing(true);
+    setError("");
+    try {
+      await purchasePackage(pkg);
+      await refresh();
+      router.back();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      if (!msg.includes("cancel") && !msg.includes("Cancel")) {
+        setError(t("paywall.purchaseError"));
+      }
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
   const perks = [
     t("pro.perk1"),
     t("pro.perk2"),
@@ -118,11 +153,13 @@ export default function ProPage() {
 
         {/* CTA */}
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
+          {error && <p style={{ textAlign: "center", fontSize: 12, color: "#f87171", marginBottom: 8 }}>{error}</p>}
           <button
-            onClick={() => router.push("/pro/checkout")}
-            style={{ width: "100%", borderRadius: 16, background: "white", padding: "16px 0", fontSize: 16, fontWeight: 700, color: "rgba(0,0,0,0.88)", border: "none", cursor: "pointer", boxShadow: "0 4px 32px rgba(0,0,0,0.6)" }}
+            onClick={handlePurchase}
+            disabled={purchasing}
+            style={{ width: "100%", borderRadius: 16, background: "white", padding: "16px 0", fontSize: 16, fontWeight: 700, color: "rgba(0,0,0,0.88)", border: "none", cursor: "pointer", boxShadow: "0 4px 32px rgba(0,0,0,0.6)", opacity: purchasing ? 0.6 : 1 }}
           >
-            {t("pro.trialCta")}
+            {purchasing ? t("paywall.processing") : t("pro.trialCta")}
           </button>
           <p style={{ textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.38)", marginTop: 10 }}>
             {t("pro.then")} {plan === "year" ? `${YEAR_WEEKLY}/week, billed ${YEAR_TOTAL}/yr` : `${MONTH_WEEKLY}/week, billed ${MONTH_TOTAL}/mo`} · {t("pro.cancelAnytime")}
