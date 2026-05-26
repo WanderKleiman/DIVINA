@@ -119,6 +119,7 @@ export async function initPurchases(): Promise<void> {
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
+    await initPurchases();
     const Purchases = await getPurchases();
     const { customerInfo } = await Purchases.getCustomerInfo();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
@@ -135,6 +136,8 @@ export async function getCustomerInfo(): Promise<CustomerInfo> {
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
   try {
+    // Ensure RC is initialized before fetching offerings
+    await initPurchases();
     const Purchases = await getPurchases();
     const { current } = await Purchases.getOfferings();
     if (!current) return null;
@@ -151,6 +154,7 @@ export async function getOfferings(): Promise<RCOffering | null> {
  */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  await initPurchases();
   const Purchases = await getPurchases();
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
