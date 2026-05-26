@@ -158,7 +158,7 @@ export default function ProPage() {
 
         {/* CTA */}
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
-          {debugInfo && <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{debugInfo}</p>}
+          <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 4, wordBreak: "break-all" }}>{debugInfo || "loading..."}</p>
           {error && <p style={{ textAlign: "center", fontSize: 12, color: "#f87171", marginBottom: 8 }}>{error}</p>}
           <button
             onClick={handlePurchase}
