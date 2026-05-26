@@ -18,20 +18,18 @@ export default function ProPage() {
   const [plan, setPlan] = useState<"year" | "month">("year");
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState("");
-  const [debugInfo, setDebugInfo] = useState("loading...");
   const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
   const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
 
   useEffect(() => {
     getOfferings().then(offering => {
-      if (!offering) { setDebugInfo("offering=null"); return; }
+      if (!offering) return;
       const pkgs = offering.availablePackages ?? [];
       const monthly = offering.monthly ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_monthly") ?? null;
       const annual = offering.annual ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_annual") ?? null;
       setMonthlyPkg(monthly);
       setYearlyPkg(annual);
-      setDebugInfo(`pkgs=${pkgs.length} m=${monthly?.product?.identifier ?? "null"} y=${annual?.product?.identifier ?? "null"}`);
-    }).catch(e => setDebugInfo("err:" + String(e)));
+    }).catch(() => {});
   }, []);
 
   async function handlePurchase() {
@@ -44,9 +42,9 @@ export default function ProPage() {
       await refresh();
       router.back();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = err instanceof Error ? err.message : "";
       if (!msg.toLowerCase().includes("cancel")) {
-        setError(msg);
+        setError(t("paywall.purchaseError"));
       }
     } finally {
       setPurchasing(false);
@@ -158,7 +156,6 @@ export default function ProPage() {
 
         {/* CTA */}
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
-          <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 4, wordBreak: "break-all" }}>{debugInfo}</p>
           {error && <p style={{ textAlign: "center", fontSize: 12, color: "#f87171", marginBottom: 8 }}>{error}</p>}
           <button
             onClick={handlePurchase}
