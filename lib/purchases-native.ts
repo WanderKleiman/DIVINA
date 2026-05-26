@@ -92,34 +92,24 @@ function parseCustomerInfo(raw: Record<string, unknown>): CustomerInfo {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 let _initialized = false;
-let _initPromise: Promise<void> | null = null;
 
 /**
  * Call once at app startup (e.g. in layout or root component).
  * Safe to call on web — does nothing.
  */
 export async function initPurchases(): Promise<void> {
-  if (!isNative()) return;
-  if (_initialized) return;
-  if (_initPromise) return _initPromise;
-  _initPromise = (async () => {
-    try {
-      const Purchases = await getPurchases();
-      const platform = Capacitor.getPlatform();
-      const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
-      if (!apiKey) {
-        console.warn("[Purchases] RevenueCat API key not set for platform:", platform);
-        return;
-      }
-      await Purchases.configure({ apiKey });
-      _initialized = true;
-      console.log("[Purchases] RevenueCat configured, key:", apiKey.slice(0, 12) + "...");
-    } catch (err) {
-      console.error("[Purchases] init failed:", err);
-      _initPromise = null;
-    }
-  })();
-  return _initPromise;
+  if (!isNative() || _initialized) return;
+  try {
+    const Purchases = await getPurchases();
+    const platform = Capacitor.getPlatform();
+    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
+    if (!apiKey) return;
+    await Purchases.configure({ apiKey });
+    _initialized = true;
+    console.log("[Purchases] configured");
+  } catch (err) {
+    console.error("[Purchases] init failed:", err);
+  }
 }
 
 /**
@@ -144,34 +134,24 @@ export async function getCustomerInfo(): Promise<CustomerInfo> {
  */
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
-  // Try up to 5 times with delay — waiting for PurchasesInit to finish configure()
-  for (let attempt = 0; attempt < 5; attempt++) {
-    try {
-      const Purchases = await getPurchases();
-      const result = await Purchases.getOfferings();
-      const current = result.current as unknown as RCOffering | null;
-      if (!current) {
-        await new Promise(r => setTimeout(r, 1000));
-        continue;
-      }
-      // Populate monthly/annual from availablePackages as fallback
-      const pkgs = (current.availablePackages ?? []) as RCPackage[];
-      if (!current.monthly) current.monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
-      if (!current.annual)  current.annual  = pkgs.find(p => p.identifier === "$rc_annual")  ?? null;
-      console.log("[Purchases] offerings ok, monthly:", current.monthly?.product?.identifier, "annual:", current.annual?.product?.identifier);
-      return current;
-    } catch (err: unknown) {
-      const msg = String(err);
-      // RC not configured yet — wait and retry
-      if (msg.includes("configure") || msg.includes("initialized") || attempt < 4) {
-        await new Promise(r => setTimeout(r, 800));
-        continue;
-      }
-      console.error("[Purchases] getOfferings failed:", err);
-      return null;
-    }
+  try {
+    const Purchases = await getPurchases();
+    const platform = Capacitor.getPlatform();
+    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
+    if (!apiKey) return null;
+    // Always configure (RC ignores if already configured)
+    await Purchases.configure({ apiKey });
+    const result = await Purchases.getOfferings();
+    const current = result.current as unknown as RCOffering | null;
+    if (!current) return null;
+    const pkgs = (current.availablePackages ?? []) as RCPackage[];
+    if (!current.monthly) current.monthly = pkgs.find(p => p.identifier === "$rc_monthly") ?? null;
+    if (!current.annual)  current.annual  = pkgs.find(p => p.identifier === "$rc_annual")  ?? null;
+    return current;
+  } catch (err) {
+    console.error("[Purchases] getOfferings failed:", err);
+    return null;
   }
-  return null;
 }
 
 /**
