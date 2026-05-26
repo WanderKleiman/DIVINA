@@ -4,6 +4,7 @@ import BackgroundSwitcher from "@/components/BackgroundSwitcher";
 import BottomNav from "@/components/BottomNav";
 import { LanguageProvider } from "@/lib/i18n";
 import { ProStatusProvider } from "@/lib/pro-status";
+import PurchasesInit from "@/components/PurchasesInit";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body>
         <LanguageProvider>
           <ProStatusProvider>
+            <PurchasesInit />
             <BackgroundSwitcher />
             <div className="relative z-10">
               <div className="mx-auto min-h-dvh max-w-lg pb-24">
