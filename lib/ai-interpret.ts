@@ -1,11 +1,17 @@
 import OpenAI from "openai";
 import type { Transit, DayTag } from "./types";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  timeout: 55000,   // 55s hard cap
-  maxRetries: 0,    // fail fast, return fallback
-});
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      timeout: 55000,
+      maxRetries: 0,
+    });
+  }
+  return _openai;
+}
 
 // ===== Cache =====
 const cache = new Map<string, { data: unknown; ts: number }>();
@@ -209,7 +215,7 @@ ${transitsDesc || "Нет значимых влияний — спокойный
 - Базовый рейтинг = 3, диапазон 1-5`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
@@ -354,7 +360,7 @@ ${daysDesc}
 - bestDayFor.why — конкретно, без названий планет, нормальным языком`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
@@ -481,7 +487,7 @@ ${rules}`;
   const systemPrompt = getSystemPrompt(tone, lang);
 
   async function fetchA(): Promise<NatalDeepSection[]> {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
@@ -500,7 +506,7 @@ ${rules}`;
   }
 
   async function fetchB(): Promise<NatalDeepSection[]> {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
@@ -692,7 +698,7 @@ RULES:
 - Каждый раздел — развёрнутый, конкретный, на несколько страниц чтения`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
@@ -919,7 +925,7 @@ ${periodsDesc}
 - Пиши про реальную жизнь: отношения, чувства, решения, привычки, страхи, смелость`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
@@ -1038,7 +1044,7 @@ export async function interpretPersonality(input: {
 ${isEn ? "CRITICAL: ALL text content MUST be in ENGLISH." : "Язык: Русский."}`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt("deep", lang) },
@@ -1228,7 +1234,7 @@ ${weeksDesc}
   if (cached) return cached;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
@@ -1397,7 +1403,7 @@ ${monthsDesc}
   if (cached) return cached;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: getSystemPrompt(tone, lang) },
