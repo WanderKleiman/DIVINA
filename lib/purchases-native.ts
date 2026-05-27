@@ -110,7 +110,7 @@ async function ensureConfigured(): Promise<boolean> {
       if (!apiKey) return false;
       await Promise.race([
         Purchases.configure({ apiKey }),
-        new Promise<never>((_, r) => setTimeout(() => r(new Error("configure timeout")), 5000)),
+        new Promise<never>((_, r) => setTimeout(() => r(new Error("configure timeout 10s")), 10000)),
       ]);
       console.log("[Purchases] configured");
       return true;
@@ -171,9 +171,12 @@ export async function getOfferings(): Promise<RCOffering | null> {
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
   const ok = await ensureConfigured();
-  if (!ok) throw new Error("RevenueCat не настроен");
+  if (!ok) throw new Error("configure failed");
   const Purchases = await getPurchases();
-  const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
+  const { customerInfo } = await Promise.race([
+    Purchases.purchasePackage({ aPackage: pkg as never }),
+    new Promise<never>((_, r) => setTimeout(() => r(new Error("purchase timeout 30s")), 30000)),
+  ]);
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
 }
 

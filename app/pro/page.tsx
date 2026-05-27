@@ -52,9 +52,9 @@ export default function ProPage() {
       await refresh();
       router.back();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "";
+      const msg = err instanceof Error ? err.message : String(err);
       if (!msg.toLowerCase().includes("cancel")) {
-        setError(t("paywall.purchaseError"));
+        setError(msg); // show raw error for diagnosis
       }
     } finally {
       setPurchasing(false);
