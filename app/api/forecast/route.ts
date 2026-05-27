@@ -1,3 +1,4 @@
+export const maxDuration = 60;
 import { NextRequest, NextResponse } from "next/server";
 import { initEphemeris, getSignIndex, SIGN_NAMES_RU, SIGN_NAMES_EN, calcAllPlanets, calcHouseCusps, julianDay } from "@/lib/ephemeris";
 import { generateDailyForecast } from "@/lib/forecast-engine";
