@@ -93,60 +93,69 @@ function parseCustomerInfo(raw: Record<string, unknown>): CustomerInfo {
   return { isPro, expirationDate, originalPurchaseDate, activePlanType };
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// ─── Configure (singleton — called at most once, 5s timeout) ─────────────────
 
-/**
- * Configure RevenueCat. Safe to call multiple times — RC ignores duplicate calls.
- * Safe to call on web — does nothing.
- */
+let _configPromise: Promise<boolean> | null = null;
+
+/** Returns true if SDK was configured, false if timeout/error. */
+async function ensureConfigured(): Promise<boolean> {
+  if (!isNative()) return false;
+  if (_configPromise) return _configPromise;
+
+  _configPromise = (async () => {
+    try {
+      const Purchases = await getPurchases();
+      const platform = Capacitor.getPlatform();
+      const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
+      if (!apiKey) return false;
+      await Promise.race([
+        Purchases.configure({ apiKey }),
+        new Promise<never>((_, r) => setTimeout(() => r(new Error("configure timeout")), 5000)),
+      ]);
+      console.log("[Purchases] configured");
+      return true;
+    } catch (err) {
+      console.error("[Purchases] configure failed:", err);
+      _configPromise = null; // allow retry next time
+      return false;
+    }
+  })();
+
+  return _configPromise;
+}
+
+/** Call once at startup (ProStatusProvider). Kicks off configure early. */
 export async function initPurchases(): Promise<void> {
-  if (!isNative()) return;
-  try {
-    const Purchases = await getPurchases();
-    const platform = Capacitor.getPlatform();
-    const apiKey = platform === "ios" ? RC_IOS_KEY : RC_ANDROID_KEY;
-    if (!apiKey) return;
-    await Purchases.configure({ apiKey });
-  } catch (err) {
-    console.error("[Purchases] init failed:", err);
-  }
+  await ensureConfigured();
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Get current customer Pro status.
- * Returns { isPro: false } on web or on error.
- */
 export async function getCustomerInfo(): Promise<CustomerInfo> {
-  if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
+  const empty: CustomerInfo = { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
+  if (!isNative()) return empty;
   try {
+    const ok = await ensureConfigured();
+    if (!ok) return empty;
     const Purchases = await getPurchases();
-    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { customerInfo } = await Purchases.getCustomerInfo();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
   } catch (err) {
     console.error("[Purchases] getCustomerInfo failed:", err);
-    return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
+    return empty;
   }
 }
 
-/**
- * Get current offerings (packages with localized prices from Apple/Google).
- * Returns null on web or on error.
- */
 export async function getOfferings(): Promise<RCOffering | null> {
   if (!isNative()) return null;
   try {
+    const ok = await ensureConfigured();
+    if (!ok) return null;
     const Purchases = await getPurchases();
-    await Purchases.configure({ apiKey: RC_IOS_KEY });
-
-    // Timeout: if RC server doesn't respond in 8s, give up and use fallback prices
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("RC timeout")), 8000)
-    );
-    const result = await Promise.race([Purchases.getOfferings(), timeout]);
-
+    const result = await Promise.race([
+      Purchases.getOfferings(),
+      new Promise<never>((_, r) => setTimeout(() => r(new Error("offerings timeout")), 8000)),
+    ]);
     const current = result.current as unknown as RCOffering | null;
     if (!current) return null;
     const pkgs = (current.availablePackages ?? []) as RCPackage[];
@@ -159,14 +168,11 @@ export async function getOfferings(): Promise<RCOffering | null> {
   }
 }
 
-/**
- * Purchase a package (subscription). Returns updated CustomerInfo.
- * Throws on user cancellation or payment error.
- */
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  const ok = await ensureConfigured();
+  if (!ok) throw new Error("RevenueCat не настроен");
   const Purchases = await getPurchases();
-  await Purchases.configure({ apiKey: RC_IOS_KEY });
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
   return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
 }
@@ -176,13 +182,14 @@ export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
  */
 export async function purchaseProduct(productId: string): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  const ok = await ensureConfigured();
+  if (!ok) throw new Error("RevenueCat не настроен");
   const Purchases = await getPurchases();
-  await Purchases.configure({ apiKey: RC_IOS_KEY });
 
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error("RC timeout")), 8000)
-  );
-  const { current } = await Promise.race([Purchases.getOfferings(), timeout]);
+  const { current } = await Promise.race([
+    Purchases.getOfferings(),
+    new Promise<never>((_, r) => setTimeout(() => r(new Error("offerings timeout")), 8000)),
+  ]);
   if (!current) throw new Error("No offerings available");
 
   const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
@@ -199,8 +206,9 @@ export async function purchaseProduct(productId: string): Promise<CustomerInfo> 
 export async function getProductPrice(productId: string): Promise<string | null> {
   if (!isNative()) return null;
   try {
+    const ok = await ensureConfigured();
+    if (!ok) return null;
     const Purchases = await getPurchases();
-    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { current } = await Purchases.getOfferings();
     if (!current) return null;
     const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
@@ -217,8 +225,9 @@ export async function getProductPrice(productId: string): Promise<string | null>
 export async function restorePurchases(): Promise<CustomerInfo> {
   if (!isNative()) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
   try {
+    const ok = await ensureConfigured();
+    if (!ok) return { isPro: false, expirationDate: null, originalPurchaseDate: null, activePlanType: null };
     const Purchases = await getPurchases();
-    await Purchases.configure({ apiKey: RC_IOS_KEY });
     const { customerInfo } = await Purchases.restorePurchases();
     return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
   } catch (err) {
