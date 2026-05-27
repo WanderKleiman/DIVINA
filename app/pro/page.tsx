@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useT } from "@/lib/i18n";
-import { getOfferings, purchasePackage, type RCPackage } from "@/lib/purchases-native";
+import { getOfferings, purchasePackage, purchaseProduct, type RCPackage } from "@/lib/purchases-native";
 import { useProStatus } from "@/lib/pro-status";
 
 const YEAR_TOTAL = "$24.99";
@@ -32,13 +32,23 @@ export default function ProPage() {
     }).catch(() => {});
   }, []);
 
+  // Fallback product IDs — used if RC offerings didn't load
+  const FALLBACK_PRODUCT_ID = plan === "year"
+    ? "app_divina_pro_yearly"
+    : "app_divina_pro_monthly";
+
   async function handlePurchase() {
-    const pkg = plan === "year" ? yearlyPkg : monthlyPkg;
-    if (!pkg) { setError(t("paywall.noProducts")); return; }
     setPurchasing(true);
     setError("");
     try {
-      await purchasePackage(pkg);
+      const pkg = plan === "year" ? yearlyPkg : monthlyPkg;
+      if (pkg) {
+        // RC offerings loaded — use package (preferred, includes trial)
+        await purchasePackage(pkg);
+      } else {
+        // RC offerings timed out — purchase by product ID directly
+        await purchaseProduct(FALLBACK_PRODUCT_ID);
+      }
       await refresh();
       router.back();
     } catch (err: unknown) {

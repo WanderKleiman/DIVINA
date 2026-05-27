@@ -140,7 +140,13 @@ export async function getOfferings(): Promise<RCOffering | null> {
   try {
     const Purchases = await getPurchases();
     await Purchases.configure({ apiKey: RC_IOS_KEY });
-    const result = await Purchases.getOfferings();
+
+    // Timeout: if RC server doesn't respond in 8s, give up and use fallback prices
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("RC timeout")), 8000)
+    );
+    const result = await Promise.race([Purchases.getOfferings(), timeout]);
+
     const current = result.current as unknown as RCOffering | null;
     if (!current) return null;
     const pkgs = (current.availablePackages ?? []) as RCPackage[];
@@ -173,7 +179,10 @@ export async function purchaseProduct(productId: string): Promise<CustomerInfo> 
   const Purchases = await getPurchases();
   await Purchases.configure({ apiKey: RC_IOS_KEY });
 
-  const { current } = await Purchases.getOfferings();
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("RC timeout")), 8000)
+  );
+  const { current } = await Promise.race([Purchases.getOfferings(), timeout]);
   if (!current) throw new Error("No offerings available");
 
   const allPkgs: RCPackage[] = (current as unknown as RCOffering).availablePackages ?? [];
