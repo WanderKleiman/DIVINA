@@ -20,16 +20,19 @@ export default function ProPage() {
   const [error, setError] = useState("");
   const [monthlyPkg, setMonthlyPkg] = useState<RCPackage | null>(null);
   const [yearlyPkg, setYearlyPkg] = useState<RCPackage | null>(null);
+  const [dbg, setDbg] = useState("...");
 
   useEffect(() => {
+    setDbg("loading...");
     getOfferings().then(offering => {
-      if (!offering) return;
+      if (!offering) { setDbg("offerings=null"); return; }
       const pkgs = offering.availablePackages ?? [];
       const monthly = offering.monthly ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_monthly") ?? null;
       const annual = offering.annual ?? pkgs.find((p: RCPackage) => p.identifier === "$rc_annual") ?? null;
       setMonthlyPkg(monthly);
       setYearlyPkg(annual);
-    }).catch(() => {});
+      setDbg(`pkgs=${pkgs.length} m=${monthly?.product?.priceString ?? "null"} y=${annual?.product?.priceString ?? "null"}`);
+    }).catch((e: unknown) => { setDbg("err:" + String(e)); });
   }, []);
 
   async function handlePurchase() {
@@ -160,6 +163,7 @@ export default function ProPage() {
 
         {/* CTA */}
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
+          <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{dbg}</p>
           {error && <p style={{ textAlign: "center", fontSize: 12, color: "#f87171", marginBottom: 8 }}>{error}</p>}
           <button
             onClick={handlePurchase}
