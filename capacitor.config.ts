@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const PRODUCTION_URL = process.env.CAPACITOR_SERVER_URL || "https://divina-app.vercel.app";
 
 const config: CapacitorConfig = {
-  appId: "app.divina",
+  appId: "divina.company",
   appName: "Divina",
   webDir: "out",
   server: {
