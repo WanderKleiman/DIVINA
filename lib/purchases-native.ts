@@ -115,6 +115,8 @@ async function ensureConfigured(): Promise<boolean> {
         Purchases.configure({ apiKey }),
         new Promise<never>((_, r) => setTimeout(() => r(new Error("configure timeout 10s")), 10000)),
       ]);
+      // Enable verbose logging so Xcode console shows full RC/StoreKit activity
+      await Purchases.setLogLevel({ level: "DEBUG" }).catch(() => {});
       console.log("[Purchases] configured");
       return true;
     } catch (err) {
