@@ -222,7 +222,7 @@ ${transitsDesc || "Нет значимых влияний — спокойный
         { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
-      max_completion_tokens: 1500,
+      max_completion_tokens: 3000,
       response_format: { type: "json_object" },
     });
 
@@ -932,7 +932,7 @@ ${periodsDesc}
         { role: "user", content: userPrompt },
       ],
       temperature: 0.8,
-      max_completion_tokens: 1200,
+      max_completion_tokens: 2500,
       response_format: { type: "json_object" },
     });
 
@@ -1051,7 +1051,7 @@ ${isEn ? "CRITICAL: ALL text content MUST be in ENGLISH." : "Язык: Русс�
         { role: "user", content: userPrompt },
       ],
       temperature: 0.8,
-      max_completion_tokens: 2800,
+      max_completion_tokens: 4500,
       response_format: { type: "json_object" },
     });
 
