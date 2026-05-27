@@ -191,8 +191,15 @@ export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
  */
 export async function purchaseProduct(productId: string): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
+  return Promise.race([
+    _purchaseProductInner(productId),
+    new Promise<never>((_, r) => setTimeout(() => r(new Error("purchaseProduct timeout 20s")), 20000)),
+  ]);
+}
+
+async function _purchaseProductInner(productId: string): Promise<CustomerInfo> {
   const ok = await ensureConfigured();
-  if (!ok) throw new Error("RevenueCat не настроен");
+  if (!ok) throw new Error("configure failed");
   const Purchases = await getPurchases();
 
   const { current } = await Promise.race([

@@ -32,22 +32,16 @@ export default function ProPage() {
     }).catch(() => {});
   }, []);
 
-  // Fallback product IDs — used if RC offerings didn't load
-  const FALLBACK_PRODUCT_ID = plan === "year"
-    ? "app_divina_pro_yearly"
-    : "app_divina_pro_monthly";
-
   async function handlePurchase() {
     setPurchasing(true);
     setError("");
     try {
       const pkg = plan === "year" ? yearlyPkg : monthlyPkg;
+      const fallbackId = plan === "year" ? "app_divina_pro_yearly" : "app_divina_pro_monthly";
       if (pkg) {
-        // RC offerings loaded — use package (preferred, includes trial)
         await purchasePackage(pkg);
       } else {
-        // RC offerings timed out — purchase by product ID directly
-        await purchaseProduct(FALLBACK_PRODUCT_ID);
+        await purchaseProduct(fallbackId);
       }
       await refresh();
       router.back();
