@@ -70,9 +70,12 @@ function isNative(): boolean {
 }
 
 async function getPurchases() {
-  // Dynamic import so the module doesn't crash on web (Capacitor bridge absent)
-  const { Purchases } = await import("@revenuecat/purchases-capacitor");
-  return Purchases;
+  // Dynamic import with timeout — if the module hangs, don't block forever
+  const result = await Promise.race([
+    import("@revenuecat/purchases-capacitor"),
+    new Promise<never>((_, r) => setTimeout(() => r(new Error("import timeout")), 5000)),
+  ]);
+  return result.Purchases;
 }
 
 function parseCustomerInfo(raw: Record<string, unknown>): CustomerInfo {
@@ -170,14 +173,17 @@ export async function getOfferings(): Promise<RCOffering | null> {
 
 export async function purchasePackage(pkg: RCPackage): Promise<CustomerInfo> {
   if (!isNative()) throw new Error("Purchases not available on web");
-  const ok = await ensureConfigured();
-  if (!ok) throw new Error("configure failed");
-  const Purchases = await getPurchases();
-  const { customerInfo } = await Promise.race([
-    Purchases.purchasePackage({ aPackage: pkg as never }),
-    new Promise<never>((_, r) => setTimeout(() => r(new Error("purchase timeout 30s")), 30000)),
+  // Outer timeout starts immediately — catches hangs at ANY step
+  return Promise.race([
+    (async () => {
+      const ok = await ensureConfigured();
+      if (!ok) throw new Error("configure failed");
+      const Purchases = await getPurchases();
+      const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg as never });
+      return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
+    })(),
+    new Promise<never>((_, r) => setTimeout(() => r(new Error("purchase timeout 20s")), 20000)),
   ]);
-  return parseCustomerInfo(customerInfo as unknown as Record<string, unknown>);
 }
 
 /**
