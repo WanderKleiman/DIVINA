@@ -4,12 +4,8 @@
  * pro-status.tsx
  * Global React context for Divina Pro subscription status.
  *
- * Usage anywhere in the app:
- *   const { isPro, isLoading, customerInfo, refresh } = useProStatus();
- *
- * isPro === true  → user has active Pro subscription
- * isPro === false → free user (show paywall)
- * isLoading       → still checking (show nothing or skeleton)
+ * EN mode: uses RevenueCat / Apple IAP
+ * RU mode: uses localStorage activation code (set via /api/ru/activate)
  */
 
 import {
@@ -25,15 +21,45 @@ import {
   initPurchases,
   type CustomerInfo,
 } from "@/lib/purchases-native";
+import { APP_LANG } from "@/lib/i18n";
+
+// ─── RU localStorage helpers ─────────────────────────────────────────────────
+
+const RU_PRO_KEY = "divina_ru_pro";
+
+export interface RuProData {
+  isPro: boolean;
+  expiresAt: string; // ISO date string
+  code: string;
+}
+
+export function getRuProFromStorage(): RuProData | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(RU_PRO_KEY);
+    if (!raw) return null;
+    const data: RuProData = JSON.parse(raw);
+    if (new Date(data.expiresAt) < new Date()) {
+      localStorage.removeItem(RU_PRO_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export function setRuProInStorage(data: RuProData) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(RU_PRO_KEY, JSON.stringify(data));
+}
+
+// ─── Context ──────────────────────────────────────────────────────────────────
 
 interface ProStatusContextValue {
-  /** True if user has an active Pro subscription */
   isPro: boolean;
-  /** True while the initial status check is in progress */
   isLoading: boolean;
-  /** Full customer info (plan type, expiration date, etc.) */
   customerInfo: CustomerInfo | null;
-  /** Call this after a successful purchase or restore to refresh status */
   refresh: () => Promise<void>;
 }
 
@@ -51,9 +77,17 @@ export function ProStatusProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const info = await getCustomerInfo();
-      setCustomerInfo(info);
-      setIsPro(info.isPro);
+      if (APP_LANG === "ru") {
+        // RU: check localStorage activation
+        const ruData = getRuProFromStorage();
+        setIsPro(ruData?.isPro === true);
+        setCustomerInfo(null);
+      } else {
+        // EN: check RevenueCat
+        const info = await getCustomerInfo();
+        setCustomerInfo(info);
+        setIsPro(info.isPro);
+      }
     } catch {
       setIsPro(false);
     } finally {
@@ -62,10 +96,13 @@ export function ProStatusProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Fallback: ensure isLoading becomes false within 5s even if RevenueCat hangs
     const timeout = setTimeout(() => setIsLoading(false), 5000);
-    // Init RevenueCat SDK, then check status
-    initPurchases().then(refresh).finally(() => clearTimeout(timeout));
+    if (APP_LANG === "ru") {
+      // RU: no RevenueCat init needed
+      refresh().finally(() => clearTimeout(timeout));
+    } else {
+      initPurchases().then(refresh).finally(() => clearTimeout(timeout));
+    }
   }, [refresh]);
 
   return (
@@ -75,7 +112,6 @@ export function ProStatusProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Hook to access Pro status anywhere in the app */
 export function useProStatus() {
   return useContext(ProStatusContext);
 }
