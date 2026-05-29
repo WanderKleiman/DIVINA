@@ -85,7 +85,7 @@ export default function PaywallSheet({ open, onClose, children, cta, videoSrc = 
         </button>
 
         {/* Scrollable content */}
-        <div className="relative z-10 flex-1 overflow-y-auto px-6 pt-2 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+        <div className="relative z-10 flex-1 overflow-y-auto px-6 pt-2 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
           {children}
           {/* Legacy CTA slot — renders inline if passed */}
           {cta && <div className="mt-4">{cta}</div>}
