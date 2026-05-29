@@ -24,6 +24,7 @@ function getOneTimePurchases(t: (key: string) => string) {
     {
       id: "interpretation" as const,
       videoSrc: "/cosmos-7.mp4",
+      image: "/photos/galaxy.png",
       href: "/interpretation",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -41,6 +42,7 @@ function getOneTimePurchases(t: (key: string) => string) {
     {
       id: "weekly" as const,
       videoSrc: "/cosmos-10.mp4",
+      image: "/photos/nebula.jpg",
       href: "/weekly",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -56,6 +58,7 @@ function getOneTimePurchases(t: (key: string) => string) {
     {
       id: "compatibility" as const,
       videoSrc: "/moon2.mp4",
+      image: "/photos/stars.jpg",
       href: "/compatibility",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -310,18 +313,20 @@ export default function ForYouPage() {
               <button
                 key={f.id}
                 onClick={() => handleItemClick(f)}
-                className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform"
-                style={{ background: "rgba(0,0,0,0.40)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)" }}
+                className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform overflow-hidden relative"
+                style={{ border: "1px solid rgba(255,255,255,0.09)", minHeight: 72 }}
               >
-                <div className="p-4 flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/12 text-white/60">
+                <img src={f.image} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(8,4,24,0.88) 0%, rgba(8,4,24,0.55) 100%)" }} />
+                <div className="relative z-10 p-4 flex items-center gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/15 text-white/60">
                     {f.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-white mb-0.5">{f.title}</h3>
                     <p className="text-xs text-white/45 line-clamp-1">{f.description}</p>
                   </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/20 group-hover:text-white/40 transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/25">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </div>
