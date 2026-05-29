@@ -71,8 +71,12 @@ const ProStatusContext = createContext<ProStatusContextValue>({
 });
 
 export function ProStatusProvider({ children }: { children: ReactNode }) {
-  const [isPro, setIsPro] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // RU: read localStorage synchronously on first render — no flicker, no delay
+  const [isPro, setIsPro] = useState<boolean>(() => {
+    if (APP_LANG === "ru") return getRuProFromStorage()?.isPro === true;
+    return false;
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(APP_LANG !== "ru");
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
 
   const refresh = useCallback(async () => {

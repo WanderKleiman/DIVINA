@@ -5,8 +5,10 @@ import PaywallSheet from "./PaywallSheet";
 import { getSubscriptionPrices } from "@/lib/pricing";
 import { getOfferings, purchasePackage, restorePurchases, type RCPackage } from "@/lib/purchases-native";
 import { useProStatus } from "@/lib/pro-status";
-import { useT } from "@/lib/i18n";
+import { useT, APP_LANG } from "@/lib/i18n";
 import { getUserData } from "@/lib/user-data";
+
+const TG_BOT = process.env.NEXT_PUBLIC_TG_BOT ?? "";
 
 interface SubscriptionPaywallProps {
   open: boolean;
@@ -135,28 +137,45 @@ export default function SubscriptionPaywall({ open, onClose }: SubscriptionPaywa
 
       {/* ── CTA ── */}
       <div className="flex flex-col gap-3 mt-2">
-        {error && <p className="text-center text-xs text-red-400">{error}</p>}
-
-        <button
-          onClick={handlePurchase}
-          disabled={purchasing || restoring}
-          className="w-full rounded-2xl py-4 text-base font-bold text-black/80 active:opacity-80 transition-opacity disabled:opacity-50"
-          style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
-        >
-          {purchasing ? t("paywall.processing") : t("paywall.trialCta")}
-        </button>
-
-        <p className="text-center text-[12px] text-white/35">
-          {t("paywall.trialWeeklyPrice")} · {t("paywall.cancelAnytime")}
-        </p>
-
-        <button
-          onClick={handleRestore}
-          disabled={purchasing || restoring}
-          className="w-full py-1 text-xs text-white/20 disabled:opacity-50"
-        >
-          {restoring ? t("paywall.restoring") : t("paywall.restore")}
-        </button>
+        {APP_LANG === "ru" ? (
+          /* RU: Telegram bot button */
+          <a
+            href={TG_BOT ? `https://t.me/${TG_BOT.replace("@", "")}` : "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full rounded-2xl py-4 text-base font-bold text-black/80 active:opacity-80 transition-opacity flex items-center justify-center gap-2.5"
+            style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)", textDecoration: "none" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="#29B6F6" />
+              <path d="M17.5 7L5.5 11.5l3.5 1.5 1.5 4.5 2-2.5 3 2.5 2-10z" fill="white" />
+            </svg>
+            Перейти в Telegram бот
+          </a>
+        ) : (
+          /* EN: IAP button */
+          <>
+            {error && <p className="text-center text-xs text-red-400">{error}</p>}
+            <button
+              onClick={handlePurchase}
+              disabled={purchasing || restoring}
+              className="w-full rounded-2xl py-4 text-base font-bold text-black/80 active:opacity-80 transition-opacity disabled:opacity-50"
+              style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+            >
+              {purchasing ? t("paywall.processing") : t("paywall.trialCta")}
+            </button>
+            <p className="text-center text-[12px] text-white/35">
+              {t("paywall.trialWeeklyPrice")} · {t("paywall.cancelAnytime")}
+            </p>
+            <button
+              onClick={handleRestore}
+              disabled={purchasing || restoring}
+              className="w-full py-1 text-xs text-white/20 disabled:opacity-50"
+            >
+              {restoring ? t("paywall.restoring") : t("paywall.restore")}
+            </button>
+          </>
+        )}
       </div>
     </PaywallSheet>
   );

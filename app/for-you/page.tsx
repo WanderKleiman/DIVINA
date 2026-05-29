@@ -337,16 +337,12 @@ export default function ForYouPage() {
             {/* Month Forecast */}
             <button
               onClick={() => router.push("/for-you/month")}
-              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform"
-              style={{ background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.18)" }}
+              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform overflow-hidden relative"
+              style={{ border: "1px solid rgba(255,255,255,0.14)", minHeight: 88 }}
             >
-              <div className="p-4 flex items-center gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/20 text-white/75">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
-                    <circle cx="12" cy="16" r="2" />
-                  </svg>
-                </div>
+              <img src="/photos/cosmos.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(10,6,30,0.82) 0%, rgba(10,6,30,0.45) 100%)" }} />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <h3 className="text-sm font-semibold text-white">{t("forYou.monthTitle")}</h3>
@@ -354,7 +350,7 @@ export default function ForYouPage() {
                   </div>
                   <p className="text-xs text-white/55 line-clamp-1">{t("forYou.monthDesc")}</p>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/30 group-hover:text-white/50 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/40">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </div>
@@ -363,16 +359,12 @@ export default function ForYouPage() {
             {/* Year Forecast */}
             <button
               onClick={() => router.push("/for-you/year")}
-              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform"
-              style={{ background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.18)" }}
+              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform overflow-hidden relative"
+              style={{ border: "1px solid rgba(255,255,255,0.14)", minHeight: 88 }}
             >
-              <div className="p-4 flex items-center gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/20 text-white/75">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
-                    <path d="M12 14v4M10 16h4" />
-                  </svg>
-                </div>
+              <img src="/photos/nebula.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(10,6,30,0.82) 0%, rgba(10,6,30,0.45) 100%)" }} />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <h3 className="text-sm font-semibold text-white">{t("forYou.yearTitle")}</h3>
@@ -380,7 +372,7 @@ export default function ForYouPage() {
                   </div>
                   <p className="text-xs text-white/55 line-clamp-1">{t("forYou.yearDesc")}</p>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/30 group-hover:text-white/50 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/40">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </div>
@@ -389,18 +381,12 @@ export default function ForYouPage() {
             {/* Natal Chart for Others */}
             <button
               onClick={() => router.push("/for-you/others")}
-              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform"
-              style={{ background: "rgba(255,255,255,0.10)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.18)" }}
+              className="w-full text-left rounded-2xl group active:scale-[0.98] transition-transform overflow-hidden relative"
+              style={{ border: "1px solid rgba(255,255,255,0.14)", minHeight: 88 }}
             >
-              <div className="p-4 flex items-center gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/20 text-white/75">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                    <line x1="19" y1="8" x2="19" y2="14" />
-                    <line x1="22" y1="11" x2="16" y2="11" />
-                  </svg>
-                </div>
+              <img src="/photos/stars.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(10,6,30,0.82) 0%, rgba(10,6,30,0.45) 100%)" }} />
+              <div className="relative z-10 p-4 flex items-center gap-3.5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <h3 className="text-sm font-semibold text-white">{t("forYou.othersTitle")}</h3>
@@ -408,7 +394,7 @@ export default function ForYouPage() {
                   </div>
                   <p className="text-xs text-white/55 line-clamp-1">{t("forYou.othersDesc")}</p>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/30 group-hover:text-white/50 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-white/40">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </div>
