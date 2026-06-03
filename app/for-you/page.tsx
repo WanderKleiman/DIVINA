@@ -11,6 +11,7 @@ import SubscriptionPaywall from "@/components/paywall/SubscriptionPaywall";
 import { getPurchases, type Purchase } from "@/lib/purchases";
 import { getUserData } from "@/lib/user-data";
 import { useT, APP_LANG, formatShortDate } from "@/lib/i18n";
+import { CELEBRITIES } from "@/lib/celebrities-data";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 import { ensureTrialStarted } from "@/lib/trial";
 import { canUseCompatibilityFree, recordCompatibilityUse } from "@/lib/free-limits";
@@ -406,6 +407,55 @@ export default function ForYouPage() {
             </button>
           </div>
         </div>
+
+        {/* Звёзды — RU only */}
+        {APP_LANG === "ru" && (
+          <div className="animate-fade-in-up">
+            <div className="flex items-center justify-between px-5 mb-3">
+              <h2 className="text-base font-semibold text-white">Разборы звёзд</h2>
+              <button
+                onClick={() => router.push("/stars")}
+                className="text-xs text-white/40 flex items-center gap-1"
+              >
+                Все
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide pl-5 scroll-pl-5">
+              {CELEBRITIES.slice(0, 8).map(celeb => (
+                <button
+                  key={celeb.id}
+                  onClick={() => router.push(`/stars/${celeb.id}`)}
+                  className="shrink-0 w-[148px] snap-start rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
+                  style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  {/* Gradient background */}
+                  <div
+                    className="relative flex flex-col items-center justify-center pt-5 pb-4"
+                    style={{ background: `linear-gradient(160deg, ${celeb.gradientFrom} 0%, ${celeb.gradientTo} 100%)`, minHeight: 110 }}
+                  >
+                    <div
+                      className="flex items-center justify-center mb-2"
+                      style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.15)", fontSize: 26 }}
+                    >
+                      {celeb.signSymbol}
+                    </div>
+                    <p className="text-xs font-semibold text-white px-2 text-center leading-tight">{celeb.name}</p>
+                    <p className="text-[10px] text-white/45 mt-0.5">{celeb.signName}</p>
+                  </div>
+                  <div
+                    className="px-3 py-2.5"
+                    style={{ background: "rgba(255,255,255,0.04)" }}
+                  >
+                    <p className="text-[10px] text-white/35 line-clamp-1">{celeb.tagline}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* History — shows only items the user actually generated */}
         {(savedMonthPeriod !== null || savedCompatPartners.length > 0 || savedWeeklyStart !== null) && (
