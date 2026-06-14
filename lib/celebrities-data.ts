@@ -145,7 +145,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♒",
     gradientFrom: "#0a1a4a",
     gradientTo: "#1a3a7a",
-    photo: "/photos/stars/buzova.png",
+    photo: "/photos/stars/buzova.jpg",
     sections: [
       {
         title: "Кто она как личность",

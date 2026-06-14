@@ -12,6 +12,7 @@ import { getPurchases, type Purchase } from "@/lib/purchases";
 import { getUserData } from "@/lib/user-data";
 import { useT, APP_LANG, formatShortDate } from "@/lib/i18n";
 import { CELEBRITIES } from "@/lib/celebrities-data";
+import Link from "next/link";
 import type { LifePeriod, LifePeriodsResult } from "@/lib/ai-interpret";
 import { ensureTrialStarted } from "@/lib/trial";
 import { canUseCompatibilityFree, recordCompatibilityUse } from "@/lib/free-limits";
@@ -425,10 +426,11 @@ export default function ForYouPage() {
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide pl-5 scroll-pl-5">
               {CELEBRITIES.slice(0, 8).map(celeb => (
-                <button
+                <Link
                   key={celeb.id}
-                  onClick={() => router.push(`/stars/${celeb.id}`)}
-                  className="shrink-0 w-[140px] snap-start rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
+                  href={`/stars/${celeb.id}`}
+                  prefetch
+                  className="shrink-0 w-[140px] snap-start rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left block"
                   style={{ border: "1px solid rgba(255,255,255,0.08)" }}
                 >
                   {/* Photo or gradient background */}
@@ -458,7 +460,7 @@ export default function ForYouPage() {
                       <p className="text-[10px] text-white/50 mt-0.5">{celeb.signName}</p>
                     </div>
                   </div>
-                </button>
+                </Link>
               ))}
             </div>
           </div>

@@ -6,6 +6,11 @@ import { CELEBRITIES } from "@/lib/celebrities-data";
 import { calcCelebrityCompat, type CompatResult } from "@/lib/celebrity-compat";
 import { getUserData } from "@/lib/user-data";
 
+// Pre-render all celebrity pages at build time → instant navigation
+export function generateStaticParams() {
+  return CELEBRITIES.map(c => ({ id: c.id }));
+}
+
 export default function StarPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();

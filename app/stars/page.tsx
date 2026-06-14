@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CELEBRITIES } from "@/lib/celebrities-data";
 import { calcCelebrityCompat } from "@/lib/celebrity-compat";
 import { getUserData } from "@/lib/user-data";
@@ -40,10 +41,11 @@ export default function StarsPage() {
       {/* Grid */}
       <div className="px-5 grid grid-cols-2 gap-3">
         {CELEBRITIES.map(celeb => (
-          <button
+          <Link
             key={celeb.id}
-            onClick={() => router.push(`/stars/${celeb.id}`)}
-            className="rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
+            href={`/stars/${celeb.id}`}
+            prefetch
+            className="rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left block"
             style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
             {/* Photo or gradient */}
@@ -84,7 +86,7 @@ export default function StarsPage() {
                 <p className="text-[11px] text-white/50 mt-0.5">{celeb.tagline}</p>
               </div>
             </div>
-          </button>
+          </Link>
         ))}
       </div>
     </div>
