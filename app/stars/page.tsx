@@ -46,39 +46,43 @@ export default function StarsPage() {
             className="rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
             style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
+            {/* Photo or gradient */}
             <div
-              className="relative flex flex-col items-center justify-center pt-6 pb-4"
+              className="relative overflow-hidden"
               style={{
+                height: 180,
                 background: `linear-gradient(160deg, ${celeb.gradientFrom} 0%, ${celeb.gradientTo} 100%)`,
-                minHeight: 130,
               }}
             >
-              <div
-                className="flex items-center justify-center mb-3"
-                style={{
-                  width: 60, height: 60, borderRadius: "50%",
-                  background: "rgba(255,255,255,0.10)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  fontSize: 30,
-                }}
-              >
+              {celeb.photo && (
+                <img
+                  src={celeb.photo}
+                  alt={celeb.name}
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+              )}
+              {/* Gradient overlay for legibility */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)" }} />
+
+              {/* Sign + compat badges */}
+              <div className="absolute top-2 left-2 flex items-center justify-center rounded-full text-sm"
+                style={{ width: 28, height: 28, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}>
                 {celeb.signSymbol}
               </div>
-              <p className="text-sm font-semibold text-white px-3 text-center leading-tight">{celeb.name}</p>
-              <p className="text-[11px] text-white/45 mt-1">{celeb.signName}</p>
-
-              {/* Compatibility badge */}
               {scores[celeb.id] !== undefined && (
                 <div
-                  className="absolute top-2.5 right-2.5 text-[10px] font-bold rounded-full px-2 py-0.5"
-                  style={{ background: "rgba(0,0,0,0.45)", color: "rgba(255,255,255,0.8)", backdropFilter: "blur(4px)" }}
+                  className="absolute top-2 right-2 text-[10px] font-bold rounded-full px-2 py-0.5"
+                  style={{ background: "rgba(0,0,0,0.50)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(4px)" }}
                 >
                   {scores[celeb.id]}%
                 </div>
               )}
-            </div>
-            <div className="px-3 py-2.5" style={{ background: "rgba(255,255,255,0.04)" }}>
-              <p className="text-[11px] text-white/40 line-clamp-1">{celeb.tagline}</p>
+
+              {/* Name at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
+                <p className="text-sm font-semibold text-white leading-tight">{celeb.name}</p>
+                <p className="text-[11px] text-white/50 mt-0.5">{celeb.tagline}</p>
+              </div>
             </div>
           </button>
         ))}

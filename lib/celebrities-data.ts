@@ -13,6 +13,7 @@ export interface Celebrity {
   signSymbol: string;
   gradientFrom: string;
   gradientTo: string;
+  photo?: string; // path in /public
   sections: CelebritySection[];
 }
 
@@ -27,6 +28,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♒",
     gradientFrom: "#1a1a6e",
     gradientTo: "#0a4a8a",
+    photo: "/photos/stars/morgenshtern.jpg",
     sections: [
       {
         title: "Кто он как личность",
@@ -65,6 +67,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♍",
     gradientFrom: "#1a3a1a",
     gradientTo: "#0a5a3a",
+    photo: "/photos/stars/khabib.jpg",
     sections: [
       {
         title: "Кто он как личность",
@@ -103,6 +106,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♌",
     gradientFrom: "#5a2a00",
     gradientTo: "#8a4a00",
+    photo: "/photos/stars/timati.jpg",
     sections: [
       {
         title: "Кто он как личность",
@@ -141,6 +145,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♒",
     gradientFrom: "#0a1a4a",
     gradientTo: "#1a3a7a",
+    photo: "/photos/stars/buzova.png",
     sections: [
       {
         title: "Кто она как личность",
@@ -179,6 +184,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♏",
     gradientFrom: "#3a0a0a",
     gradientTo: "#6a1a1a",
+    photo: "/photos/stars/klava-koka.jpg",
     sections: [
       {
         title: "Кто она как личность",
@@ -217,6 +223,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♍",
     gradientFrom: "#0a2a1a",
     gradientTo: "#1a4a2a",
+    photo: "/photos/stars/eljay.jpg",
     sections: [
       {
         title: "Кто он как личность",
@@ -255,6 +262,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♈",
     gradientFrom: "#4a0a0a",
     gradientTo: "#8a2a00",
+    photo: "/photos/stars/monetochka.jpg",
     sections: [
       {
         title: "Кто она как личность",
@@ -293,6 +301,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♊",
     gradientFrom: "#2a2a00",
     gradientTo: "#4a4a00",
+    photo: "/photos/stars/niletto.jpg",
     sections: [
       {
         title: "Кто он как личность",
@@ -369,6 +378,7 @@ export const CELEBRITIES: Celebrity[] = [
     signSymbol: "♉",
     gradientFrom: "#0a2a0a",
     gradientTo: "#1a5a1a",
+    photo: "/photos/stars/instasamka.jpg",
     sections: [
       {
         title: "Кто она как личность",

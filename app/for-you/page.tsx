@@ -428,28 +428,35 @@ export default function ForYouPage() {
                 <button
                   key={celeb.id}
                   onClick={() => router.push(`/stars/${celeb.id}`)}
-                  className="shrink-0 w-[148px] snap-start rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
+                  className="shrink-0 w-[140px] snap-start rounded-2xl overflow-hidden active:scale-[0.97] transition-transform text-left"
                   style={{ border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  {/* Gradient background */}
+                  {/* Photo or gradient background */}
                   <div
-                    className="relative flex flex-col items-center justify-center pt-5 pb-4"
-                    style={{ background: `linear-gradient(160deg, ${celeb.gradientFrom} 0%, ${celeb.gradientTo} 100%)`, minHeight: 110 }}
+                    className="relative overflow-hidden"
+                    style={{ height: 160, background: `linear-gradient(160deg, ${celeb.gradientFrom} 0%, ${celeb.gradientTo} 100%)` }}
                   >
+                    {celeb.photo && (
+                      <img
+                        src={celeb.photo}
+                        alt={celeb.name}
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                      />
+                    )}
+                    {/* Bottom gradient for text legibility */}
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)" }} />
+                    {/* Sign badge */}
                     <div
-                      className="flex items-center justify-center mb-2"
-                      style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.15)", fontSize: 26 }}
+                      className="absolute top-2 right-2 flex items-center justify-center rounded-full text-sm"
+                      style={{ width: 28, height: 28, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
                     >
                       {celeb.signSymbol}
                     </div>
-                    <p className="text-xs font-semibold text-white px-2 text-center leading-tight">{celeb.name}</p>
-                    <p className="text-[10px] text-white/45 mt-0.5">{celeb.signName}</p>
-                  </div>
-                  <div
-                    className="px-3 py-2.5"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
-                  >
-                    <p className="text-[10px] text-white/35 line-clamp-1">{celeb.tagline}</p>
+                    {/* Name at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5">
+                      <p className="text-xs font-semibold text-white leading-tight">{celeb.name}</p>
+                      <p className="text-[10px] text-white/50 mt-0.5">{celeb.signName}</p>
+                    </div>
                   </div>
                 </button>
               ))}
