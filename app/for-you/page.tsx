@@ -466,6 +466,53 @@ export default function ForYouPage() {
           </div>
         )}
 
+        {/* Натальный мерч — RU only */}
+        {APP_LANG === "ru" && (
+          <div className="animate-fade-in-up">
+            <div className="px-5 mb-3">
+              <h2 className="text-base font-semibold text-white">Натальный мерч</h2>
+              <p className="text-xs text-white/40 mt-0.5">мерч с твоей натальной картой</p>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide pl-5 scroll-pl-5">
+              {[
+                { id: "tshirt-black", img: "/photos/merch/tshirt-black.jpg", name: "Футболка", desc: "Чёрная · унисекс", price: "2 990 ₽" },
+                { id: "hoodie",       img: "/photos/merch/hoodie.jpg",        name: "Худи",     desc: "Чёрное · унисекс", price: "5 990 ₽" },
+                { id: "tshirt-white", img: "/photos/merch/tshirt-white.jpg",  name: "Футболка", desc: "Белая · унисекс",  price: "2 490 ₽" },
+                { id: "tote",         img: "/photos/merch/tote.jpg",          name: "Шопер",    desc: "Чёрный",           price: "1 490 ₽" },
+                { id: "keychain",     img: "/photos/merch/keychain.jpg",      name: "Брелок",   desc: "Металл",           price: "790 ₽"   },
+              ].map(item => (
+                <div
+                  key={item.id}
+                  className="shrink-0 w-[180px] snap-start rounded-2xl overflow-hidden"
+                  style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)" }}
+                >
+                  {/* Product image */}
+                  <div className="relative overflow-hidden" style={{ height: 180 }}>
+                    <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                  {/* Info */}
+                  <div className="p-3">
+                    <p className="text-sm font-semibold text-white">{item.name}</p>
+                    <p className="text-[11px] text-white/40 mt-0.5 mb-2">{item.desc}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-white">{item.price}</span>
+                      <a
+                        href="https://t.me/ru_natal_bot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-semibold px-3 py-1.5 rounded-xl active:opacity-70"
+                        style={{ background: "rgba(167,139,250,0.2)", border: "1px solid rgba(167,139,250,0.35)", color: "rgb(196,181,253)" }}
+                      >
+                        Предзаказ
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* History — shows only items the user actually generated */}
         {(savedMonthPeriod !== null || savedCompatPartners.length > 0 || savedWeeklyStart !== null) && (
           <div className="animate-fade-in-up px-5 pt-2">
