@@ -131,7 +131,7 @@ export default function AboutPage() {
           Ваш ритм жизни<br />становится предсказуемым
         </h1>
         <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", maxWidth: 480, lineHeight: 1.65, margin: "0 0 36px" }}>
-          Divina анализирует ваши личные циклы и показывает, когда лучше действовать, а когда — сделать паузу. Каждый день, каждую неделю, на год вперёд.
+          Натальная карта анализирует ваши личные циклы и показывает, когда лучше действовать, а когда — сделать паузу. Каждый день, каждую неделю, на год вперёд.
         </p>
 
         <a href="https://apps.apple.com/app/divina" style={{
@@ -202,7 +202,7 @@ export default function AboutPage() {
         maxWidth: 640, margin: "0 auto", padding: "0 24px 80px",
       }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, textAlign: "center", margin: "0 0 8px" }}>
-          Divina Pro
+          Натальная карта Pro
         </h2>
         <p style={{ textAlign: "center", color: "rgba(255,255,255,0.45)", fontSize: 15, margin: "0 0 32px" }}>
           7 дней бесплатно — затем выберите план
@@ -323,7 +323,7 @@ export default function AboutPage() {
         >
           Публичная оферта
         </button>
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} Divina</span>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} Натальная карта</span>
       </div>
 
       {/* Oferta modal */}

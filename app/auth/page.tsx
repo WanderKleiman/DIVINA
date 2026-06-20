@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { APP_LANG } from "@/lib/i18n";
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
@@ -61,8 +62,8 @@ export default function AuthPage() {
       <div className="w-full max-w-sm animate-fade-in-up">
         {/* Logo */}
         <div className="text-center mb-10">
-          <h1 className="font-heading text-4xl font-bold text-glow mb-2">Divina</h1>
-          <p className="text-sm text-white/40">Your personal forecast</p>
+          <h1 className="font-heading text-4xl font-bold text-glow mb-2">{APP_LANG === "ru" ? "Натальная карта" : "Divina"}</h1>
+          <p className="text-sm text-white/40">{APP_LANG === "ru" ? "Твой персональный прогноз" : "Your personal forecast"}</p>
         </div>
 
         {sent ? (

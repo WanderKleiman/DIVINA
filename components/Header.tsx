@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useT } from "@/lib/i18n";
+import { useT, APP_LANG } from "@/lib/i18n";
 
 interface HeaderProps {
   settingsHref?: string;
@@ -31,7 +31,7 @@ export default function Header({ settingsHref }: HeaderProps) {
 
   return (
     <header className="flex items-center justify-between px-5 pb-2" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
-      <h1 className="font-heading text-2xl font-bold text-glow">Divina</h1>
+      <h1 className="font-heading text-2xl font-bold text-glow">{APP_LANG === "ru" ? "Натальная карта" : "Divina"}</h1>
       {settingsHref ? (
         <Link href={settingsHref} className={btnClass} aria-label={t("header.settings")}>
           {gearIcon}

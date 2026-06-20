@@ -18,9 +18,11 @@ const inter = Inter({
   display: "swap",
 });
 
+const APP_LANG = process.env.NEXT_PUBLIC_APP_LANG ?? "en";
+
 export const metadata: Metadata = {
-  title: "Divina",
-  description: "Your personal forecast",
+  title: APP_LANG === "ru" ? "Натальная карта" : "Divina",
+  description: APP_LANG === "ru" ? "Твой персональный прогноз" : "Your personal forecast",
 };
 
 export const viewport: Viewport = {
