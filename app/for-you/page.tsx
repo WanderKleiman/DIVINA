@@ -607,6 +607,42 @@ export default function ForYouPage() {
 
       </div>
 
+      {APP_LANG === "ru" && (
+        <div className="px-5 pb-6 space-y-2">
+          <p className="text-[11px] text-white/25 uppercase tracking-wider mb-3">Интерактивные функции</p>
+          <Link href="/demo/wheel" prefetch
+            className="flex items-center gap-4 rounded-2xl p-4 active:scale-[0.98] transition-transform"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div className="flex items-center justify-center rounded-xl text-xl shrink-0"
+              style={{ width: 44, height: 44, background: "rgba(167,139,250,0.12)", border: "1px solid rgba(167,139,250,0.2)" }}>
+              🪐
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">Натальное колесо</p>
+              <p className="text-xs text-white/40">Нажми на планету — узнай её значение</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </Link>
+          <Link href="/demo/quiz" prefetch
+            className="flex items-center gap-4 rounded-2xl p-4 active:scale-[0.98] transition-transform"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div className="flex items-center justify-center rounded-xl text-xl shrink-0"
+              style={{ width: 44, height: 44, background: "rgba(253,224,71,0.1)", border: "1px solid rgba(253,224,71,0.18)" }}>
+              ✦
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">Угадай знак</p>
+              <p className="text-xs text-white/40">Ежедневный квиз со звёздами</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </Link>
+        </div>
+      )}
+
       <InterpretationPaywall open={openPaywall === "interpretation"} onClose={() => setOpenPaywall(null)} />
       <WeeklyPaywall open={openPaywall === "weekly"} onClose={() => setOpenPaywall(null)} />
       <CompatibilityPaywall open={openPaywall === "compatibility"} onClose={() => setOpenPaywall(null)} />
